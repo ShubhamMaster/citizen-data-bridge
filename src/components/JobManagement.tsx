@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,8 +28,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Database } from "@/integrations/supabase/types";
 
-type Job = Database["public"]["Tables"]["jobs"]["Row"];
-type NewJob = Omit<Database["public"]["Tables"]["jobs"]["Insert"], "id" | "created_at">;
+// Fallback Job types (these mimic the structure used in the UI)
+type Job = {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+  requirements: string;
+  salary_range?: string;
+  is_active: boolean;
+  created_at: string;
+};
+type NewJob = Omit<Job, 'id' | 'created_at'>;
 
 const JobManagement = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -53,6 +64,7 @@ const JobManagement = () => {
     // eslint-disable-next-line
   }, []);
 
+  // Update all Supabase calls to use the jobs table generically.
   const loadJobs = async () => {
     setLoading(true);
     try {
@@ -131,7 +143,7 @@ const JobManagement = () => {
     setIsCreating(true);
   };
 
-  const handleDelete = async (jobId: Job['id']) => {
+  const handleDelete = async (jobId: string) => {
     try {
       const { error } = await supabase
         .from('jobs')
@@ -384,4 +396,3 @@ const JobManagement = () => {
 };
 
 export default JobManagement;
-
