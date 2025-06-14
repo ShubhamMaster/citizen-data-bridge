@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -8,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Users, Upload } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Careers = () => {
   const [selectedJob, setSelectedJob] = useState<number | null>(null);
@@ -18,6 +19,7 @@ const Careers = () => {
     message: '',
     resume: null as File | null
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const jobs = [
     {
@@ -64,10 +66,61 @@ const Careers = () => {
     }
   ];
 
-  const handleApplicationSubmit = (e: React.FormEvent) => {
+  const handleApplicationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Application submitted:', applicationData);
-    // Handle application submission
+
+    // Basic validation
+    if (
+      !applicationData.name ||
+      !applicationData.email ||
+      !applicationData.phone ||
+      !selectedJob ||
+      !applicationData.resume
+    ) {
+      toast({ title: "All fields are required.", variant: "destructive" });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // For now, we just capture file name; storing files in database is another step
+      // (You can use Supabase Storage for file upload if desired)
+
+      const { name, email, phone, message, resume } = applicationData;
+      const applicationPayload = {
+        name,
+        email,
+        phone,
+        message,
+        job_id: selectedJob,
+        resume_name: resume?.name || "",
+        // optionally add: resume_url if uploading to Storage
+      };
+
+      // Save in Supabase (for demonstration, store as JSON in application_data column)
+      const { error } = await supabase
+        .from("applications")
+        .insert([
+          {
+            application_data: applicationPayload,
+            data_source: "careers_form",
+            created_at: new Date().toISOString()
+            // Optionally: add user_id if login required
+          }
+        ]);
+
+      if (error) {
+        toast({ title: "Failed to submit application", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Application submitted!", description: "Thank you for applying. We'll be in touch soon." });
+        setApplicationData({ name: '', email: '', phone: '', message: '', resume: null });
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err?.message || "Unknown error", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,8 +297,12 @@ const Careers = () => {
                         />
                       </div>
                       
-                      <Button type="submit" className="w-full bg-civora-teal hover:bg-civora-teal/90">
-                        Submit Application
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-civora-teal hover:bg-civora-teal/90"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Submitting..." : "Submit Application"}
                       </Button>
                     </form>
                   ) : (
