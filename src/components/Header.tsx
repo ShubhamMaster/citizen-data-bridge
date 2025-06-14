@@ -6,14 +6,14 @@ import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth context
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
 
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About Us', href: '/about' },
-    { name: 'Services', href: '#services' },
-    { name: 'Industries', href: '#industries' },
+    { name: 'Services', href: '/#services' },
+    { name: 'Industries', href: '/#industries' },
     { name: 'Innovation Lab', href: '/innovation-lab' },
     { name: 'Careers', href: '/careers' },
     { name: 'Contact', href: '/contact' },
@@ -23,63 +23,98 @@ const Header = () => {
     if (href === '/') {
       return location.pathname === '/';
     }
+    if (href.startsWith('/#')) {
+      return location.pathname === '/' && location.hash === href.substring(1);
+    }
     return location.pathname.startsWith(href);
+  };
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('/#')) {
+      const element = document.querySelector(href.substring(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    setIsMenuOpen(false);
   };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-3">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-civora-navy hover:text-civora-teal transition-colors">
-              Civora Nexus
+          <div className="flex items-center space-x-3">
+            <Link to="/" className="flex items-center space-x-3">
+              <img 
+                src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
+                alt="Civora Nexus Logo" 
+                className="h-8 w-8 sm:h-10 sm:w-10"
+              />
+              <span className="text-xl sm:text-2xl font-bold text-civora-navy hover:text-civora-teal transition-colors">
+                Civora Nexus
+              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden lg:flex space-x-6 xl:space-x-8">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`font-medium transition-colors duration-200 ${
-                  isActive(item.href) 
-                    ? 'text-civora-teal' 
-                    : 'text-gray-700 hover:text-civora-navy'
-                }`}
-              >
-                {item.name}
-              </Link>
+              item.href.startsWith('/#') ? (
+                <button
+                  key={item.name}
+                  onClick={() => handleNavClick(item.href)}
+                  className={`font-medium transition-colors duration-200 ${
+                    isActive(item.href) 
+                      ? 'text-civora-teal' 
+                      : 'text-gray-700 hover:text-civora-navy'
+                  }`}
+                >
+                  {item.name}
+                </button>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`font-medium transition-colors duration-200 ${
+                    isActive(item.href) 
+                      ? 'text-civora-teal' 
+                      : 'text-gray-700 hover:text-civora-navy'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              )
             ))}
           </nav>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             {isLoggedIn ? (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <Link 
                   to="/admin" 
-                  className="text-gray-700 hover:text-civora-navy transition-colors"
+                  className="text-gray-700 hover:text-civora-navy transition-colors p-2"
                 >
                   <User className="h-5 w-5" />
                 </Link>
                 <Button 
                   variant="outline"
+                  size="sm"
                   onClick={() => setIsLoggedIn(false)}
                 >
                   Logout
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <Link to="/login">
-                  <Button variant="outline">
+                  <Button variant="outline" size="sm">
                     Login
                   </Button>
                 </Link>
                 <Link to="/contact">
-                  <Button className="bg-civora-teal hover:bg-civora-teal/90 text-white">
+                  <Button className="bg-civora-teal hover:bg-civora-teal/90 text-white" size="sm">
                     Contact Us
                   </Button>
                 </Link>
@@ -91,7 +126,7 @@ const Header = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 hover:text-civora-navy"
+              className="text-gray-700 hover:text-civora-navy p-2"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -100,34 +135,49 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4">
-            <nav className="flex flex-col space-y-4">
+          <div className="md:hidden pb-4 border-t border-gray-100">
+            <nav className="flex flex-col space-y-3 pt-4">
               {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`font-medium transition-colors duration-200 ${
-                    isActive(item.href) 
-                      ? 'text-civora-teal' 
-                      : 'text-gray-700 hover:text-civora-navy'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
+                item.href.startsWith('/#') ? (
+                  <button
+                    key={item.name}
+                    onClick={() => handleNavClick(item.href)}
+                    className={`font-medium transition-colors duration-200 text-left ${
+                      isActive(item.href) 
+                        ? 'text-civora-teal' 
+                        : 'text-gray-700 hover:text-civora-navy'
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`font-medium transition-colors duration-200 ${
+                      isActive(item.href) 
+                        ? 'text-civora-teal' 
+                        : 'text-gray-700 hover:text-civora-navy'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                )
               ))}
               
-              <div className="pt-4 space-y-2">
+              <div className="pt-4 space-y-3 border-t border-gray-100">
                 {isLoggedIn ? (
                   <>
                     <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full" size="sm">
                         Dashboard
                       </Button>
                     </Link>
                     <Button 
                       variant="outline" 
                       className="w-full"
+                      size="sm"
                       onClick={() => {
                         setIsLoggedIn(false);
                         setIsMenuOpen(false);
@@ -139,12 +189,12 @@ const Header = () => {
                 ) : (
                   <>
                     <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full" size="sm">
                         Login
                       </Button>
                     </Link>
                     <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="bg-civora-teal hover:bg-civora-teal/90 text-white w-full">
+                      <Button className="bg-civora-teal hover:bg-civora-teal/90 text-white w-full" size="sm">
                         Contact Us
                       </Button>
                     </Link>
