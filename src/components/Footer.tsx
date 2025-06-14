@@ -44,59 +44,61 @@ const Footer = () => {
             <h3 className="font-semibold mb-4 text-base sm:text-lg text-civora-teal">Quick Links</h3>
             <ul className="space-y-3 text-sm sm:text-base">
               <li>
+                <Link to="/" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Home
+                </Link>
+              </li>
+              <li>
                 <Link to="/about" className="text-gray-300 hover:text-white transition-colors hover:underline">
                   About Us
                 </Link>
               </li>
               <li>
-                <button 
-                  onClick={() => {
-                    const element = document.getElementById('services');
-                    if (element) element.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="text-gray-300 hover:text-white transition-colors hover:underline"
-                >
-                  Services
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => {
-                    const element = document.getElementById('industries');
-                    if (element) element.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="text-gray-300 hover:text-white transition-colors hover:underline"
-                >
-                  Industries
-                </button>
+                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Contact
+                </Link>
               </li>
               <li>
                 <Link to="/careers" className="text-gray-300 hover:text-white transition-colors hover:underline">
                   Careers
                 </Link>
               </li>
+              <li>
+                <Link to="/innovation-lab" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Innovation Lab
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Partnerships */}
+          {/* Legal & Account */}
           <div>
-            <h3 className="font-semibold mb-4 text-base sm:text-lg text-civora-teal">Partnerships</h3>
+            <h3 className="font-semibold mb-4 text-base sm:text-lg text-civora-teal">Legal & Account</h3>
             <ul className="space-y-3 text-sm sm:text-base">
-              <li className="text-gray-300 flex items-center">
-                <div className="w-2 h-2 bg-civora-teal rounded-full mr-2"></div>
-                Swachh Bharat
+              <li>
+                <Link to="/terms" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Terms of Service
+                </Link>
               </li>
-              <li className="text-gray-300 flex items-center">
-                <div className="w-2 h-2 bg-civora-teal rounded-full mr-2"></div>
-                Ayushman Bharat
+              <li>
+                <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Privacy Policy
+                </Link>
               </li>
-              <li className="text-gray-300 flex items-center">
-                <div className="w-2 h-2 bg-civora-teal rounded-full mr-2"></div>
-                Smart City Missions
+              <li>
+                <Link to="/login" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Login
+                </Link>
               </li>
-              <li className="text-gray-300 flex items-center">
-                <div className="w-2 h-2 bg-civora-teal rounded-full mr-2"></div>
-                Various NGOs
+              <li>
+                <Link to="/signup" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Sign Up
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin" className="text-gray-300 hover:text-white transition-colors hover:underline">
+                  Admin Dashboard
+                </Link>
               </li>
             </ul>
           </div>
@@ -107,14 +109,6 @@ const Footer = () => {
             © 2024 Civora Nexus Pvt. Ltd. All rights reserved.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
-            <div className="flex gap-4 text-xs sm:text-sm">
-              <Link to="/terms" className="text-gray-300 hover:text-white transition-colors hover:underline">
-                Terms
-              </Link>
-              <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors hover:underline">
-                Privacy
-              </Link>
-            </div>
             <Button 
               variant="outline" 
               size="sm"
