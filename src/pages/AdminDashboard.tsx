@@ -21,16 +21,15 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import JobManagement from "@/components/JobManagement";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [stats, setStats] = useState({ totalVisitors: 0, totalApplications: 0, activeJobs: 0, pendingReviews: 0 });
   const [applications, setApplications] = useState<any[]>([]);
-  const [jobs, setJobs] = useState<any[]>([]);
   const [recentVisitors, setRecentVisitors] = useState<any[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,10 +43,6 @@ const AdminDashboard = () => {
         }
 
         setIsLoggedIn(true);
-        
-        // For now, let's allow any logged-in user to access admin
-        // In the future, implement proper role checking
-        setIsAdmin(true);
         setLoading(false);
 
         // Load data
@@ -73,6 +68,16 @@ const AdminDashboard = () => {
       if (applicationsData) {
         setApplications(applicationsData);
         setStats(prev => ({ ...prev, totalApplications: applicationsData.length }));
+      }
+
+      // Load jobs count
+      const { data: jobsData } = await supabase
+        .from("jobs")
+        .select("id, is_active");
+      
+      if (jobsData) {
+        const activeJobs = jobsData.filter(job => job.is_active).length;
+        setStats(prev => ({ ...prev, activeJobs }));
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -103,11 +108,11 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!isLoggedIn || !isAdmin) {
+  if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
         <div className="text-2xl font-bold text-red-500 mb-4">Access Denied</div>
-        <p className="text-gray-600 mb-4">You need to be logged in as an admin to view this page.</p>
+        <p className="text-gray-600 mb-4">You need to be logged in to view this page.</p>
         <Button onClick={() => navigate("/login")}>Go to Login</Button>
       </div>
     );
@@ -275,28 +280,7 @@ const AdminDashboard = () => {
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Job Postings</CardTitle>
-                  <Button className="bg-civora-teal hover:bg-civora-teal/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Job
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No job postings yet</h3>
-                  <p className="text-gray-500 mb-4">Start by creating your first job posting to begin hiring.</p>
-                  <Button className="bg-civora-teal hover:bg-civora-teal/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create First Job
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <JobManagement />
           </TabsContent>
 
           {/* Analytics Tab */}
