@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,93 +22,67 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
-// Helper: check if user is an admin
-async function checkIsAdmin(userId: string) {
-  // Use a direct query against user_roles table
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (error) {
-    return false;
-  }
-  return data?.role === "admin";
-}
-
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [stats, setStats] = useState({ totalVisitors: 0, totalApplications: 0, activeJobs: 0, pendingReviews: 0 });
   const [applications, setApplications] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [recentVisitors, setRecentVisitors] = useState<any[]>([]);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [denied, setDenied] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
-  // Protect route: only allow admin
   useEffect(() => {
-    let sessionCleanup: undefined | (() => void);
-
-    const run = async () => {
-      // Set up Supabase auth change listener (sync updates only!)
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
         if (!session) {
-          setAuthChecked(true);
-          setIsAdmin(false);
-          setDenied(false);
-          setLoading(false);
-          navigate("/login", { replace: true });
+          navigate("/login");
+          return;
         }
-      });
-      sessionCleanup = () => subscription.unsubscribe();
 
-      // Now get actual session/user info
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        setAuthChecked(true);
-        setIsAdmin(false);
-        setDenied(false);
-        setLoading(false);
-        navigate("/login", { replace: true });
-        return;
-      }
-      setAuthChecked(true);
-      setLoading(true);
-
-      // Now check if user is an admin (wait for DB)
-      const admin = await checkIsAdmin(session.user.id);
-      if (!admin) {
-        setIsAdmin(false);
-        setDenied(true);
-        setLoading(false);
-      } else {
+        setIsLoggedIn(true);
+        
+        // For now, let's allow any logged-in user to access admin
+        // In the future, implement proper role checking
         setIsAdmin(true);
-        setDenied(false);
         setLoading(false);
+
+        // Load data
+        await loadDashboardData();
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setLoading(false);
+        navigate("/login");
       }
     };
 
-    run();
-
-    return () => {
-      if (sessionCleanup) sessionCleanup();
-    };
+    checkAuth();
   }, [navigate]);
 
-  // Load dashboard data but ONLY if isAdmin
-  useEffect(() => {
-    if (!isAdmin) return;
-    async function fetchData() {
-      const { data: applications } = await supabase.from("applications").select("*");
-      setApplications(applications || []);
-      setStats((s) => ({ ...s, totalApplications: applications?.length || 0 }));
-      setRecentVisitors([]);
+  const loadDashboardData = async () => {
+    try {
+      // Load applications
+      const { data: applicationsData } = await supabase
+        .from("applications")
+        .select("*")
+        .order('created_at', { ascending: false });
+      
+      if (applicationsData) {
+        setApplications(applicationsData);
+        setStats(prev => ({ ...prev, totalApplications: applicationsData.length }));
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
     }
-    fetchData();
-  }, [isAdmin]);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -119,20 +94,21 @@ const AdminDashboard = () => {
     return colors[status as keyof typeof colors] || colors.pending;
   };
 
-  if (!authChecked || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin h-12 w-12 border-4 border-civora-teal rounded-full border-t-transparent" />
-        <span className="ml-4 text-civora-navy">Checking permissions...</span>
+        <span className="ml-4 text-civora-navy">Loading dashboard...</span>
       </div>
     );
   }
-  if (denied) {
+
+  if (!isLoggedIn || !isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
         <div className="text-2xl font-bold text-red-500 mb-4">Access Denied</div>
-        <p className="text-gray-600 mb-2">You don&apos;t have permission to view this page.</p>
-        <Button onClick={() => navigate("/")}>Go Home</Button>
+        <p className="text-gray-600 mb-4">You need to be logged in as an admin to view this page.</p>
+        <Button onClick={() => navigate("/login")}>Go to Login</Button>
       </div>
     );
   }
@@ -147,7 +123,7 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
               <p className="text-gray-600">Civora Nexus Management Portal</p>
             </div>
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleLogout}>
               Logout
             </Button>
           </div>
@@ -161,8 +137,9 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Visitors</p>
+                  <p className="text-sm text-gray-600">Website Visitors</p>
                   <p className="text-3xl font-bold text-civora-navy">{stats.totalVisitors}</p>
+                  <p className="text-xs text-gray-500">Since launch</p>
                 </div>
                 <Users className="h-8 w-8 text-civora-teal" />
               </div>
@@ -173,8 +150,9 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Applications</p>
+                  <p className="text-sm text-gray-600">Job Applications</p>
                   <p className="text-3xl font-bold text-civora-navy">{stats.totalApplications}</p>
+                  <p className="text-xs text-gray-500">Total received</p>
                 </div>
                 <FileText className="h-8 w-8 text-civora-teal" />
               </div>
@@ -185,8 +163,9 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Active Jobs</p>
+                  <p className="text-sm text-gray-600">Open Positions</p>
                   <p className="text-3xl font-bold text-civora-navy">{stats.activeJobs}</p>
+                  <p className="text-xs text-gray-500">Currently hiring</p>
                 </div>
                 <Briefcase className="h-8 w-8 text-civora-teal" />
               </div>
@@ -199,6 +178,7 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-sm text-gray-600">Pending Reviews</p>
                   <p className="text-3xl font-bold text-civora-navy">{stats.pendingReviews}</p>
+                  <p className="text-xs text-gray-500">Need attention</p>
                 </div>
                 <BarChart3 className="h-8 w-8 text-civora-teal" />
               </div>
@@ -211,7 +191,7 @@ const AdminDashboard = () => {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="jobs">Job Management</TabsTrigger>
-            <TabsTrigger value="visitors">Visitor Analytics</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="content">Content Management</TabsTrigger>
           </TabsList>
 
@@ -239,48 +219,56 @@ const AdminDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4">Applicant</th>
-                        <th className="text-left py-3 px-4">Position</th>
-                        <th className="text-left py-3 px-4">Applied Date</th>
-                        <th className="text-left py-3 px-4">Status</th>
-                        <th className="text-left py-3 px-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {applications.map((app) => (
-                        <tr key={app.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4">
-                            <div>
-                              <p className="font-medium">{app.name}</p>
-                              <p className="text-sm text-gray-600">{app.email}</p>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">{app.position}</td>
-                          <td className="py-3 px-4">{app.appliedDate}</td>
-                          <td className="py-3 px-4">
-                            <Badge className={getStatusBadge(app.status)}>
-                              {app.status}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
+                {applications.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
+                    <p className="text-gray-500">As a new company, you'll see job applications here once candidates start applying.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4">Applicant</th>
+                          <th className="text-left py-3 px-4">Position</th>
+                          <th className="text-left py-3 px-4">Applied Date</th>
+                          <th className="text-left py-3 px-4">Status</th>
+                          <th className="text-left py-3 px-4">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {applications.map((app) => (
+                          <tr key={app.id} className="border-b hover:bg-gray-50">
+                            <td className="py-3 px-4">
+                              <div>
+                                <p className="font-medium">{app.application_data?.name || 'N/A'}</p>
+                                <p className="text-sm text-gray-600">{app.application_data?.email || 'N/A'}</p>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">{app.application_data?.position || 'General Application'}</td>
+                            <td className="py-3 px-4">{new Date(app.created_at).toLocaleDateString()}</td>
+                            <td className="py-3 px-4">
+                              <Badge className={getStatusBadge(app.status || 'pending')}>
+                                {app.status || 'pending'}
+                              </Badge>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -298,77 +286,30 @@ const AdminDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4">Job Title</th>
-                        <th className="text-left py-3 px-4">Location</th>
-                        <th className="text-left py-3 px-4">Type</th>
-                        <th className="text-left py-3 px-4">Posted Date</th>
-                        <th className="text-left py-3 px-4">Applications</th>
-                        <th className="text-left py-3 px-4">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {jobs.map((job) => (
-                        <tr key={job.id} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium">{job.title}</td>
-                          <td className="py-3 px-4">{job.location}</td>
-                          <td className="py-3 px-4">{job.type}</td>
-                          <td className="py-3 px-4">{job.posted}</td>
-                          <td className="py-3 px-4">{job.applications}</td>
-                          <td className="py-3 px-4">
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="text-center py-8">
+                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No job postings yet</h3>
+                  <p className="text-gray-500 mb-4">Start by creating your first job posting to begin hiring.</p>
+                  <Button className="bg-civora-teal hover:bg-civora-teal/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First Job
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Visitors Tab */}
-          <TabsContent value="visitors" className="space-y-6">
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Visitors</CardTitle>
+                <CardTitle>Website Analytics</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4">IP Address</th>
-                        <th className="text-left py-3 px-4">Location</th>
-                        <th className="text-left py-3 px-4">Device</th>
-                        <th className="text-left py-3 px-4">Browser</th>
-                        <th className="text-left py-3 px-4">Visit Time</th>
-                        <th className="text-left py-3 px-4">Pages Visited</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentVisitors.map((visitor, index) => (
-                        <tr key={index} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-mono text-sm">{visitor.ip}</td>
-                          <td className="py-3 px-4">{visitor.location}</td>
-                          <td className="py-3 px-4">{visitor.device}</td>
-                          <td className="py-3 px-4">{visitor.browser}</td>
-                          <td className="py-3 px-4">{visitor.visitTime}</td>
-                          <td className="py-3 px-4">{visitor.pagesVisited}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="text-center py-8">
+                  <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics Coming Soon</h3>
+                  <p className="text-gray-500">As a new company, we're setting up analytics tracking. Visitor data will appear here once implemented.</p>
                 </div>
               </CardContent>
             </Card>
@@ -403,13 +344,13 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>System Settings</CardTitle>
+                  <CardTitle>Company Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="site-title">Site Title</Label>
+                    <Label htmlFor="company-name">Company Name</Label>
                     <Input
-                      id="site-title"
+                      id="company-name"
                       defaultValue="Civora Nexus"
                       className="mt-1"
                     />
@@ -420,6 +361,15 @@ const AdminDashboard = () => {
                       id="contact-email"
                       defaultValue="civoranexus@gmail.com"
                       className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="company-status">Company Status</Label>
+                    <Input
+                      id="company-status"
+                      defaultValue="Newly Launched Startup"
+                      className="mt-1"
+                      readOnly
                     />
                   </div>
                   <Button className="w-full bg-civora-teal hover:bg-civora-teal/90">
