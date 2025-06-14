@@ -27,26 +27,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import type { Database } from "@/integrations/supabase/types";
 
-interface Job {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  description: string;
-  requirements: string;
-  salary_range?: string;
-  is_active: boolean;
-  created_at: string;
-}
+type Job = Database["public"]["Tables"]["jobs"]["Row"];
+type NewJob = Omit<Database["public"]["Tables"]["jobs"]["Insert"], "id" | "created_at">;
 
 const JobManagement = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<NewJob>({
     title: '',
     department: '',
     location: '',
@@ -59,9 +50,11 @@ const JobManagement = () => {
 
   useEffect(() => {
     loadJobs();
+    // eslint-disable-next-line
   }, []);
 
   const loadJobs = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('jobs')
@@ -69,7 +62,7 @@ const JobManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setJobs(data || []);
+      setJobs(data ?? []);
     } catch (error) {
       console.error('Error loading jobs:', error);
       toast({
@@ -77,6 +70,7 @@ const JobManagement = () => {
         description: "Failed to load jobs",
         variant: "destructive",
       });
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -84,7 +78,6 @@ const JobManagement = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
       if (editingJob) {
         // Update existing job
@@ -132,13 +125,13 @@ const JobManagement = () => {
       type: job.type,
       description: job.description,
       requirements: job.requirements,
-      salary_range: job.salary_range || '',
-      is_active: job.is_active
+      salary_range: job.salary_range ?? '',
+      is_active: job.is_active,
     });
     setIsCreating(true);
   };
 
-  const handleDelete = async (jobId: string) => {
+  const handleDelete = async (jobId: Job['id']) => {
     try {
       const { error } = await supabase
         .from('jobs')
@@ -151,7 +144,7 @@ const JobManagement = () => {
         title: "Success",
         description: "Job deleted successfully",
       });
-      
+
       loadJobs();
     } catch (error) {
       console.error('Error deleting job:', error);
@@ -391,3 +384,4 @@ const JobManagement = () => {
 };
 
 export default JobManagement;
+

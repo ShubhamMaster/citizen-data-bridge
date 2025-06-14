@@ -151,6 +151,45 @@ export type Database = {
         }
         Relationships: []
       }
+      jobs: {
+        Row: {
+          created_at: string
+          department: string
+          description: string
+          id: string
+          is_active: boolean
+          location: string
+          requirements: string
+          salary_range: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          description: string
+          id?: string
+          is_active?: boolean
+          location: string
+          requirements: string
+          salary_range?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          location?: string
+          requirements?: string
+          salary_range?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       meal_plans: {
         Row: {
           application_id: string
