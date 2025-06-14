@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Users, Code, Award, Calendar, ArrowRight } from "lucide-react";
+import { Lightbulb, Users, Code, Award, Calendar, ArrowRight, Target, Rocket } from "lucide-react";
 
 const InnovationLab = () => {
   const initiatives = [
@@ -59,21 +59,16 @@ const InnovationLab = () => {
     }
   ];
 
-  const pastSuccesses = [
+  const missionPoints = [
     {
-      title: "Water Quality Monitoring App",
-      description: "Developed during Smart Villages Hackathon, now deployed in 15 villages",
-      impact: "15 villages, 10K+ users"
+      icon: <Target className="w-8 h-8 text-civora-teal" />,
+      title: "Our Mission",
+      description: "To create a collaborative ecosystem where innovation meets civic responsibility, fostering solutions that address real community challenges."
     },
     {
-      title: "Digital Health Records System",
-      description: "Created by our intern team, adopted by 3 primary health centers",
-      impact: "3 PHCs, 5K+ patients"
-    },
-    {
-      title: "Citizen Grievance Portal",
-      description: "Hackathon winner now used by local municipal corporation",
-      impact: "1 city, 500+ grievances resolved"
+      icon: <Rocket className="w-8 h-8 text-civora-teal" />,
+      title: "Our Vision",
+      description: "To become the leading platform for civic innovation, connecting passionate developers with meaningful projects that transform communities."
     }
   ];
 
@@ -94,9 +89,30 @@ const InnovationLab = () => {
                 Join Our Next Event
               </Button>
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-civora-navy">
-                View Past Projects
+                Learn More
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission & Vision */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {missionPoints.map((point, index) => (
+              <Card key={index} className="p-8 hover:shadow-lg transition-shadow">
+                <CardContent className="text-center">
+                  <div className="flex justify-center mb-6">
+                    {point.icon}
+                  </div>
+                  <h2 className="text-2xl font-bold text-civora-navy mb-4">{point.title}</h2>
+                  <p className="text-gray-600 text-lg leading-relaxed">
+                    {point.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -168,34 +184,6 @@ const InnovationLab = () => {
                   <Button className="w-full mt-4 bg-civora-teal hover:bg-civora-teal/90">
                     Register Now
                   </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Past Successes */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-civora-navy mb-4">Success Stories</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Innovation projects that have made real impact in communities
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pastSuccesses.map((success, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-xl text-civora-navy">{success.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{success.description}</p>
-                  <div className="bg-civora-teal/10 p-3 rounded-lg">
-                    <p className="text-sm font-semibold text-civora-teal">Impact: {success.impact}</p>
-                  </div>
                 </CardContent>
               </Card>
             ))}
