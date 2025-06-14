@@ -362,7 +362,7 @@ const AdminDashboard = () => {
 
 // -------------------------------------
 // ContentEditor Component (inline for simplicity)
-import React, { useEffect, useState } from "react";
+import React from "react"; // Use only if React is needed for JSX, but do NOT re-import useState, useEffect
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
