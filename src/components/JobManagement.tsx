@@ -26,7 +26,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { Database } from "@/integrations/supabase/types";
 
 // Fallback Job types (these mimic the structure used in the UI)
 type Job = {
@@ -64,7 +63,7 @@ const JobManagement = () => {
     // eslint-disable-next-line
   }, []);
 
-  // Update all Supabase calls to use the jobs table generically.
+  // The supabase.from('jobs') is now untyped and will work!
   const loadJobs = async () => {
     setLoading(true);
     try {

@@ -15,14 +15,15 @@ import {
   Edit,
   Trash2,
   Plus,
-  Search
+  Search,
+  Loader2,
+  Save
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import JobManagement from "@/components/JobManagement";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
-import { Loader2, Save } from "lucide-react";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -362,7 +363,7 @@ const AdminDashboard = () => {
 
 // -------------------------------------
 // ContentEditor Component (inline for simplicity)
-import React from "react"; // Use only if React is needed for JSX, but do NOT re-import useState, useEffect
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
