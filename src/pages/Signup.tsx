@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -17,17 +19,33 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast({ title: "Passwords do not match", variant: "destructive" });
       return;
     }
     setIsLoading(true);
-    console.log('Signup attempt:', formData);
-    // Handle signup logic here
-    setTimeout(() => setIsLoading(false), 1000);
+    // Supabase signup with email redirect
+    const { email, password } = formData;
+    const redirectUrl = `${window.location.origin}/login`;
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: { full_name: formData.name }
+      }
+    });
+    setIsLoading(false);
+    if (error) {
+      toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Account created! Check your email to confirm." });
+    navigate("/login");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

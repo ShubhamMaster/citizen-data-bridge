@@ -1,13 +1,27 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Listen for login/logout and update isLoggedIn
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -109,7 +123,11 @@ const Header = () => {
                 <Button 
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsLoggedIn(false)}
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setIsLoggedIn(false);
+                    navigate("/");
+                  }}
                   className="border-gray-300 hover:border-civora-teal hover:text-civora-teal"
                 >
                   Logout

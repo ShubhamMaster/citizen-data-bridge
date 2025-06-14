@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,101 +17,60 @@ import {
   Plus,
   Search
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
+
+// Helper: check if user is an admin
+async function checkIsAdmin() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  let { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  return data?.role === "admin";
+}
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [stats, setStats] = useState({ totalVisitors: 0, totalApplications: 0, activeJobs: 0, pendingReviews: 0 });
+  const [applications, setApplications] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [recentVisitors, setRecentVisitors] = useState<any[]>([]);
+  const navigate = useNavigate();
 
-  // Mock data
-  const stats = {
-    totalVisitors: 1250,
-    totalApplications: 45,
-    activeJobs: 3,
-    pendingReviews: 12
-  };
+  // Protect route: only allow admin
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      const admin = await checkIsAdmin();
+      if (!admin) {
+        toast({ title: "Access denied", description: "Admins only.", variant: "destructive" });
+        navigate("/login");
+      }
+    })();
+  }, [navigate]);
 
-  const applications = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      position: "Full Stack Developer",
-      appliedDate: "2024-01-15",
-      status: "pending",
-      resume: "john_doe_resume.pdf"
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      position: "UI/UX Designer",
-      appliedDate: "2024-01-14",
-      status: "reviewed",
-      resume: "jane_smith_resume.pdf"
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      position: "DevOps Engineer",
-      appliedDate: "2024-01-13",
-      status: "pending",
-      resume: "mike_johnson_resume.pdf"
+  // Fetch statistics and real data
+  useEffect(() => {
+    async function fetchData() {
+      // Applications (fetch all)
+      const { data: applications } = await supabase.from("applications").select("*");
+      setApplications(applications || []);
+      setStats((s) => ({ ...s, totalApplications: applications?.length || 0 }));
+
+      // For demonstration: activeJobs, pendingReviews, etc (can add as real columns later)
+      // Visitors (for illustration; requires actual visitor storage workflow)
+      setRecentVisitors([]); // Update if/when visitor analytics are collected in DB
     }
-  ];
-
-  const jobs = [
-    {
-      id: 1,
-      title: "Full Stack Developer",
-      location: "Remote",
-      type: "Full-time",
-      posted: "2024-01-01",
-      applications: 15
-    },
-    {
-      id: 2,
-      title: "UI/UX Designer",
-      location: "Remote",
-      type: "Full-time",
-      posted: "2024-01-05",
-      applications: 12
-    },
-    {
-      id: 3,
-      title: "DevOps Engineer",
-      location: "Remote",
-      type: "Full-time",
-      posted: "2024-01-10",
-      applications: 8
-    }
-  ];
-
-  const recentVisitors = [
-    {
-      ip: "192.168.1.1",
-      location: "Mumbai, India",
-      device: "Desktop",
-      browser: "Chrome",
-      visitTime: "2024-01-15 14:30",
-      pagesVisited: 5
-    },
-    {
-      ip: "192.168.1.2",
-      location: "Delhi, India",
-      device: "Mobile",
-      browser: "Safari",
-      visitTime: "2024-01-15 14:25",
-      pagesVisited: 3
-    },
-    {
-      ip: "192.168.1.3",
-      location: "Bangalore, India",
-      device: "Tablet",
-      browser: "Firefox",
-      visitTime: "2024-01-15 14:20",
-      pagesVisited: 7
-    }
-  ];
+    fetchData();
+  }, []);
 
   const getStatusBadge = (status: string) => {
     const colors = {
