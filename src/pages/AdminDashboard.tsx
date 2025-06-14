@@ -19,17 +19,19 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 // Helper: check if user is an admin
-async function checkIsAdmin() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
-  let { data, error } = await supabase
+async function checkIsAdmin(userId: string) {
+  // Use a direct query against user_roles table
+  const { data, error } = await supabase
     .from("user_roles")
     .select("role")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .maybeSingle();
+  if (error) {
+    return false;
+  }
   return data?.role === "admin";
 }
 
@@ -39,38 +41,73 @@ const AdminDashboard = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [recentVisitors, setRecentVisitors] = useState<any[]>([]);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [denied, setDenied] = useState(false);
   const navigate = useNavigate();
 
   // Protect route: only allow admin
   useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/login");
+    let sessionCleanup: undefined | (() => void);
+
+    const run = async () => {
+      // Set up Supabase auth change listener (sync updates only!)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!session) {
+          setAuthChecked(true);
+          setIsAdmin(false);
+          setDenied(false);
+          setLoading(false);
+          navigate("/login", { replace: true });
+        }
+      });
+      sessionCleanup = () => subscription.unsubscribe();
+
+      // Now get actual session/user info
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        setAuthChecked(true);
+        setIsAdmin(false);
+        setDenied(false);
+        setLoading(false);
+        navigate("/login", { replace: true });
         return;
       }
-      const admin = await checkIsAdmin();
+      setAuthChecked(true);
+      setLoading(true);
+
+      // Now check if user is an admin (wait for DB)
+      const admin = await checkIsAdmin(session.user.id);
       if (!admin) {
-        toast({ title: "Access denied", description: "Admins only.", variant: "destructive" });
-        navigate("/login");
+        setIsAdmin(false);
+        setDenied(true);
+        setLoading(false);
+      } else {
+        setIsAdmin(true);
+        setDenied(false);
+        setLoading(false);
       }
-    })();
+    };
+
+    run();
+
+    return () => {
+      if (sessionCleanup) sessionCleanup();
+    };
   }, [navigate]);
 
-  // Fetch statistics and real data
+  // Load dashboard data but ONLY if isAdmin
   useEffect(() => {
+    if (!isAdmin) return;
     async function fetchData() {
-      // Applications (fetch all)
       const { data: applications } = await supabase.from("applications").select("*");
       setApplications(applications || []);
       setStats((s) => ({ ...s, totalApplications: applications?.length || 0 }));
-
-      // For demonstration: activeJobs, pendingReviews, etc (can add as real columns later)
-      // Visitors (for illustration; requires actual visitor storage workflow)
-      setRecentVisitors([]); // Update if/when visitor analytics are collected in DB
+      setRecentVisitors([]);
     }
     fetchData();
-  }, []);
+  }, [isAdmin]);
 
   const getStatusBadge = (status: string) => {
     const colors = {
@@ -81,6 +118,24 @@ const AdminDashboard = () => {
     };
     return colors[status as keyof typeof colors] || colors.pending;
   };
+
+  if (!authChecked || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin h-12 w-12 border-4 border-civora-teal rounded-full border-t-transparent" />
+        <span className="ml-4 text-civora-navy">Checking permissions...</span>
+      </div>
+    );
+  }
+  if (denied) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+        <div className="text-2xl font-bold text-red-500 mb-4">Access Denied</div>
+        <p className="text-gray-600 mb-2">You don&apos;t have permission to view this page.</p>
+        <Button onClick={() => navigate("/")}>Go Home</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

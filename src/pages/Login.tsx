@@ -31,14 +31,18 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     const { email, password } = formData;
+    // Attempt login
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setIsLoading(false);
     if (error) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "Signed in!" });
-    navigate("/admin");
+    // Delay to let session settle before redirect (prevents flickering)
+    setTimeout(() => {
+      toast({ title: "Signed in!" });
+      navigate("/admin");
+    }, 100);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
