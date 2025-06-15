@@ -104,48 +104,43 @@ export default function ScheduleCallDialog() {
           <DialogTitle className="text-lg">Schedule a Call</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name field */}
+          {/* Name field, no icon */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="call-name">
               Name
             </label>
-            <div className="flex items-center gap-2">
-              <UserIcon className="h-4 w-4 opacity-50" />
-              <Input
-                id="call-name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full"
-                autoComplete="name"
-                placeholder="Your Name"
-              />
-            </div>
+            <Input
+              id="call-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full"
+              autoComplete="name"
+              placeholder="Your Name"
+            />
           </div>
 
-          {/* Mobile field */}
+          {/* Mobile field (no icon) */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="call-mobile">
               Mobile Number
             </label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="call-mobile"
-                type="tel"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                required
-                className="w-full"
-                autoComplete="tel"
-                placeholder="Your Mobile Number"
-                pattern="^[0-9+\-\s()]{8,16}$"
-                maxLength={16}
-              />
-            </div>
+            <Input
+              id="call-mobile"
+              type="tel"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              required
+              className="w-full"
+              autoComplete="tel"
+              placeholder="Your Mobile Number"
+              pattern="^[0-9+\-\s()]{8,16}$"
+              maxLength={16}
+            />
           </div>
 
-          {/* Date field */}
+          {/* Date field continues to use the calendar icon for interaction clarity */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="call-date">
               Date
@@ -178,31 +173,28 @@ export default function ScheduleCallDialog() {
             </Popover>
           </div>
 
-          {/* Time slot picker */}
+          {/* Time slot picker -- removed icon for consistency */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="call-time">
               Time
             </label>
-            <div className="flex items-center gap-2">
-              <ClockIcon className="h-4 w-4 opacity-50" />
-              <select
-                id="call-time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-civora-teal focus:outline-none"
-              >
-                <option value="">Select a time</option>
-                {TIME_SLOTS.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              id="call-time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              required
+              className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-civora-teal focus:outline-none"
+            >
+              <option value="">Select a time</option>
+              {TIME_SLOTS.map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Reason field */}
+          {/* Reason field (no icon, as before) */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="reason">
               Reason
