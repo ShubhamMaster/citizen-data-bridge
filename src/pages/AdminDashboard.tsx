@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import JobManagement from "@/components/JobManagement";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
+import { Textarea } from "@/components/ui/textarea";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -363,13 +364,6 @@ const AdminDashboard = () => {
 
 // -------------------------------------
 // ContentEditor Component (inline for simplicity)
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useWebsiteContent } from "@/hooks/useWebsiteContent";
-import { Save, Loader2 } from "lucide-react";
-
 type Props = {
   section: string;
   label: string;
