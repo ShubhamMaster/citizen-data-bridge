@@ -1,4 +1,5 @@
 
+// Reorganized navigation: 9 main sections, each with appropriate subparts
 export type NavItem = {
   label: string;
   href?: string;
@@ -6,8 +7,10 @@ export type NavItem = {
 };
 
 export const NAVIGATION: NavItem[] = [
-  { label: "Home", href: "/" },
-
+  {
+    label: "Home",
+    href: "/",
+  },
   {
     label: "About Us",
     children: [
@@ -33,11 +36,7 @@ export const NAVIGATION: NavItem[] = [
     children: [
       { label: "Case Studies", href: "/projects/case-studies" },
       { label: "Client Success Stories", href: "/projects/success-stories" },
-    ],
-  },
-  {
-    label: "Innovation Lab",
-    children: [
+      // Moved Innovation Lab subparts here as per typical structure
       { label: "R&D", href: "/innovation/rnd" },
       { label: "AI Research", href: "/innovation/ai-research" },
       { label: "Patents", href: "/innovation/patents" },
@@ -51,11 +50,7 @@ export const NAVIGATION: NavItem[] = [
       { label: "Whitepapers", href: "/resources/whitepapers" },
       { label: "Documentation", href: "/resources/documentation" },
       { label: "Developer Portal", href: "/resources/developer-portal" },
-    ],
-  },
-  {
-    label: "Media",
-    children: [
+      // Added Media-related items
       { label: "Newsroom", href: "/media/newsroom" },
       { label: "Awards", href: "/media/awards" },
       { label: "Media Kit", href: "/media/media-kit" },
@@ -82,16 +77,11 @@ export const NAVIGATION: NavItem[] = [
     ],
   },
   {
-    label: "Careers",
+    label: "Careers & Support",
     children: [
       { label: "Job Openings", href: "/careers/jobs" },
       { label: "Life at Civora", href: "/careers/life" },
       { label: "Internships", href: "/careers/internships" },
-    ],
-  },
-  {
-    label: "Support",
-    children: [
       { label: "Help Center", href: "/support/help-center" },
       { label: "Technical Support", href: "/support/technical" },
       { label: "Contact Support", href: "/support/contact" },
@@ -103,6 +93,7 @@ export const NAVIGATION: NavItem[] = [
       { label: "General Contact", href: "/contact" },
       { label: "Sales Inquiry", href: "/contact/sales" },
       { label: "Customer Support", href: "/contact/support" },
+      // Could add social/contact methods here if desired
     ],
   },
 ];

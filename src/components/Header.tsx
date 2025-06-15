@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, ReactElement } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { NAVIGATION, NavItem } from "@/constants/navigation";
@@ -23,7 +22,8 @@ const SubMenu: React.FC<{ items: NavItem[]; closeMenu?: () => void }> = ({
           to={item.href ?? "#"}
           className="block py-1.5 px-3 rounded hover:bg-civora-teal/10 hover:text-civora-teal focus:bg-civora-teal/10 focus:text-civora-teal transition-colors"
           tabIndex={0}
-          onClick={closeMenu}
+          // We use onMouseDown so that the parent dropdown doesn't close before navigation on click
+          onMouseDown={closeMenu}
         >
           {item.label}
         </Link>
@@ -32,15 +32,29 @@ const SubMenu: React.FC<{ items: NavItem[]; closeMenu?: () => void }> = ({
   </ul>
 );
 
+// Main Header component, sticky/responsive, with improved mega menu click logic
 export const Header: React.FC = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [desktopDropdown, setDesktopDropdown] = useState<string | null>(null);
-  const [mobileAccordions, setMobileAccordions] = useState<Record<string, boolean>>({});
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [desktopDropdown, setDesktopDropdown] = React.useState<string | null>(null);
+  const [dropdownHovering, setDropdownHovering] = React.useState(false);
+  const [mobileAccordions, setMobileAccordions] = React.useState<Record<string, boolean>>({});
   const location = useLocation();
 
   // Highlight route
   const isLinkActive = (href?: string) =>
     href && location.pathname === href;
+
+  // To keep dropdown open while hovering or focusing inside menu (or on the trigger)
+  const handleDropdownEnter = (label: string) => {
+    setDesktopDropdown(label);
+    setDropdownHovering(true);
+  };
+  const handleDropdownLeave = () => {
+    setDropdownHovering(false);
+    setTimeout(() => {
+      if (!dropdownHovering) setDesktopDropdown(null);
+    }, 100); // short delay to allow link click
+  };
 
   return (
     <header
@@ -81,8 +95,15 @@ export const Header: React.FC = () => {
                 {item.label}
               </Link>
             ) : (
-              <div key={item.label} className="relative group">
-                {/* mega menu trigger */}
+              <div
+                key={item.label}
+                className="relative group"
+                onMouseEnter={() => handleDropdownEnter(item.label)}
+                onFocus={() => handleDropdownEnter(item.label)}
+                onMouseLeave={handleDropdownLeave}
+                onBlur={handleDropdownLeave}
+                tabIndex={-1}
+              >
                 <button
                   className={`px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-1 transition-colors focus:outline-civora-teal ${
                     desktopDropdown === item.label
@@ -92,10 +113,7 @@ export const Header: React.FC = () => {
                   aria-haspopup="menu"
                   aria-expanded={desktopDropdown === item.label}
                   aria-controls={`desktop-dropdown-${item.label}`}
-                  onMouseEnter={() => setDesktopDropdown(item.label)}
-                  onFocus={() => setDesktopDropdown(item.label)}
-                  onMouseLeave={() => setDesktopDropdown(null)}
-                  onBlur={() => setDesktopDropdown(null)}
+                  onClick={() => setDesktopDropdown(item.label)}
                   tabIndex={0}
                 >
                   {item.label}
@@ -116,8 +134,14 @@ export const Header: React.FC = () => {
                     role="menu"
                     aria-label={item.label}
                     className="absolute left-0 mt-2 min-w-[230px] bg-white border border-gray-200 shadow-xl rounded-lg p-5 z-50"
-                    onMouseEnter={() => setDesktopDropdown(item.label)}
-                    onMouseLeave={() => setDesktopDropdown(null)}
+                    // New enter/leave logic for keeping menu open while clicking
+                    onMouseEnter={() => setDropdownHovering(true)}
+                    onMouseLeave={() => {
+                      setDropdownHovering(false);
+                      setTimeout(() => {
+                        if (!dropdownHovering) setDesktopDropdown(null);
+                      }, 100);
+                    }}
                   >
                     <SubMenu items={item.children} closeMenu={() => setDesktopDropdown(null)} />
                   </div>
