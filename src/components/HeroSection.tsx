@@ -3,56 +3,38 @@ import React from "react";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import ScheduleCallDialog from "@/components/ScheduleCallDialog";
 
-// Decorative background SVG (fluid-waves)
-const FluidWaveBg = () => (
-  <svg
-    className="absolute inset-0 w-full h-full pointer-events-none"
-    viewBox="0 0 1440 500"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden
-    style={{ zIndex: 0 }}
-  >
-    <defs>
-      <linearGradient id="hero-gradient" x1="0" y1="0" x2="1" y2="1">
-        <stop stopColor="#2EA6AA" stopOpacity="0.18" />
-        <stop offset="1" stopColor="#112B52" stopOpacity="0.08" />
-      </linearGradient>
-    </defs>
-    <path
-      d="M0,300 Q400,220 800,320 T1440,290 L1440,0 L0,0 Z"
-      fill="url(#hero-gradient)"
+// New background component
+const AbstractShapesBg = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <div
+      className="absolute top-0 -left-1/4 w-96 h-96 bg-civora-teal/10 rounded-full filter blur-3xl opacity-50 animate-blob"
+      style={{ animationDelay: '0s' }}
     />
-    <ellipse
-      cx="1200"
-      cy="80"
-      rx="130"
-      ry="46"
-      fill="#2EA6AA"
-      fillOpacity="0.10"
+    <div
+      className="absolute -bottom-1/4 right-0 w-96 h-96 bg-civora-navy/20 rounded-full filter blur-3xl opacity-50 animate-blob"
+      style={{ animationDelay: '2s' }}
     />
-    <ellipse
-      cx="200"
-      cy="100"
-      rx="90"
-      ry="34"
-      fill="#00D1B2"
-      fillOpacity="0.07"
+    <div
+      className="absolute top-1/2 -right-1/4 w-96 h-96 bg-civora-teal/5 rounded-full filter blur-3xl opacity-50 animate-blob"
+      style={{ animationDelay: '4s' }}
     />
-  </svg>
+  </div>
 );
 
-// Placeholder for a tech illustration
-const HeroIllustration = () => (
-  <div className="relative w-full max-w-[400px] mx-auto mt-8 md:mt-0 drop-shadow-xl animate-fade-in">
-    <img
-      src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&q=80"
-      alt="Laptop Hero"
-      className="rounded-2xl object-cover w-full h-64 md:h-72 border-4 border-white ring-4 ring-civora-teal/10"
-      loading="lazy"
-    />
-    {/* Glow effect */}
-    <div className="absolute -inset-2 -z-10 blur-2xl opacity-60 bg-civora-teal rounded-2xl pointer-events-none" />
+// New illustration component
+const ModernHeroIllustration = () => (
+  <div className="relative w-full max-w-md mx-auto mt-12 md:mt-0 animate-fade-in" style={{ animationDelay: '300ms' }}>
+    <div className="relative p-2 bg-white/5 rounded-2xl backdrop-blur-sm ring-1 ring-white/10">
+      <img
+        src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80"
+        alt="Modern Tech Workspace"
+        className="rounded-xl object-cover w-full h-auto"
+        loading="lazy"
+      />
+    </div>
+    {/* Decorative elements */}
+    <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-civora-teal rounded-full opacity-30 filter blur-xl -z-10"></div>
+    <div className="absolute -top-8 -left-8 w-32 h-32 border-4 border-civora-teal/20 rounded-2xl -rotate-12 -z-10"></div>
   </div>
 );
 
@@ -61,7 +43,7 @@ const HeroSection: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="min-h-[340px] flex items-center justify-center">
+      <section className="min-h-[340px] flex items-center justify-center bg-civora-navy">
         <div className="animate-spin h-8 w-8 border-4 border-civora-teal rounded-full border-t-transparent" />
       </section>
     );
@@ -76,39 +58,35 @@ const HeroSection: React.FC = () => {
     "We create user-first, digital solutions for transformative change in governance, health, and society.";
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-civora-navy to-[#17305e] text-white pt-24 pb-14 px-4 md:px-0 flex items-center min-h-[570px] md:min-h-[630px]">
-      {/* Decorative SVG background */}
-      <span className="absolute inset-0 pointer-events-none select-none">
-        <FluidWaveBg />
-      </span>
+    <section className="relative overflow-hidden bg-civora-navy text-white pt-28 pb-20 px-4 md:px-0 flex items-center min-h-[600px] md:min-h-[700px]">
+      <AbstractShapesBg />
 
       <div className="relative z-10 max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center md:gap-14">
         {/* Left: Headings and CTA */}
-        <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left animate-fade-in">
-          <h1 className="font-bold text-4xl sm:text-5xl md:text-6xl leading-tight md:leading-[1.13] tracking-tight mb-5 font-sans">
-            <span className="block pb-1 bg-gradient-to-r from-civora-teal/80 via-civora-teal/90 to-white bg-clip-text text-transparent">
+        <div className="w-full md:w-3/5 lg:w-1/2 flex flex-col items-center md:items-start text-center md:text-left animate-fade-in">
+          <h1 className="font-bold text-4xl sm:text-5xl md:text-6xl leading-tight md:leading-[1.1] tracking-tight mb-6 font-sans">
+            <span className="block pb-2 bg-gradient-to-r from-white via-civora-teal to-civora-teal/80 bg-clip-text text-transparent">
               {title}
             </span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl font-medium text-civora-teal mb-7 max-w-2xl mx-auto md:mx-0">
+          <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl mx-auto md:mx-0">
             {subtitle}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs md:max-w-none md:w-fit mx-auto md:mx-0">
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm md:max-w-none md:w-fit mx-auto md:mx-0">
             <ScheduleCallDialog />
             {/* See our services */}
             <a
               href="#services"
-              className="w-full sm:w-auto inline-block text-civora-teal border-2 border-civora-teal hover:bg-civora-teal hover:text-white bg-transparent rounded-md font-semibold text-base px-6 py-2 transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-civora-teal/30"
+              className="w-full sm:w-auto inline-flex items-center justify-center text-white border-2 border-white/50 hover:bg-white/10 hover:border-white bg-transparent rounded-md font-semibold text-base px-6 py-2.5 transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-white/30"
             >
               Our Services
             </a>
           </div>
         </div>
-        {/* Spacer on mobile */}
-        <div className="h-6 md:hidden" />
+        
         {/* Right: Tech Illustration */}
-        <div className="w-full md:w-1/2 flex justify-center items-center">
-          <HeroIllustration />
+        <div className="w-full md:w-2/5 lg:w-1/2 flex justify-center items-center">
+          <ModernHeroIllustration />
         </div>
       </div>
     </section>
