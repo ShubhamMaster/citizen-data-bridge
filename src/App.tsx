@@ -43,6 +43,10 @@ import Rnd from "./pages/Rnd";
 import AIResearch from "./pages/AIResearch";
 import Patents from "./pages/Patents";
 import CareersJobs from "./pages/CareersJobs";
+import GDPRCCPA from "./pages/GDPRCCPA";
+import ISO from "./pages/ISO";
+import DataSecurity from "./pages/DataSecurity";
+import Accessibility from "./pages/Accessibility";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +100,11 @@ const App = () => {
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/case-studies" element={<CaseStudies />} />
             <Route path="/projects/client-success-stories" element={<ClientSuccessStories />} />
+            {/* Legal & Compliance additional subpages */}
+            <Route path="/compliance/gdpr" element={<GDPRCCPA />} />
+            <Route path="/compliance/iso" element={<ISO />} />
+            <Route path="/compliance/security" element={<DataSecurity />} />
+            <Route path="/compliance/accessibility" element={<Accessibility />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
