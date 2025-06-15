@@ -32,25 +32,6 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCap
 import AdminProfilePage from "@/components/AdminProfilePage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Menu } from "lucide-react";
-import {
-  Drawer,
-  DrawerTrigger,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerClose,
-} from "@/components/ui/drawer";
-
-const dashboardTabs = [
-  { value: "applications", label: "Applications" },
-  { value: "jobs", label: "Job Management" },
-  { value: "analytics", label: "Analytics" },
-  { value: "content", label: "Content Management" },
-  { value: "contact-messages", label: "Contact Messages" },
-  { value: "calls", label: "Scheduled Calls" },
-  { value: "visitors", label: "Visitors" },
-];
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,8 +56,6 @@ const AdminDashboard = () => {
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
   const logoutTimerRef = useRef<any>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [tabValue, setTabValue] = useState("applications");
   const isMobile = useIsMobile();
 
   // Helper: get remaining seconds from sessionExpiry
@@ -616,20 +595,155 @@ const AdminDashboard = () => {
     (call.time || '').toLowerCase().includes(callsSearchTerm.toLowerCase())
   );
 
-  // Helper to render tab content by value
-  // Accept an options object so we can omit the TabsContent wrapper on mobile
-  function renderTabContent(tab: string, opts?: { noTabsContentWrapper?: boolean }) {
-    const wrap = (node: React.ReactNode, value: string) =>
-      opts?.noTabsContentWrapper ? node : (
-        <TabsContent value={value} forceMount className="space-y-6">
-          {node}
-        </TabsContent>
-      );
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
+              <p className="text-gray-600">Civora Nexus Management Portal</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Remaining Time Badge */}
+              {remainingTime && (
+                <div
+                  className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors duration-200
+                    ${
+                      remainingTime === "Expired"
+                        ? "bg-red-100 text-red-800"
+                        : getRemainingSeconds() !== null && getRemainingSeconds() <= 300
+                        ? "bg-red-100 text-red-800"
+                        : "bg-green-100 text-green-800"
+                    }
+                  `}
+                  title="Remaining session time"
+                  data-testid="session-remaining"
+                >
+                  Session expires in: {remainingTime}
+                </div>
+              )}
 
-    switch (tab) {
-      case "applications":
-        return wrap(
-          (
+              {/* Profile Icon with menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="rounded-full focus:outline-none focus:ring-2 focus:ring-civora-teal/70 transition-shadow shadow-lg hover:ring-4 hover:ring-civora-teal/40"
+                    aria-label="Open profile menu"
+                  >
+                    <Avatar className="w-9 h-9">
+                      {/* Fake fallback for now (initials), enhance if session provides avatar in future */}
+                      <AvatarImage src={session?.user?.user_metadata?.avatar_url ?? ""} alt="Profile" />
+                      <AvatarFallback>
+                        {session?.user?.user_metadata?.name
+                          ? session.user.user_metadata.name
+                              .split(" ")
+                              .map((n: string) => n[0])
+                              .join("")
+                              .toUpperCase()
+                          : "AD"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="z-50 bg-white shadow-lg min-w-[160px] p-0">
+                  <DropdownMenuItem
+                    onClick={() => setProfileOpen(true)}
+                    className="hover:bg-civora-teal/10 focus:bg-civora-teal/20 cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="hover:bg-red-100 focus:bg-red-200 text-red-600 cursor-pointer"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Website Visitors card now just shows stats, does not toggle anything */}
+          <Card
+            className="group transition-shadow hover:shadow-md"
+            tabIndex={0}
+            aria-pressed={false}
+            title="Website visitors"
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Website Visitors</p>
+                  <p className="text-3xl font-bold text-civora-navy">{stats.totalVisitors}</p>
+                  <p className="text-xs text-gray-500">
+                    Since launch
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-civora-teal" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Job Applications</p>
+                  <p className="text-3xl font-bold text-civora-navy">{stats.totalApplications}</p>
+                  <p className="text-xs text-gray-500">Total received</p>
+                </div>
+                <FileText className="h-8 w-8 text-civora-teal" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Open Positions</p>
+                  <p className="text-3xl font-bold text-civora-navy">{stats.activeJobs}</p>
+                  <p className="text-xs text-gray-500">Currently hiring</p>
+                </div>
+                <Briefcase className="h-8 w-8 text-civora-teal" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Pending Reviews</p>
+                  <p className="text-3xl font-bold text-civora-navy">{stats.pendingReviews}</p>
+                  <p className="text-xs text-gray-500">Need attention</p>
+                </div>
+                <BarChart3 className="h-8 w-8 text-civora-teal" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="applications" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7">
+            <TabsTrigger value="applications">Applications</TabsTrigger>
+            <TabsTrigger value="jobs">Job Management</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="content">Content Mgmt</TabsTrigger>
+            <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
+            <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
+            <TabsTrigger value="visitors">Visitors</TabsTrigger>
+          </TabsList>
+
+          {/* Applications Tab */}
+          <TabsContent value="applications" className="space-y-6">
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
@@ -758,35 +872,30 @@ const AdminDashboard = () => {
                 )}
               </CardContent>
             </Card>
-          ),
-          "applications"
-        );
-      case "jobs":
-        return wrap(
-          (
-            <div>
-              <div className="flex justify-end mb-4">
-                <div className="relative w-72">
-                  <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder="Search jobs..."
-                    value={jobsSearchTerm}
-                    onChange={e => setJobsSearchTerm(e.target.value)}
-                    className="pl-10"
-                    aria-label="Search jobs"
-                    disabled
-                    title="For demo: JobManagement search to be added in JobManagement component"
-                  />
-                </div>
+          </TabsContent>
+
+          {/* Jobs Tab */}
+          <TabsContent value="jobs" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <div className="relative w-72">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="Search jobs..."
+                  value={jobsSearchTerm}
+                  onChange={e => setJobsSearchTerm(e.target.value)}
+                  className="pl-10"
+                  aria-label="Search jobs"
+                  // Note: this only affects if JobManagement supports filter prop, otherwise show for UI consistency
+                  disabled
+                  title="For demo: JobManagement search to be added in JobManagement component"
+                />
               </div>
-              <JobManagement />
             </div>
-          ),
-          "jobs"
-        );
-      case "analytics":
-        return wrap(
-          (
+            <JobManagement />
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Website Analytics</CardTitle>
@@ -799,13 +908,10 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          ),
-          "analytics"
-        );
-      case "content":
-      case "content-management":
-        return wrap(
-          (
+          </TabsContent>
+
+          {/* Content Management Tab */}
+          <TabsContent value="content" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Website Content Section Management */}
               <Card>
@@ -857,12 +963,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
-          ),
-          tab
-        );
-      case "contact-messages":
-        return wrap(
-          (
+          </TabsContent>
+
+          {/* Contact Messages Tab */}
+          <TabsContent value="contact-messages" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Contact Messages</CardTitle>
@@ -914,12 +1018,10 @@ const AdminDashboard = () => {
                 )}
               </CardContent>
             </Card>
-          ),
-          "contact-messages"
-        );
-      case "calls":
-        return wrap(
-          (
+          </TabsContent>
+
+          {/* Scheduled Calls Tab */}
+          <TabsContent value="calls" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Scheduled Calls</CardTitle>
@@ -995,12 +1097,10 @@ const AdminDashboard = () => {
                 )}
               </CardContent>
             </Card>
-          ),
-          "calls"
-        );
-      case "visitors":
-        return wrap(
-          (
+          </TabsContent>
+
+          {/* Website Visitors Tab */}
+          <TabsContent value="visitors" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Website Visitors Log</CardTitle>
@@ -1052,219 +1152,8 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          ),
-          "visitors"
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-3">
-              {/* Hamburger for mobile */}
-              <div className="md:hidden flex items-center">
-                <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-                  <DrawerTrigger asChild>
-                    <button
-                      className="mr-2 rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-civora-teal transition md:hidden"
-                      aria-label="Open main menu"
-                    >
-                      <Menu className="h-7 w-7 text-civora-navy" />
-                    </button>
-                  </DrawerTrigger>
-                  <DrawerContent className="max-w-xs w-full">
-                    <DrawerHeader>
-                      <DrawerTitle>Main Menu</DrawerTitle>
-                    </DrawerHeader>
-                    <div className="flex flex-col gap-1 px-4">
-                      {dashboardTabs.map((tab) => (
-                        <button
-                          key={tab.value}
-                          className={`px-4 py-3 my-0.5 text-left rounded-md text-base font-medium hover:bg-civora-teal/10 transition ${
-                            tabValue === tab.value ? "bg-civora-teal text-white" : "text-civora-navy"
-                          }`}
-                          onClick={() => {
-                            setTabValue(tab.value);
-                            setDrawerOpen(false);
-                          }}
-                        >
-                          {tab.label}
-                        </button>
-                      ))}
-                    </div>
-                  </DrawerContent>
-                </Drawer>
-                <h1 className="text-xl font-bold text-civora-navy">Admin Dashboard</h1>
-              </div>
-              {/* Logo/Title for desktop */}
-              <div className="hidden md:block">
-                <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
-                <p className="text-gray-600">Civora Nexus Management Portal</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* Remaining Time Badge */}
-              {remainingTime && (
-                <div
-                  className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors duration-200
-                    ${
-                      remainingTime === "Expired"
-                        ? "bg-red-100 text-red-800"
-                        : getRemainingSeconds() !== null && getRemainingSeconds() <= 300
-                        ? "bg-red-100 text-red-800"
-                        : "bg-green-100 text-green-800"
-                    }
-                  `}
-                  title="Remaining session time"
-                  data-testid="session-remaining"
-                >
-                  Session expires in: {remainingTime}
-                </div>
-              )}
-
-              {/* Profile Icon with menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="rounded-full focus:outline-none focus:ring-2 focus:ring-civora-teal/70 transition-shadow shadow-lg hover:ring-4 hover:ring-civora-teal/40"
-                    aria-label="Open profile menu"
-                  >
-                    <Avatar className="w-9 h-9">
-                      {/* Fake fallback for now (initials), enhance if session provides avatar in future */}
-                      <AvatarImage src={session?.user?.user_metadata?.avatar_url ?? ""} alt="Profile" />
-                      <AvatarFallback>
-                        {session?.user?.user_metadata?.name
-                          ? session.user.user_metadata.name
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("")
-                              .toUpperCase()
-                          : "AD"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="z-50 bg-white shadow-lg min-w-[160px] p-0">
-                  <DropdownMenuItem
-                    onClick={() => setProfileOpen(true)}
-                    className="hover:bg-civora-teal/10 focus:bg-civora-teal/20 cursor-pointer"
-                  >
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="hover:bg-red-100 focus:bg-red-200 text-red-600 cursor-pointer"
-                  >
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Website Visitors card now just shows stats, does not toggle anything */}
-          <Card
-            className="group transition-shadow hover:shadow-md"
-            tabIndex={0}
-            aria-pressed={false}
-            title="Website visitors"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Website Visitors</p>
-                  <p className="text-3xl font-bold text-civora-navy">{stats.totalVisitors}</p>
-                  <p className="text-xs text-gray-500">
-                    Since launch
-                  </p>
-                </div>
-                <Users className="h-8 w-8 text-civora-teal" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Job Applications</p>
-                  <p className="text-3xl font-bold text-civora-navy">{stats.totalApplications}</p>
-                  <p className="text-xs text-gray-500">Total received</p>
-                </div>
-                <FileText className="h-8 w-8 text-civora-teal" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Open Positions</p>
-                  <p className="text-3xl font-bold text-civora-navy">{stats.activeJobs}</p>
-                  <p className="text-xs text-gray-500">Currently hiring</p>
-                </div>
-                <Briefcase className="h-8 w-8 text-civora-teal" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Pending Reviews</p>
-                  <p className="text-3xl font-bold text-civora-navy">{stats.pendingReviews}</p>
-                  <p className="text-xs text-gray-500">Need attention</p>
-                </div>
-                <BarChart3 className="h-8 w-8 text-civora-teal" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <div>
-          {/* Tab row for desktop/tablet */}
-          <div className="hidden md:block">
-            <Tabs value={tabValue} onValueChange={setTabValue} className="space-y-6">
-              <TabsList
-                className="w-full overflow-x-auto no-scrollbar flex gap-2 mb-4"
-                style={{
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {dashboardTabs.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="flex-shrink-0 min-w-[120px]"
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {dashboardTabs.map((tab) => (
-                // TabsContent *inside* Tabs only for desktop!
-                renderTabContent(tab.value)
-              ))}
-            </Tabs>
-          </div>
-          {/* On mobile, just show content of selected tab (choose via Drawer) */}
-          <div className="md:hidden">
-            {renderTabContent(tabValue, { noTabsContentWrapper: true })}
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Profile Modal */}
