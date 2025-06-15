@@ -1,9 +1,9 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import ServicesSection from '@/components/ServicesSection';
 import IndustriesSection from '@/components/IndustriesSection';
+import PartnersSection from '@/components/PartnersSection';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -20,6 +20,8 @@ const Index = () => {
         <section id="industries" className="scroll-mt-24">
           <IndustriesSection />
         </section>
+        {/* Partners Section */}
+        <PartnersSection />
       </main>
       <Footer />
     </div>
