@@ -161,205 +161,232 @@ const AdminDashboard = () => {
     }, 0);
   };
 
-  // Generate PDF for all applications
+  // --- Multiple Applications: Export All as PDF ---
   const exportPDF = async () => {
     if (!applications.length) {
       toast({ title: "Nothing to export", description: "No applications available." });
       return;
     }
-    const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    let y = 800;
+    try {
+      const pdfDoc = await PDFDocument.create();
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      let y = 800;
 
-    let page = pdfDoc.addPage([595, 842]);
-    page.drawText("Civora Nexus - Job Applications", { x: 40, y, size: 18, font, color: rgb(0.14, 0.23, 0.35) });
-    y -= 30;
+      let page = pdfDoc.addPage([595, 842]);
+      page.drawText("Civora Nexus - Job Applications", { x: 40, y, size: 18, font, color: rgb(0.14, 0.23, 0.35) });
+      y -= 30;
 
-    applications.forEach((app, i) => {
-      if (y < 100) {
-        page = pdfDoc.addPage([595, 842]);
-        y = 800;
-      }
-      page.drawText(`Applicant: ${app.application_data?.name ?? 'N/A'}`, { x: 40, y, size: 12, font });
-      y -= 16;
-      page.drawText(`Email: ${app.application_data?.email ?? 'N/A'}`, { x: 40, y, size: 10, font });
-      y -= 14;
-      page.drawText(`Position: ${app.application_data?.position ?? 'General Application'}`, { x: 40, y, size: 10, font });
-      y -= 14;
-      page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 10, font });
-      y -= 14;
-      page.drawText(`Status: ${app.status ?? 'pending'}`, { x: 40, y, size: 10, font });
-      y -= 14;
-      page.drawText(`Message: ${app.application_data?.message ?? ''}`, { x: 40, y, size: 10, font });
-      y -= 20;
-      page.drawText("-------------------------------------------", { x: 40, y, size: 8, font, color: rgb(0.7,0.7,0.7) });
-      y -= 18;
-    });
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
+      applications.forEach((app) => {
+        if (y < 100) {
+          page = pdfDoc.addPage([595, 842]);
+          y = 800;
+        }
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "job-applications.pdf");
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 0);
+        // Catch Unicode issues (replace with basic ASCII fallback)
+        const safeText = (text: string) => {
+          if (!text) return "";
+          // limit to ascii, replace non-ascii
+          return text.replace(/[^\x00-\x7F]/g, "?");
+        };
+
+        page.drawText(`Applicant: ${safeText(app.application_data?.name ?? 'N/A')}`, { x: 40, y, size: 12, font });
+        y -= 16;
+        page.drawText(`Email: ${safeText(app.application_data?.email ?? 'N/A')}`, { x: 40, y, size: 10, font });
+        y -= 14;
+        page.drawText(`Position: ${safeText(app.application_data?.position ?? 'General Application')}`, { x: 40, y, size: 10, font });
+        y -= 14;
+        page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 10, font });
+        y -= 14;
+        page.drawText(`Status: ${safeText(app.status ?? 'pending')}`, { x: 40, y, size: 10, font });
+        y -= 14;
+        page.drawText(`Message: ${safeText(app.application_data?.message ?? '')}`, { x: 40, y, size: 10, font });
+        y -= 20;
+        page.drawText("-------------------------------------------", { x: 40, y, size: 8, font, color: rgb(0.7,0.7,0.7) });
+        y -= 18;
+      });
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "job-applications.pdf");
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (err) {
+      toast({
+        title: "PDF export failed",
+        description: typeof err === "string" ? err : "There was a problem exporting PDF.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Download individual application as PDF
   const downloadAppPDF = async (app: any) => {
-    const { PDFDocument, rgb, StandardFonts } = await import("pdf-lib");
-
-    // Create new PDF Document
-    const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const fontNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const pageWidth = 595;
-    const pageHeight = 842;
-    let y = pageHeight - 40;
-
-    const page = pdfDoc.addPage([pageWidth, pageHeight]);
-
-    // --- HEADER: Company Branding Area ---
-    page.drawRectangle({
-      x: 0,
-      y: pageHeight - 110,
-      width: pageWidth,
-      height: 110,
-      color: rgb(20/255, 54/255, 134/255),
-    });
-
-    // Embed company logo as PNG
     try {
-      const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
-      const logoImageRes = await fetch(logoUrl);
-      const logoImageBytes = await logoImageRes.arrayBuffer();
-      const logoImage = await pdfDoc.embedPng(logoImageBytes);
+      const { PDFDocument, rgb, StandardFonts } = await import("pdf-lib");
 
-      // Draw logo: left-aligned
-      const LOGO_WIDTH = 65;
-      const LOGO_HEIGHT = 90;
-      page.drawImage(logoImage, {
-        x: 25,
-        y: pageHeight - 95 - LOGO_HEIGHT / 2,
-        width: LOGO_WIDTH,
-        height: LOGO_HEIGHT,
+      const pdfDoc = await PDFDocument.create();
+      const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      const fontNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      const pageWidth = 595;
+      const pageHeight = 842;
+      let contentY = pageHeight - 110 - 35;
+
+      const page = pdfDoc.addPage([pageWidth, pageHeight]);
+
+      // HEADER RECTANGLE
+      page.drawRectangle({
+        x: 0,
+        y: pageHeight - 110,
+        width: pageWidth,
+        height: 110,
+        color: rgb(20/255, 54/255, 134/255)
       });
-    } catch (e) {
-      // fail silently if logo fails to load
-    }
 
-    // Company Name and Slogan (beside logo)
-    page.drawText(COMPANY_LETTERHEAD.companyName, {
-      x: 100,
-      y: pageHeight - 70,
-      size: 18,
-      font,
-      color: rgb(255/255,255/255,255/255),
-    });
-    page.drawText(COMPANY_LETTERHEAD.slogan, {
-      x: 100,
-      y: pageHeight - 92,
-      size: 11,
-      font: fontNormal,
-      color: rgb(195/255,235/255,255/255),
-    });
+      // EMBED LOGO (catch if fails)
+      try {
+        const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+        const logoImageRes = await fetch(logoUrl);
+        const logoImageBytes = await logoImageRes.arrayBuffer();
+        const logoImage = await pdfDoc.embedPng(logoImageBytes);
 
-    // Contact info in header (top right)
-    page.drawText(`Email: ${COMPANY_LETTERHEAD.email}`, {
-      x: pageWidth - 220,
-      y: pageHeight - 62,
-      size: 10,
-      font: fontNormal,
-      color: rgb(255,255,255),
-    });
-    page.drawText(`CIN: ${COMPANY_LETTERHEAD.cin}`, {
-      x: pageWidth - 220,
-      y: pageHeight - 77,
-      size: 10,
-      font: fontNormal,
-      color: rgb(255,255,255),
-    });
-    page.drawText(`GSTIN: ${COMPANY_LETTERHEAD.gstin}`, {
-      x: pageWidth - 220,
-      y: pageHeight - 92,
-      size: 10,
-      font: fontNormal,
-      color: rgb(255,255,255),
-    });
+        const LOGO_WIDTH = 65;
+        const LOGO_HEIGHT = 90;
+        page.drawImage(logoImage, {
+          x: 25,
+          y: pageHeight - 95 - LOGO_HEIGHT / 2,
+          width: LOGO_WIDTH,
+          height: LOGO_HEIGHT,
+        });
+      } catch (e) {
+        // If logo fails, ignore
+      }
 
-    // --- Main Application Content Section ---
-    let contentY = pageHeight - 110 - 35;
-
-    const drawField = (label: string, value: string) => {
-      page.drawText(`${label}:`, {
-        x: 50,
-        y: contentY,
-        size: 11.5,
+      page.drawText(COMPANY_LETTERHEAD.companyName, {
+        x: 100,
+        y: pageHeight - 70,
+        size: 18,
         font,
-        color: rgb(20/255, 54/255, 134/255),
+        color: rgb(1,1,1),
       });
-      page.drawText(value, {
-        x: 170,
-        y: contentY,
-        size: 11.5,
+      page.drawText(COMPANY_LETTERHEAD.slogan, {
+        x: 100,
+        y: pageHeight - 92,
+        size: 11,
         font: fontNormal,
-        color: rgb(50/255, 50/255, 50/255),
-        maxWidth: pageWidth - 200,
+        color: rgb(195/255,235/255,255/255),
       });
-      contentY -= 26;
-    };
 
-    drawField("Applicant Name", app.application_data?.name ?? "N/A");
-    drawField("Email", app.application_data?.email ?? "N/A");
-    drawField("Position", app.application_data?.position ?? "General Application");
-    drawField("Applied Date", new Date(app.created_at).toLocaleString());
-    drawField("Status", app.status ?? "pending");
-    if (app.application_data?.message) {
-      drawField("Message", app.application_data?.message);
-    }
-    if (app.application_data?.resume_name) {
-      drawField("Resume", app.application_data.resume_name);
-    }
-
-    // --- FOOTER ---
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width: pageWidth,
-      height: 48,
-      color: rgb(20/255, 54/255, 134/255),
-    });
-
-    page.drawText(
-      `${COMPANY_LETTERHEAD.phone}   |   ${COMPANY_LETTERHEAD.address}`,
-      {
-        x: 42,
-        y: 18,
+      // Contact info header right
+      page.drawText(`Email: ${COMPANY_LETTERHEAD.email}`, {
+        x: pageWidth - 220,
+        y: pageHeight - 62,
         size: 10,
         font: fontNormal,
-        color: rgb(230/255, 245/255, 255/255),
-      }
-    );
+        color: rgb(1,1,1),
+      });
+      page.drawText(`CIN: ${COMPANY_LETTERHEAD.cin}`, {
+        x: pageWidth - 220,
+        y: pageHeight - 77,
+        size: 10,
+        font: fontNormal,
+        color: rgb(1,1,1),
+      });
+      page.drawText(`GSTIN: ${COMPANY_LETTERHEAD.gstin}`, {
+        x: pageWidth - 220,
+        y: pageHeight - 92,
+        size: 10,
+        font: fontNormal,
+        color: rgb(1,1,1),
+      });
 
-    // --- Download PDF (FIX: properly declare "url") ---
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob); // <-- Fix: define "url" properly here
-    const filename = `job-application-${app.application_data?.name || "applicant"}.pdf`.replace(/\s+/g, "_").toLowerCase();
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 0);
+      // Helper for safe ASCII (to prevent pdf-lib Unicode errors, replace non-ascii chars)
+      const safeText = (text: string) => {
+        if (!text) return "";
+        return text.replace(/[^\x00-\x7F]/g, "?");
+      };
+
+      // Main Details
+      const drawField = (label: string, value: string) => {
+        page.drawText(`${label}:`, {
+          x: 50,
+          y: contentY,
+          size: 11.5,
+          font,
+          color: rgb(20/255, 54/255, 134/255),
+        });
+        page.drawText(safeText(value), {
+          x: 170,
+          y: contentY,
+          size: 11.5,
+          font: fontNormal,
+          color: rgb(50/255, 50/255, 50/255),
+          maxWidth: pageWidth - 200,
+        });
+        contentY -= 26;
+      };
+
+      drawField("Applicant Name", app.application_data?.name ?? "N/A");
+      drawField("Email", app.application_data?.email ?? "N/A");
+      drawField("Position", app.application_data?.position ?? "General Application");
+      drawField("Applied Date", new Date(app.created_at).toLocaleString());
+      drawField("Status", app.status ?? "pending");
+      if (app.application_data?.message) {
+        drawField("Message", app.application_data?.message);
+      }
+      if (app.application_data?.resume_name) {
+        drawField("Resume", app.application_data.resume_name);
+      }
+
+      // FOOTER RECTANGLE
+      page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: pageWidth,
+        height: 48,
+        color: rgb(20/255, 54/255, 134/255),
+      });
+
+      // Footer info
+      page.drawText(
+        `${COMPANY_LETTERHEAD.phone}   |   ${COMPANY_LETTERHEAD.address}`,
+        {
+          x: 42,
+          y: 18,
+          size: 10,
+          font: fontNormal,
+          color: rgb(230/255, 245/255, 255/255),
+        }
+      );
+
+      // --- Download PDF
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const filename = `job-application-${(app.application_data?.name || "applicant").replace(/\s+/g, "_").toLowerCase()}.pdf`;
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+
+    } catch (err) {
+      toast({
+        title: "PDF download failed",
+        description: typeof err === "string" ? err : "There was a problem downloading PDF (may be Unicode in text).",
+        variant: "destructive"
+      });
+    }
   };
 
   // Application status update
