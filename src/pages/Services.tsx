@@ -1,29 +1,29 @@
 
 import React from "react";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
 type ServiceType = {
   title: string;
   description: string;
-  // Optionally, add icon or image here in the future
 };
 
 function transformServiceContent(content: any): ServiceType[] {
-  // If the backend has a new structure (array of objects)
   if (Array.isArray(content?.services) && content.services.every((s: any) => s.title && s.description)) {
     return content.services;
   }
-
-  // If backend is still comma-separated string, provide title only
   if (typeof content?.services === "string") {
     return content.services.split(",").map((s: string) => ({
       title: s.trim(),
       description: "",
     })).filter(s => !!s.title);
   }
-
-  // Fallback: hardcoded detailed services
   return [
     {
       title: "Smart Citizen Portals",
@@ -68,7 +68,7 @@ const Services: React.FC = () => {
       {loading && (
         <div className="animate-spin h-10 w-10 border-4 border-civora-teal rounded-full border-t-transparent mb-12" />
       )}
-      <div className="w-full max-w-5xl grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="w-full max-w-6xl grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {services.length === 0 && !loading ? (
           <div className="col-span-full text-center text-gray-500">
             No services available at this time.
@@ -77,18 +77,22 @@ const Services: React.FC = () => {
           services.map((service, idx) => (
             <Card
               key={service.title + idx}
-              className="bg-white shadow-md border-civora-teal/10 hover:shadow-lg transition-transform hover:scale-105 min-h-[220px] flex flex-col items-center justify-center text-civora-navy text-lg py-8 px-5 font-semibold"
+              className="bg-white border border-civora-teal/20 shadow-lg hover:shadow-xl hover:-translate-y-1 hover:border-civora-teal/50 transition-all duration-200 ease-in-out rounded-2xl overflow-hidden flex flex-col"
             >
-              <div className="w-full flex flex-col items-center gap-2">
-                <div className="text-civora-teal text-2xl font-bold mb-2 text-center">
+              <CardHeader className="pb-2 px-6 pt-6">
+                <CardTitle className="text-civora-teal text-xl font-bold text-center">
                   {service.title}
-                </div>
-                <div className="text-gray-700 font-normal text-base text-center leading-relaxed">
-                  {service.description || (
-                    <span className="text-gray-400 italic">No description provided yet.</span>
-                  )}
-                </div>
-              </div>
+                </CardTitle>
+                {service.description && (
+                  <CardDescription className="text-gray-600 text-base text-center mt-2">
+                    {service.description}
+                  </CardDescription>
+                )}
+              </CardHeader>
+              {/* Add separator and more visual cues if needed */}
+              <CardContent className="mt-auto pb-6 pt-2 px-6 flex flex-col items-center">
+                {/* Potential space for action buttons, icons etc in future */}
+              </CardContent>
             </Card>
           ))
         )}
@@ -98,4 +102,3 @@ const Services: React.FC = () => {
 };
 
 export default Services;
-
