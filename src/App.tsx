@@ -23,6 +23,8 @@ import UrbanData from "./pages/UrbanData";
 import ImpactTracker from "./pages/ImpactTracker";
 import CaseStudies from "./pages/CaseStudies";
 import ClientSuccessStories from "./pages/ClientSuccessStories";
+import LifeAtCivora from "./pages/LifeAtCivora";
+import Internships from "./pages/Internships";
 import { useLogVisit } from "@/hooks/useLogVisit";
 import Leadership from "./pages/Leadership";
 import BoardOfDirectors from "./pages/BoardOfDirectors";
@@ -80,6 +82,8 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/careers/jobs" element={<CareersJobs />} />
+            <Route path="/careers/life" element={<LifeAtCivora />} />
+            <Route path="/careers/internships" element={<Internships />} />
             <Route path="/innovation-lab" element={<InnovationLab />} />
             <Route path="/innovation-lab/rnd" element={<Rnd />} />
             <Route path="/innovation-lab/ai-research" element={<AIResearch />} />
