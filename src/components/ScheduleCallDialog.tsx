@@ -15,28 +15,76 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock as ClockIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Clock as ClockIcon, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+// Generate time slots with 3 slots per hour in AM/PM
+function generateTimeSlots() {
+  const slots: string[] = [];
+  for (let hour = 8; hour <= 20; hour++) {
+    // Only three slots per hour: :00, :20, :40
+    for (let min of [0, 20, 40]) {
+      if (hour === 20 && min > 0) break; // Only 8:00 PM for the last hour
+      let displayHour = hour > 12 ? hour - 12 : hour;
+      let ampm = hour < 12 ? "AM" : "PM";
+      if (displayHour === 0) displayHour = 12;
+      let displayMinute = min.toString().padStart(2, '0');
+      slots.push(`${displayHour}:${displayMinute} ${ampm}`);
+    }
+  }
+  return slots;
+}
+const TIME_SLOTS = generateTimeSlots();
 
 export default function ScheduleCallDialog() {
   const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState("");
   const [reason, setReason] = useState("");
-
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    // Just log for now; you can hook up to Supabase if needed
-    console.log({
-      date,
-      time,
-      reason,
-    });
+
+    try {
+      const { error } = await supabase.from("scheduled_calls").insert([
+        {
+          name,
+          date: date ? format(date, "yyyy-MM-dd") : null,
+          time,
+          reason,
+        }
+      ]);
+      if (error) {
+        toast({
+          title: "Error scheduling call",
+          description: "Failed to schedule your call. Please try again.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Call scheduled!",
+          description: "Thank you, your callback has been scheduled.",
+        });
+        // Reset form after submission
+        setName("");
+        setDate(undefined);
+        setTime("");
+        setReason("");
+        setOpen(false);
+      }
+    } catch (e) {
+      toast({
+        title: "Unexpected error",
+        description: "Something went wrong.",
+        variant: "destructive"
+      });
+    }
     setSubmitting(false);
-    setOpen(false);
   };
 
   return (
@@ -55,6 +103,27 @@ export default function ScheduleCallDialog() {
           <DialogTitle className="text-lg">Schedule a Call</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Name field */}
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="call-name">
+              Name
+            </label>
+            <div className="flex items-center gap-2">
+              <UserIcon className="h-4 w-4 opacity-50" />
+              <Input
+                id="call-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full"
+                autoComplete="name"
+                placeholder="Your Name"
+              />
+            </div>
+          </div>
+
+          {/* Date field */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="call-date">
               Date
@@ -63,7 +132,7 @@ export default function ScheduleCallDialog() {
               <PopoverTrigger asChild>
                 <Button
                   type="button"
-                  variant={"outline"}
+                  variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
                     !date && "text-muted-foreground"
@@ -85,24 +154,32 @@ export default function ScheduleCallDialog() {
               </PopoverContent>
             </Popover>
           </div>
+
+          {/* Time slot picker */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="call-time">
               Time
             </label>
             <div className="flex items-center gap-2">
               <ClockIcon className="h-4 w-4 opacity-50" />
-              <Input
+              <select
                 id="call-time"
-                type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 required
-                className="w-full"
-                min="08:00"
-                max="20:00"
-              />
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-civora-teal focus:outline-none"
+              >
+                <option value="">Select a time</option>
+                {TIME_SLOTS.map((slot) => (
+                  <option key={slot} value={slot}>
+                    {slot}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+
+          {/* Reason field */}
           <div>
             <label className="block mb-1 text-sm font-medium" htmlFor="reason">
               Reason
@@ -117,7 +194,11 @@ export default function ScheduleCallDialog() {
             />
           </div>
           <DialogFooter>
-            <Button type="submit" className="w-full bg-civora-teal hover:bg-civora-teal/90 text-white" disabled={submitting || !date || !time || !reason}>
+            <Button
+              type="submit"
+              className="w-full bg-civora-teal hover:bg-civora-teal/90 text-white"
+              disabled={submitting || !name || !date || !time || !reason}
+            >
               {submitting ? "Scheduling..." : "Schedule"}
             </Button>
           </DialogFooter>

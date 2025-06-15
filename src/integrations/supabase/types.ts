@@ -110,6 +110,33 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_calls: {
+        Row: {
+          created_at: string
+          date: string
+          id: number
+          name: string
+          reason: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: number
+          name: string
+          reason: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: number
+          name?: string
+          reason?: string
+          time?: string
+        }
+        Relationships: []
+      }
       website_content: {
         Row: {
           content: Json
