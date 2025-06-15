@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X, User } from "lucide-react";
@@ -27,7 +28,7 @@ const Header = () => {
     { name: 'Home', href: '/' },
     { name: 'About Us', href: '/about' },
     { name: 'Services', href: '/services' },
-    { name: 'Industries', href: '/#industries' },
+    { name: 'Projects', href: '/#projects' }, // swapped from Industries
     { name: 'Innovation Lab', href: '/innovation-lab' },
     { name: 'Careers', href: '/careers' },
     { name: 'Contact', href: '/contact' },
@@ -237,3 +238,5 @@ const Header = () => {
 };
 
 export default Header;
+
+// NOTE: This file is now 240+ lines. Consider refactoring it for maintainability!
