@@ -9,6 +9,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent"; // <-- Import custom hook
+import ScheduleCallDialog from "@/components/ScheduleCallDialog";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -184,14 +185,9 @@ const Contact = () => {
                   <p className="mb-4">
                     Let's discuss how we can help transform your organization with innovative technology solutions.
                   </p>
-                  <Button
-                    variant="default"
-                    className="w-full sm:w-auto font-semibold text-base bg-civora-teal hover:bg-civora-teal/90 text-white shadow-md"
-                    style={{ backgroundColor: "#2EA6AA", color: "#fff" }}
-                    onClick={() => window.open("https://calendly.com/your-scheduling-link", "_blank")}
-                  >
-                    Schedule a Call
-                  </Button>
+                  <div className="w-full sm:w-auto">
+                    <ScheduleCallDialog />
+                  </div>
                 </CardContent>
               </Card>
             </div>
