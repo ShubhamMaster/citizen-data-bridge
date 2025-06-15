@@ -32,6 +32,25 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCap
 import AdminProfilePage from "@/components/AdminProfilePage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Menu } from "lucide-react";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from "@/components/ui/drawer";
+
+const dashboardTabs = [
+  { value: "applications", label: "Applications" },
+  { value: "jobs", label: "Job Management" },
+  { value: "analytics", label: "Analytics" },
+  { value: "content", label: "Content Management" },
+  { value: "contact-messages", label: "Contact Messages" },
+  { value: "calls", label: "Scheduled Calls" },
+  { value: "visitors", label: "Visitors" },
+];
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -56,6 +75,8 @@ const AdminDashboard = () => {
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
   const logoutTimerRef = useRef<any>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [tabValue, setTabValue] = useState("applications");
   const isMobile = useIsMobile();
 
   // Helper: get remaining seconds from sessionExpiry
@@ -601,9 +622,47 @@ const AdminDashboard = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
-              <p className="text-gray-600">Civora Nexus Management Portal</p>
+            <div className="flex items-center gap-3">
+              {/* Hamburger for mobile */}
+              <div className="md:hidden flex items-center">
+                <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                  <DrawerTrigger asChild>
+                    <button
+                      className="mr-2 rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-civora-teal transition md:hidden"
+                      aria-label="Open main menu"
+                    >
+                      <Menu className="h-7 w-7 text-civora-navy" />
+                    </button>
+                  </DrawerTrigger>
+                  <DrawerContent className="max-w-xs w-full">
+                    <DrawerHeader>
+                      <DrawerTitle>Main Menu</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="flex flex-col gap-1 px-4">
+                      {dashboardTabs.map((tab) => (
+                        <button
+                          key={tab.value}
+                          className={`px-4 py-3 my-0.5 text-left rounded-md text-base font-medium hover:bg-civora-teal/10 transition ${
+                            tabValue === tab.value ? "bg-civora-teal text-white" : "text-civora-navy"
+                          }`}
+                          onClick={() => {
+                            setTabValue(tab.value);
+                            setDrawerOpen(false);
+                          }}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+                <h1 className="text-xl font-bold text-civora-navy">Admin Dashboard</h1>
+              </div>
+              {/* Logo/Title for desktop */}
+              <div className="hidden md:block">
+                <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
+                <p className="text-gray-600">Civora Nexus Management Portal</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               {/* Remaining Time Badge */}
@@ -731,27 +790,70 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList
-            className="grid grid-cols-7 md:grid-cols-7 w-full mb-4
-            sm:gap-2 md:gap-2 lg:gap-2
-            sm:px-1 md:px-1 lg:px-1
-            overflow-x-auto no-scrollbar
-            "
-            style={{
-              gridTemplateColumns: "repeat(7, minmax(max-content, 1fr))"
-            }}
-          >
-            <TabsTrigger value="applications" className="flex-shrink-0 min-w-[120px]">Applications</TabsTrigger>
-            <TabsTrigger value="jobs" className="flex-shrink-0 min-w-[120px]">Job Management</TabsTrigger>
-            <TabsTrigger value="analytics" className="flex-shrink-0 min-w-[120px]">Analytics</TabsTrigger>
-            <TabsTrigger value="content" className="flex-shrink-0 min-w-[140px]">Content Mgmt</TabsTrigger>
-            <TabsTrigger value="contact-messages" className="flex-shrink-0 min-w-[160px]">Contact Messages</TabsTrigger>
-            <TabsTrigger value="calls" className="flex-shrink-0 min-w-[150px]">Scheduled Calls</TabsTrigger>
-            <TabsTrigger value="visitors" className="flex-shrink-0 min-w-[120px]">Visitors</TabsTrigger>
-          </TabsList>
-          {/* Applications Tab */}
-          <TabsContent value="applications" className="space-y-6">
+        <div>
+          {/* Tab row for desktop/tablet */}
+          <div className="hidden md:block">
+            <Tabs value={tabValue} onValueChange={setTabValue} className="space-y-6">
+              <TabsList
+                className="w-full overflow-x-auto no-scrollbar flex gap-2 mb-4"
+                style={{
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                {dashboardTabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="flex-shrink-0 min-w-[120px]"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {dashboardTabs.map((tab) => (
+                <TabsContent
+                  key={tab.value}
+                  value={tab.value}
+                  className="space-y-6"
+                  forceMount
+                >
+                  {renderTabContent(tab.value)}
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+          {/* On mobile, just show content of selected tab (choose via Drawer) */}
+          <div className="md:hidden">
+            {renderTabContent(tabValue)}
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Modal */}
+      {profileOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-0">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative animate-fade-in-up">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold"
+              onClick={() => setProfileOpen(false)}
+              aria-label="Close profile"
+            >×</button>
+            {/* Place the AdminProfilePage in modal */}
+            <AdminProfilePage />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // Helper to render tab content by value
+  function renderTabContent(tab: string) {
+    switch (tab) {
+      case "applications":
+        return (
+          // ... keep existing code for Applications tab ...
+          <TabsContent value="applications" forceMount className="space-y-6">
+            {/* ... applications table, export etc ... */}
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
@@ -881,9 +983,10 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Jobs Tab */}
-          <TabsContent value="jobs" className="space-y-6">
+        );
+      case "jobs":
+        return (
+          <TabsContent value="jobs" forceMount className="space-y-6">
             <div className="flex justify-end mb-4">
               <div className="relative w-72">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -901,9 +1004,10 @@ const AdminDashboard = () => {
             </div>
             <JobManagement />
           </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
+        );
+      case "analytics":
+        return (
+          <TabsContent value="analytics" forceMount className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Website Analytics</CardTitle>
@@ -917,9 +1021,11 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Content Management Tab */}
-          <TabsContent value="content" className="space-y-6">
+        );
+      case "content":
+      case "content-management":
+        return (
+          <TabsContent value={tab} forceMount className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Website Content Section Management */}
               <Card>
@@ -972,9 +1078,10 @@ const AdminDashboard = () => {
               </Card>
             </div>
           </TabsContent>
-
-          {/* Contact Messages Tab */}
-          <TabsContent value="contact-messages" className="space-y-6">
+        );
+      case "contact-messages":
+        return (
+          <TabsContent value="contact-messages" forceMount className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Contact Messages</CardTitle>
@@ -1027,9 +1134,10 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Scheduled Calls Tab */}
-          <TabsContent value="calls" className="space-y-6">
+        );
+      case "calls":
+        return (
+          <TabsContent value="calls" forceMount className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Scheduled Calls</CardTitle>
@@ -1106,9 +1214,10 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Website Visitors Tab */}
-          <TabsContent value="visitors" className="space-y-6">
+        );
+      case "visitors":
+        return (
+          <TabsContent value="visitors" forceMount className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Website Visitors Log</CardTitle>
@@ -1161,25 +1270,11 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Profile Modal */}
-      {profileOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-0">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative animate-fade-in-up">
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold"
-              onClick={() => setProfileOpen(false)}
-              aria-label="Close profile"
-            >×</button>
-            {/* Place the AdminProfilePage in modal */}
-            <AdminProfilePage />
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        );
+      default:
+        return null;
+    }
+  }
 };
 
 // Company Letterhead constants (customizable to match your design)
