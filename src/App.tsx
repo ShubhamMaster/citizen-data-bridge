@@ -16,6 +16,11 @@ import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import Services from "./pages/Services";
 import ProjectsPage from "./pages/Projects";
+import SmartVillage from "./pages/SmartVillage";
+import CivicOne from "./pages/CivicOne";
+import HealthBridge from "./pages/HealthBridge";
+import UrbanData from "./pages/UrbanData";
+import ImpactTracker from "./pages/ImpactTracker";
 import { useLogVisit } from "@/hooks/useLogVisit";
 import Leadership from "./pages/Leadership";
 import BoardOfDirectors from "./pages/BoardOfDirectors";
@@ -75,6 +80,11 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/smart-village" element={<SmartVillage />} />
+            <Route path="/projects/civicone" element={<CivicOne />} />
+            <Route path="/projects/healthbridge" element={<HealthBridge />} />
+            <Route path="/projects/urban-data" element={<UrbanData />} />
+            <Route path="/projects/impact-tracker" element={<ImpactTracker />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
