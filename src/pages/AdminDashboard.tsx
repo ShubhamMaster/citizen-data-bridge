@@ -212,23 +212,170 @@ const AdminDashboard = () => {
 
   // Download individual application as PDF
   const downloadAppPDF = async (app: any) => {
+    const { PDFDocument, rgb, StandardFonts } = await import("pdf-lib");
+
+    // Create a new PDF Document
     const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    let y = 800;
-    const page = pdfDoc.addPage([595, 842]);
-    page.drawText("Civora Nexus - Job Application", { x: 40, y, size: 18, font, color: rgb(0.14, 0.23, 0.35) });
-    y -= 30;
-    page.drawText(`Applicant: ${app.application_data?.name ?? 'N/A'}`, { x: 40, y, size: 12, font });
-    y -= 16;
-    page.drawText(`Email: ${app.application_data?.email ?? 'N/A'}`, { x: 40, y, size: 10, font });
-    y -= 14;
-    page.drawText(`Position: ${app.application_data?.position ?? 'General Application'}`, { x: 40, y, size: 10, font });
-    y -= 14;
-    page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 10, font });
-    y -= 14;
-    page.drawText(`Status: ${app.status ?? 'pending'}`, { x: 40, y, size: 10, font });
-    y -= 14;
-    page.drawText(`Message: ${app.application_data?.message ?? ''}`, { x: 40, y, size: 10, font });
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const pageWidth = 595;
+    const pageHeight = 842;
+    let y = pageHeight - 40;
+
+    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+
+    // --- HEADER: Company Branding Area ---
+    // Blue, diagonal header (approximate the swoosh)
+    page.drawRectangle({
+      x: 0,
+      y: pageHeight - 110,
+      width: pageWidth,
+      height: 110,
+      color: rgb(20/255, 54/255, 134/255), // dark blue
+    });
+
+    // Light blue underlay to match the curve in top-right
+    page.drawEllipse({
+      x: pageWidth - 70,
+      y: pageHeight - 60,
+      xScale: 52,
+      yScale: 42,
+      color: rgb(53/255, 207/255, 255/255),
+      opacity: 1,
+    });
+
+    // Logo (text-based placeholder in correct location)
+    page.drawText("Civora", {
+      x: 35,
+      y: pageHeight - 58,
+      size: 25,
+      font,
+      color: rgb(55/255, 167/255, 201/255),
+    });
+    page.drawText("Nexus", {
+      x: 35 + 65,
+      y: pageHeight - 58,
+      size: 25,
+      font,
+      color: rgb(44/255, 68/255, 143/255),
+    });
+
+    // Email / CIN / GSTIN (right-aligned)
+    page.drawText(`Email:  ${COMPANY_LETTERHEAD.email}`, {
+      x: pageWidth - 270,
+      y: pageHeight - 51,
+      size: 10,
+      font: fontNormal,
+      color: rgb(1, 1, 1),
+    });
+    page.drawText(`CIN:    ${COMPANY_LETTERHEAD.cin}`, {
+      x: pageWidth - 270,
+      y: pageHeight - 66,
+      size: 10,
+      font: fontNormal,
+      color: rgb(1, 1, 1),
+    });
+    page.drawText(`GSTIN:  ${COMPANY_LETTERHEAD.gstin}`, {
+      x: pageWidth - 270,
+      y: pageHeight - 81,
+      size: 10,
+      font: fontNormal,
+      color: rgb(1, 1, 1),
+    });
+
+    // Company Name (bold blue)
+    page.drawText(COMPANY_LETTERHEAD.companyName, {
+      x: 36,
+      y: pageHeight - 110 - 23,
+      size: 17.5,
+      font,
+      color: rgb(44/255, 68/255, 143/255),
+    });
+
+    // Slogan (gray-blue, small)
+    page.drawText(COMPANY_LETTERHEAD.slogan, {
+      x: 36,
+      y: pageHeight - 110 - 38,
+      size: 10,
+      font: fontNormal,
+      color: rgb(64/255, 151/255, 193/255),
+    });
+
+    // Underline below slogan
+    page.drawLine({
+      start: { x: 36, y: pageHeight - 110 - 41 },
+      end: { x: pageWidth - 36, y: pageHeight - 110 - 41 },
+      thickness: 1,
+      color: rgb(64/255, 151/255, 193/255),
+    });
+
+    // --- APPLICATION CONTENT ---
+    let contentY = pageHeight - 110 - 70;
+
+    const drawField = (label: string, value: string) => {
+      page.drawText(`${label}:`, {
+        x: 55,
+        y: contentY,
+        size: 11,
+        font,
+        color: rgb(20/255, 54/255, 134/255)
+      });
+      page.drawText(value, {
+        x: 160,
+        y: contentY,
+        size: 11,
+        font: fontNormal,
+        color: rgb(0, 0, 0)
+      });
+      contentY -= 22;
+    };
+
+    drawField("Applicant Name", app.application_data?.name ?? "N/A");
+    drawField("Email", app.application_data?.email ?? "N/A");
+    drawField("Position", app.application_data?.position ?? "General Application");
+    drawField("Applied Date", new Date(app.created_at).toLocaleString());
+    drawField("Status", app.status ?? "pending");
+    drawField("Message", app.application_data?.message ?? "");
+
+    // If resume name exists
+    if (app.application_data?.resume_name) {
+      drawField("Resume", app.application_data.resume_name);
+    }
+
+    // --- FOOTER Area ---
+    // Blue wave style at bottom (approximation)
+    page.drawRectangle({
+      x: 0,
+      y: 0,
+      width: pageWidth,
+      height: 48,
+      color: rgb(20/255, 54/255, 134/255), // primary blue
+    });
+    page.drawEllipse({
+      x: 80,
+      y: 24,
+      xScale: 80,
+      yScale: 20,
+      color: rgb(53/255, 207/255, 255/255),
+    });
+
+    // Contact info
+    page.drawText(`\u{260E}  ${COMPANY_LETTERHEAD.phone}`, { // phone unicode
+      x: pageWidth - 255,
+      y: 23,
+      size: 10,
+      font: fontNormal,
+      color: rgb(1,1,1)
+    });
+    page.drawText("\u{1F4CD}  " + COMPANY_LETTERHEAD.address, { // map pin unicode
+      x: pageWidth - 255,
+      y: 10,
+      size: 10,
+      font: fontNormal,
+      color: rgb(1,1,1)
+    });
+
+    // Save & trigger download
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
@@ -605,7 +752,18 @@ const AdminDashboard = () => {
   );
 };
 
-// -------------------------------------
+// Company Letterhead constants (customizable to match your design)
+const COMPANY_LETTERHEAD = {
+  companyName: "Civora Nexus Pvt. Ltd.",
+  slogan: "Connecting Citizens Through Intelligent Innovation",
+  email: "info@civoranexus.com",
+  phone: "+91-9146 2687 10",
+  address: "Sangamner, Maharashtra – 422605 India",
+  cin: "U12345MH2025PTC123456",
+  gstin: "27ABCDE1234F1Z5",
+  logoText: "Civora Nexus", // Placeholder for the logo area (could be replaced by drawing or embedding an SVG)
+};
+
 // ContentEditor Component (inline for simplicity)
 type Props = {
   section: string;
