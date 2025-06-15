@@ -43,7 +43,14 @@ const HeroSection: React.FC = () => {
             className="relative bg-civora-navy text-white font-semibold border-2 border-civora-teal shadow-xl overflow-hidden px-7 py-3.5 transition-all duration-200 hover:bg-gradient-to-r hover:from-civora-navy hover:to-civora-teal/90 hover:text-white hover:scale-105 before:absolute before:inset-0 before:border-2 before:border-civora-teal/30 before:rounded-lg before:opacity-0 hover:before:opacity-100 before:pointer-events-none"
             variant="outline"
           >
-            <a href="#contact" className="relative z-10">Get in Touch</a>
+            <a
+              href="mailto:contact@civoranexus.com"
+              className="relative z-10"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get in Touch
+            </a>
           </Button>
         </div>
         <TrustBadges />
