@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,68 @@ const AdminDashboard = () => {
   const [statusSaving, setStatusSaving] = useState<string | null>(null);
   const [websiteVisits, setWebsiteVisits] = useState<any[]>([]);
   const [showVisitorsTable, setShowVisitorsTable] = useState(false);
+  const [session, setSession] = useState<any>(null); // Track Supabase session
+  const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
+  const [remainingTime, setRemainingTime] = useState<string | null>(null);
+  const logoutTimerRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Setup session and expiration tracking
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      if (newSession?.expires_at) {
+        const expiry = new Date(newSession.expires_at * 1000);
+        setSessionExpiry(expiry);
+      } else {
+        setSessionExpiry(null);
+      }
+    });
+
+    // Get session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.expires_at) {
+        setSessionExpiry(new Date(session.expires_at * 1000));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Count down timer to show remaining session time
+  useEffect(() => {
+    if (!sessionExpiry) {
+      setRemainingTime(null);
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+      return;
+    }
+
+    function updateRemaining() {
+      const ms = sessionExpiry.getTime() - Date.now();
+      if (ms <= 0) {
+        setRemainingTime("Expired");
+        handleLogout();
+        return;
+      }
+      // calculate as HH:MM:SS
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      setRemainingTime(
+        `${hours > 0 ? hours + "h " : ""}${minutes}m ${seconds}s`
+      );
+      // schedule next update
+      logoutTimerRef.current = setTimeout(updateRemaining, 1000);
+    }
+
+    updateRemaining();
+
+    return () => {
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+    };
+    // eslint-disable-next-line
+  }, [sessionExpiry]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -149,6 +211,9 @@ const AdminDashboard = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    setSession(null);
+    setSessionExpiry(null);
+    setIsLoggedIn(false);
     navigate("/");
   };
 
@@ -529,9 +594,24 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
               <p className="text-gray-600">Civora Nexus Management Portal</p>
             </div>
-            <Button variant="outline" onClick={handleLogout}>
-              Logout
-            </Button>
+            <div className="flex items-center gap-5">
+              {remainingTime && (
+                <div
+                  className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                    remainingTime === "Expired"
+                      ? "bg-red-50 text-red-600"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                  title="Remaining session time"
+                  data-testid="session-remaining"
+                >
+                  Session expires in: {remainingTime}
+                </div>
+              )}
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
