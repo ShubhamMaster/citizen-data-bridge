@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
@@ -115,39 +116,49 @@ const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: st
 
 export const Header: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-  // Track which sub-group is open for each main dropdown in mobile
+  // For mobile: which MAIN dropdown is open? (string | null)
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
+  // For mobile: which SUBGROUP within which main is open? { [main]: subGroupLabel|null }
   const [mobileOpenGroup, setMobileOpenGroup] = useState<{ [main: string]: string | null }>({});
+
+  // For desktop: which main dropdown is open?
+  const [desktopDropdownOpen, setDesktopDropdownOpen] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
-  useOutsideClick(dropdownRef, () => setDropdownOpen(null));
+  // Desktop useOutsideClick for dropdown
+  useOutsideClick(dropdownRef, () => setDesktopDropdownOpen(null));
 
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Keyboard ESC support for mobile menu
+  // Keyboard ESC support for mobile & desktop menu
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setDropdownOpen(null);
+        setDesktopDropdownOpen(null);
+        setMobileDropdownOpen(null);
         setMobileOpen(false);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
-  // Close mobile menu on route change
+
+  // Close BOTH menus on route change
   React.useEffect(() => {
     setMobileOpen(false);
-    setDropdownOpen(null);
+    setMobileDropdownOpen(null);
+    setDesktopDropdownOpen(null);
   }, [location.pathname]);
-
-  // When you close mobile menu, also close all mobile sub groups
+  // When you close the mobile menu, reset open groups
   React.useEffect(() => {
-    if (!mobileOpen) setMobileOpenGroup({});
+    if (!mobileOpen) {
+      setMobileDropdownOpen(null);
+      setMobileOpenGroup({});
+    }
   }, [mobileOpen]);
 
   // Main render
@@ -171,42 +182,42 @@ export const Header: React.FC = () => {
                 className="relative group"
                 onMouseEnter={() => {
                   if (dropdownTimeout.current) clearTimeout(dropdownTimeout.current);
-                  setDropdownOpen(main.label);
+                  setDesktopDropdownOpen(main.label);
                 }}
                 onMouseLeave={() => {
-                  dropdownTimeout.current = setTimeout(() => setDropdownOpen(null), 120);
+                  dropdownTimeout.current = setTimeout(() => setDesktopDropdownOpen(null), 120);
                 }}
-                onFocus={() => setDropdownOpen(main.label)}
+                onFocus={() => setDesktopDropdownOpen(main.label)}
                 onBlur={(e) => {
                   // Hide dropdown only if focus moves outside both the button and the menu
                   if (
                     !e.currentTarget.contains(e.relatedTarget as Node)
                   ) {
-                    setDropdownOpen(null);
+                    setDesktopDropdownOpen(null);
                   }
                 }}
                 tabIndex={-1}
               >
                 <button
                   type="button"
-                  onClick={() => setDropdownOpen(dropdownOpen === main.label ? null : main.label)}
+                  onClick={() => setDesktopDropdownOpen(desktopDropdownOpen === main.label ? null : main.label)}
                   className={`px-3 py-2 text-sm font-bold rounded-lg flex items-center gap-1 transition-colors focus:outline-civora-teal focus:shadow focus:ring-2 focus:ring-civora-teal/40 dark:text-gray-100
-                    ${dropdownOpen === main.label ? "text-civora-teal bg-civora-teal/10 dark:text-civora-teal" : "text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal"}`}
+                    ${desktopDropdownOpen === main.label ? "text-civora-teal bg-civora-teal/10 dark:text-civora-teal" : "text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal"}`}
                   aria-haspopup="menu"
-                  aria-expanded={dropdownOpen === main.label ? true : undefined}
+                  aria-expanded={desktopDropdownOpen === main.label ? true : undefined}
                   aria-controls={`dropdown-${main.label}`}
                 >
                   {main.label}
-                  <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${dropdownOpen === main.label ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${desktopDropdownOpen === main.label ? "rotate-180" : ""}`} />
                 </button>
                 {/* Dropdown */}
-                {dropdownOpen === main.label && (
+                {desktopDropdownOpen === main.label && (
                   <div
                     id={`dropdown-${main.label}`}
                     ref={dropdownRef}
                     className="absolute left-0 mt-2 z-50"
                   >
-                    <SubMenuDesktop subGroups={main.subGroups} close={() => setDropdownOpen(null)} />
+                    <SubMenuDesktop subGroups={main.subGroups} close={() => setDesktopDropdownOpen(null)} />
                   </div>
                 )}
               </div>
@@ -254,24 +265,17 @@ export const Header: React.FC = () => {
                   type="button"
                   className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
                   onClick={() => {
-                    const isOpening = dropdownOpen !== main.label;
-                    setDropdownOpen(dropdownOpen === main.label ? null : main.label);
-                    // Only reset sub-groups when opening a new main dropdown
-                    if (isOpening) {
-                      setMobileOpenGroup((prev) => ({
-                        ...prev,
-                        [main.label]: null,
-                      }));
-                    }
+                    setMobileDropdownOpen(mobileDropdownOpen === main.label ? null : main.label);
+                    // Do not reset sub-groups here! (they will persist within their main dropdown)
                   }}
-                  aria-expanded={dropdownOpen === main.label}
+                  aria-expanded={mobileDropdownOpen === main.label}
                   aria-controls={`mobile-dropdown-${main.label}`}
                 >
                   {main.label}
-                  <ChevronDown className={`ml-3 w-4 h-4 transition-transform ${dropdownOpen === main.label ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`ml-3 w-4 h-4 transition-transform ${mobileDropdownOpen === main.label ? "rotate-180" : ""}`} />
                 </button>
                 {/* Sub-groups */}
-                {dropdownOpen === main.label && (
+                {mobileDropdownOpen === main.label && (
                   <SubMenuMobile
                     subGroups={main.subGroups}
                     openGroup={mobileOpenGroup[main.label] || null}
@@ -283,7 +287,7 @@ export const Header: React.FC = () => {
                     }
                     closeMenu={() => {
                       setMobileOpen(false);
-                      setDropdownOpen(null);
+                      setMobileDropdownOpen(null);
                       // Always close sub-group on menu close
                       setMobileOpenGroup((prev) => ({
                         ...prev,
@@ -324,3 +328,4 @@ export const Header: React.FC = () => {
 };
 
 export default Header;
+
