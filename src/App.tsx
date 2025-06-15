@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,14 +21,20 @@ import { useLogVisit } from "@/hooks/useLogVisit";
 
 const queryClient = new QueryClient();
 
+// This component safely calls useLogVisit inside Router context
+function LogVisitEffect() {
+  useLogVisit();
+  return null;
+}
+
 const App = () => {
-  useLogVisit(); // <-- Automatically log each page visit
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <LogVisitEffect />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
