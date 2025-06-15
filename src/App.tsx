@@ -25,6 +25,11 @@ import CSRESG from "./pages/CSRESG";
 import Sustainability from "./pages/Sustainability";
 import CorporateResponsibility from "./pages/CorporateResponsibility";
 import SocialImpact from "./pages/SocialImpact";
+import AISolutions from "./pages/AISolutions";
+import SaaSDevelopment from "./pages/SaaSDevelopment";
+import CloudHosting from "./pages/CloudHosting";
+import Automation from "./pages/Automation";
+import CustomIntegrations from "./pages/CustomIntegrations";
 
 const queryClient = new QueryClient();
 
@@ -54,7 +59,13 @@ const App = () => {
             <Route path="/about-us/csr-esg/sustainability" element={<Sustainability />} />
             <Route path="/about-us/csr-esg/corporate-responsibility" element={<CorporateResponsibility />} />
             <Route path="/about-us/csr-esg/social-impact" element={<SocialImpact />} />
+            {/* Services section */}
             <Route path="/services" element={<Services />} />
+            <Route path="/services/ai-solutions" element={<AISolutions />} />
+            <Route path="/services/saas-development" element={<SaaSDevelopment />} />
+            <Route path="/services/cloud-hosting" element={<CloudHosting />} />
+            <Route path="/services/automation" element={<Automation />} />
+            <Route path="/services/custom-integrations" element={<CustomIntegrations />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/innovation-lab" element={<InnovationLab />} />
