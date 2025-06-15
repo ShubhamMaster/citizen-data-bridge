@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -14,13 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
-import {
-  Calendar as CalendarIcon,
-  Clock as ClockIcon,
-  User as UserIcon,
-  Smartphone as SmartphoneIcon,
-  StickyNote as NoteIcon,
-} from "lucide-react";
+import { Calendar as CalendarIcon, Clock as ClockIcon, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -35,44 +28,51 @@ const TIME_SLOTS = [
 export default function ScheduleCallDialog() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState(""); // NEW FIELD
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState("");
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Used to close popover after date selection
   const [calendarOpen, setCalendarOpen] = useState(false);
 
+  // Handle date selection and close popover
   const handleDateSelect = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
-    if (selectedDate) setCalendarOpen(false);
+    if (selectedDate) {
+      setCalendarOpen(false); // closes popover after selection
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
     try {
       const { error } = await supabase.from("scheduled_calls").insert([
         {
           name,
-          mobile,
+          mobile, // Include mobile in the insert
           date: date ? format(date, "yyyy-MM-dd") : null,
           time,
           reason,
-        },
+        }
       ]);
       if (error) {
         toast({
           title: "Error scheduling call",
           description: "Failed to schedule your call. Please try again.",
-          variant: "destructive",
+          variant: "destructive"
         });
       } else {
         toast({
           title: "Call scheduled!",
           description: "Thank you, your callback has been scheduled.",
         });
+        // Reset form after submission
         setName("");
-        setMobile("");
+        setMobile(""); // Reset the field
         setDate(undefined);
         setTime("");
         setReason("");
@@ -82,38 +82,11 @@ export default function ScheduleCallDialog() {
       toast({
         title: "Unexpected error",
         description: "Something went wrong.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
     setSubmitting(false);
   };
-
-  // Reusable input wrapper
-  function FieldBox({
-    children,
-    icon,
-    htmlFor,
-    label,
-  }: {
-    children: React.ReactNode;
-    icon: React.ReactNode;
-    htmlFor: string;
-    label: string;
-  }) {
-    return (
-      <div>
-        <label className="block mb-1 text-sm font-semibold text-civora-navy" htmlFor={htmlFor}>
-          {label}
-        </label>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-civora-teal shadow-sm bg-background focus-within:ring-2 focus-within:ring-civora-teal">
-          <span className="text-civora-teal flex">
-            {icon}
-          </span>
-          <div className="flex-1">{children}</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -132,61 +105,63 @@ export default function ScheduleCallDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name field */}
-          <FieldBox
-            icon={<UserIcon className="h-4 w-4" />}
-            htmlFor="call-name"
-            label="Name"
-          >
-            <Input
-              id="call-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full border-none shadow-none focus-visible:ring-0 bg-transparent text-base"
-              autoComplete="name"
-              placeholder="Your Name"
-            />
-          </FieldBox>
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="call-name">
+              Name
+            </label>
+            <div className="flex items-center gap-2">
+              <UserIcon className="h-4 w-4 opacity-50" />
+              <Input
+                id="call-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full"
+                autoComplete="name"
+                placeholder="Your Name"
+              />
+            </div>
+          </div>
 
           {/* Mobile field */}
-          <FieldBox
-            icon={<SmartphoneIcon className="h-4 w-4" />}
-            htmlFor="call-mobile"
-            label="Mobile Number"
-          >
-            <Input
-              id="call-mobile"
-              type="tel"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              required
-              className="w-full border-none shadow-none focus-visible:ring-0 bg-transparent text-base"
-              autoComplete="tel"
-              placeholder="Your Mobile Number"
-              pattern="^[0-9+\-\s()]{8,16}$"
-              maxLength={16}
-            />
-          </FieldBox>
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="call-mobile">
+              Mobile Number
+            </label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="call-mobile"
+                type="tel"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                required
+                className="w-full"
+                autoComplete="tel"
+                placeholder="Your Mobile Number"
+                pattern="^[0-9+\-\s()]{8,16}$"
+                maxLength={16}
+              />
+            </div>
+          </div>
 
           {/* Date field */}
-          <FieldBox
-            icon={<CalendarIcon className="h-4 w-4" />}
-            htmlFor="call-date"
-            label="Date"
-          >
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="call-date">
+              Date
+            </label>
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   type="button"
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal shadow-none border-none bg-transparent p-0 h-auto",
+                    "w-full justify-start text-left font-normal",
                     !date && "text-muted-foreground"
                   )}
                   onClick={() => setCalendarOpen(!calendarOpen)}
-                  id="call-date"
                 >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
@@ -201,36 +176,37 @@ export default function ScheduleCallDialog() {
                 />
               </PopoverContent>
             </Popover>
-          </FieldBox>
+          </div>
 
-          {/* Time slot field */}
-          <FieldBox
-            icon={<ClockIcon className="h-4 w-4" />}
-            htmlFor="call-time"
-            label="Time"
-          >
-            <select
-              id="call-time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-              className="w-full border-none text-base bg-transparent focus-visible:ring-0"
-            >
-              <option value="">Select a time</option>
-              {TIME_SLOTS.map((slot) => (
-                <option key={slot} value={slot}>
-                  {slot}
-                </option>
-              ))}
-            </select>
-          </FieldBox>
+          {/* Time slot picker */}
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="call-time">
+              Time
+            </label>
+            <div className="flex items-center gap-2">
+              <ClockIcon className="h-4 w-4 opacity-50" />
+              <select
+                id="call-time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                required
+                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-civora-teal focus:outline-none"
+              >
+                <option value="">Select a time</option>
+                {TIME_SLOTS.map((slot) => (
+                  <option key={slot} value={slot}>
+                    {slot}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {/* Reason field */}
-          <FieldBox
-            icon={<NoteIcon className="h-4 w-4" />}
-            htmlFor="reason"
-            label="Reason"
-          >
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="reason">
+              Reason
+            </label>
             <Textarea
               id="reason"
               value={reason}
@@ -238,10 +214,8 @@ export default function ScheduleCallDialog() {
               placeholder="Briefly tell us the reason for the call"
               required
               rows={3}
-              className="w-full border-none shadow-none focus-visible:ring-0 bg-transparent text-base resize-none"
             />
-          </FieldBox>
-
+          </div>
           <DialogFooter>
             <Button
               type="submit"
