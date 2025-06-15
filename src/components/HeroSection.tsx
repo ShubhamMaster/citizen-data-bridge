@@ -1,74 +1,134 @@
 
 import React from "react";
-import ScheduleCallDialog from "@/components/ScheduleCallDialog";
+import { Button } from "@/components/ui/button";
+import { Handshake, Hospital, Globe, Users, Shield, Heart } from "lucide-react";
 
-// --- CREATIVE + ANIMATED BACKGROUND LAYERS ---
-const CreativeBg = () => (
-  <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden select-none">
-    {/* Vibrant animated blob top right */}
-    <div className="absolute -top-36 -right-32 md:-top-56 md:-right-52 w-[360px] h-[360px] md:w-[520px] md:h-[520px] rounded-full bg-gradient-to-br from-civora-teal/40 via-civora-teal/10 to-civora-navy/10 blur-3xl opacity-40 animate-blob" />
-
-    {/* Glass diagonal accent - animated in */}
-    <div className="absolute left-1/4 top-1/2 -translate-y-1/2 w-[66vw] max-w-3xl h-[130px] md:h-[170px] rounded-[2.2rem] bg-gradient-to-r from-white/25 via-white/5 to-civora-navy/15 backdrop-blur-md border border-white/10 shadow-lg opacity-80 rotate-[-13deg] animate-fade-in" style={{animationDelay: "350ms"}} />
-
-    {/* Pastel grid, bottom left, with slight entrance fade */}
+// Animated abstract SVG Illustration
+const HeroIllustration = () => (
+  <div className="w-full h-full flex items-center justify-center">
     <svg
-      className="absolute -bottom-24 -left-24 w-[330px] h-[330px] md:w-[420px] md:h-[420px] opacity-25 animate-fade-in"
-      style={{animationDelay: "450ms"}}
-      width="420"
-      height="420"
+      className="w-[320px] h-[320px] md:w-[420px] md:h-[420px] max-w-full"
       viewBox="0 0 420 420"
       fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
-      <defs>
-        <linearGradient id="grid" x1="0" y1="0" x2="420" y2="420" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#2EA6AA" stopOpacity="0.13" />
-          <stop offset="1" stopColor="#112B52" stopOpacity="0.05" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="420" height="420" fill="none" stroke="url(#grid)" strokeDasharray="10 10" strokeWidth="1.7" rx="32" />
-      <line x1="55" y1="0" x2="55" y2="420" stroke="url(#grid)" strokeDasharray="6 10" strokeWidth="0.9" />
-      <line x1="180" y1="0" x2="180" y2="420" stroke="url(#grid)" strokeDasharray="6 10" strokeWidth="0.9" />
-      <line x1="320" y1="0" x2="320" y2="420" stroke="url(#grid)" strokeDasharray="4 14" strokeWidth="0.8" />
+      {/* Digital Transformation Blob Shape */}
+      <g>
+        <defs>
+          <radialGradient id="bgblob" cx="50%" cy="50%" r="62%" fx="60%" fy="40%">
+            <stop offset="0%" stopColor="#2ea6aa44" />
+            <stop offset="100%" stopColor="#2EA6AA10" />
+          </radialGradient>
+        </defs>
+        <ellipse
+          cx="210"
+          cy="200"
+          rx="180"
+          ry="140"
+          fill="url(#bgblob)"
+          className="animate-pulse"
+          opacity="0.95"
+        />
+      </g>
+      {/* Smart city buildings (abstract) */}
+      <g className="animate-[fade-in_0.9s_ease-in]">
+        <rect x="80" y="200" width="30" height="80" rx="7" fill="#BFE9EA" />
+        <rect x="120" y="170" width="32" height="110" rx="8" fill="#2EA6AA" opacity="0.9" />
+        <rect x="164" y="210" width="20" height="70" rx="5" fill="#2EA6AA" opacity="0.5" />
+        <rect x="196" y="152" width="60" height="128" rx="14" fill="#112B52" opacity="0.8"/>
+        <rect x="268" y="230" width="24" height="50" rx="6" fill="#BFE9EA" />
+        <rect x="298" y="180" width="40" height="100" rx="10" fill="#2EA6AA" />
+      </g>
+      {/* Health + engagement icons (bubbles) */}
+      <g className="animate-[fade-in_1.1s_ease-in]">
+        <circle cx="105" cy="148" r="19" fill="#fff" opacity="0.78" />
+        <g>
+          <Globe x={90} y={134} size={18} color="#2EA6AA" strokeWidth={1.8} />
+        </g>
+        <circle cx="345" cy="205" r="17" fill="#fff" opacity="0.80" />
+        <g>
+          <Heart x={335} y={192} size={16} color="#2EA6AA" strokeWidth={1.7} />
+        </g>
+        <circle cx="180" cy="106" r="13" fill="#fff" opacity="0.90" />
+        <g>
+          <Users x={171} y={96} size={13} color="#2EA6AA" strokeWidth={1.7} />
+        </g>
+      </g>
+      {/* Connection lines */}
+      <polyline points="120,170 180,106 196,152" stroke="#2EA6AA" strokeWidth="2.5" strokeDasharray="7 6" />
+      <polyline points="298,180 345,205 320,230" stroke="#2EA6AA" strokeWidth="2.5" strokeDasharray="6 9" />
+      {/* Base */}
+      <ellipse cx="210" cy="336" rx="140" ry="22" fill="#2EA6AA22" />
     </svg>
-    {/* Top border highlight */}
-    <div className="absolute top-0 left-5 w-[110px] h-[4px] bg-gradient-to-r from-civora-teal/60 via-white/60 to-transparent rounded-full opacity-80" />
-    {/* Subtle bottom ring */}
-    <div className="absolute left-1/2 -bottom-16 -translate-x-1/2 w-[210px] h-[70px] rounded-full border-4 border-civora-teal/15 border-dashed opacity-15 blur-sm" />
   </div>
 );
 
-// --- HERO SECTION ---
+const TrustBadges = () => (
+  <div className="flex items-center gap-5 flex-wrap mt-7 md:mt-8">
+    {/* Trust message */}
+    <span className="flex items-center text-xs font-semibold text-gray-700 bg-civora-teal/10 border border-civora-teal/20 rounded px-3 py-1.5">
+      <Shield className="mr-2 text-civora-teal" size={17} />
+      Trusted by Governments & NGOs
+    </span>
+    {/* Example partner logos/initials */}
+    <span className="flex items-center gap-2">
+      <Hospital className="text-civora-teal" size={18} />
+      <Handshake className="text-civora-teal" size={18} />
+      <span className="rounded bg-civora-teal/10 px-2 py-0.5 text-[11px] font-bold text-civora-teal">CityHealth</span>
+      <span className="rounded bg-civora-teal/10 px-2 py-0.5 text-[11px] font-bold text-civora-teal">CivicOne</span>
+      {/* Add more if real logos/partners */}
+    </span>
+  </div>
+);
+
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-civora-navy via-civora-navy/90 to-civora-navy/85 min-h-[520px] md:min-h-[700px] flex items-center px-3 xs:px-5 md:px-0">
-      <CreativeBg />
-      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center py-14 md:py-28">
-        {/* HEADLINE */}
-        <h1 className="font-sans font-extrabold text-3xl xs:text-4xl sm:text-6xl md:text-7xl leading-tight md:leading-[1.08] tracking-tight animate-fade-in" style={{animationDelay:"100ms"}}>
-          <span className="block bg-gradient-to-br from-civora-teal via-white to-civora-teal/70 bg-clip-text text-transparent drop-shadow font-extrabold">
-            Unlock Tomorrow's{" "}
-            <span className="inline-block px-2 py-1 bg-white/10 rounded-lg text-civora-teal font-bold shadow border border-civora-teal/20">
-              Governance
-            </span>
-          </span>
-          <span className="block mt-2 md:mt-3 animate-fade-in" style={{ animationDelay: "200ms" }}>
-            <span className="text-white">Today.</span>
-          </span>
-        </h1>
-        {/* SUBTITLE */}
-        <p className="mt-2 md:mt-3 mb-11 md:mb-14 text-base xs:text-lg md:text-2xl text-civora-teal/90 font-medium max-w-2xl w-full mx-auto animate-fade-in" style={{ animationDelay: "320ms" }}>
-          Civora Nexus crafts next-gen civic and healthcare tech for modern governments, citizens, and innovation leaders. Experience seamless, intelligent, and truly human-first solutions.
-        </p>
-        {/* BUTTONS */}
-        <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 justify-center w-full max-w-md mx-auto animate-fade-in" style={{ animationDelay: "420ms" }}>
-          <ScheduleCallDialog />
-          <a
-            href="#services"
-            className="inline-flex items-center justify-center text-civora-teal font-semibold border-2 border-civora-teal/80 bg-white/95 hover:bg-civora-teal hover:text-white rounded-md text-base px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-200 ring-1 ring-inset ring-white/25 focus-visible:ring-2 focus-visible:ring-civora-teal/50 hover-scale"
+    <section className="relative min-h-[630px] bg-white py-10 md:py-20 w-full flex items-center">
+      <div className="absolute inset-0 pointer-events-none select-none -z-10">
+        {/* Subtle gradient ribbons for depth */}
+        <div className="hidden md:block absolute left-[40%] top-12 w-[120px] h-[320px] rounded-full blur-3xl bg-gradient-to-b from-civora-teal/30 via-white/0 to-white/0 z-10 rotate-12"/>
+        <div className="block absolute right-6 top-6 w-[70px] h-[220px] rounded-full blur-2xl bg-gradient-to-br from-civora-teal/30 via-civora-navy/0 to-white/0 z-10 rotate-[20deg]"/>
+        <div className="absolute bottom-2 left-1/6 w-[300px] h-[30px] rounded-full bg-civora-teal/5 blur-xl opacity-60"/>
+      </div>
+      <div className="z-10 container mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-10 md:gap-3 max-w-6xl">
+        {/* Left - Text Content */}
+        <div className="flex-1 max-w-xl w-full flex flex-col items-start justify-center text-left px-2 sm:px-0">
+          <h1
+            className="font-sans font-extrabold text-[2.25rem] xs:text-4xl sm:text-5xl md:text-6xl leading-[1.13] tracking-tight text-civora-navy mb-4 animate-fade-in"
+            style={{ fontFamily: "Inter, Poppins, 'Open Sans', sans-serif" }}
           >
-            Our Services
-          </a>
+            Connecting Citizens <br className="hidden sm:block"/> Through Intelligent Innovation
+          </h1>
+          <p
+            className="text-lg md:text-xl text-civora-teal font-medium mb-7 md:mb-9 pr-2 animate-fade-in"
+            style={{ fontFamily: "Inter, Poppins, 'Open Sans', sans-serif" }}
+          >
+            Empowering governments, NGOs, and communities with smart civic and healthcare solutions.<br className="hidden md:block"/> We make public services faster, smarter, and accessible for everyone — from small villages to smart cities.
+          </p>
+          {/* CTA Buttons */}
+          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 w-full max-w-sm animate-fade-in">
+            <Button
+              asChild
+              size="lg"
+              className="bg-civora-teal text-white hover:bg-civora-navy transition-colors text-base font-semibold shadow-md px-7 py-3.5"
+            >
+              <a href="#services">Explore Our Solutions</a>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-civora-teal text-civora-teal hover:bg-civora-teal hover:text-white hover:border-civora-teal/80 transition-colors text-base font-semibold shadow px-7 py-3.5"
+            >
+              <a href="#contact">Contact Us</a>
+            </Button>
+          </div>
+          <TrustBadges />
+        </div>
+        {/* Right - Illustration */}
+        <div className="flex-1 flex items-center justify-center w-full max-w-lg min-h-[320px] md:min-h-[410px] animate-fade-in">
+          <HeroIllustration />
         </div>
       </div>
     </section>
