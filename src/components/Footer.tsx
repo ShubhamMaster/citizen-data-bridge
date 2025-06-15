@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import FooterBrandSection from "./FooterBrandSection";
@@ -18,7 +17,7 @@ const Footer: React.FC = () => {
   const navLinks = [
     { name: "Home", to: "/" },
     { name: "About Us", to: "/about" },
-    { name: "Services", to: "/#services" },
+    { name: "Services", to: "/services" },
     { name: "Industries", to: "/#industries" },
     { name: "Innovation Lab", to: "/innovation-lab" },
     { name: "Careers", to: "/careers" },
