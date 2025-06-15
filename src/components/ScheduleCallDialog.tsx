@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,23 +19,12 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Generate time slots with 3 slots per hour in AM/PM
-function generateTimeSlots() {
-  const slots: string[] = [];
-  for (let hour = 8; hour <= 20; hour++) {
-    // Only three slots per hour: :00, :20, :40
-    for (let min of [0, 20, 40]) {
-      if (hour === 20 && min > 0) break; // Only 8:00 PM for the last hour
-      let displayHour = hour > 12 ? hour - 12 : hour;
-      let ampm = hour < 12 ? "AM" : "PM";
-      if (displayHour === 0) displayHour = 12;
-      let displayMinute = min.toString().padStart(2, '0');
-      slots.push(`${displayHour}:${displayMinute} ${ampm}`);
-    }
-  }
-  return slots;
-}
-const TIME_SLOTS = generateTimeSlots();
+// Time slot values according to request
+const TIME_SLOTS = [
+  "8am - 11am",
+  "11am - 2pm",
+  "2pm - 5pm",
+];
 
 export default function ScheduleCallDialog() {
   const [open, setOpen] = useState(false);
@@ -45,6 +33,17 @@ export default function ScheduleCallDialog() {
   const [time, setTime] = useState("");
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Used to close popover after date selection
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // Handle date selection and close popover
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    if (selectedDate) {
+      setCalendarOpen(false); // closes popover after selection
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +127,7 @@ export default function ScheduleCallDialog() {
             <label className="block mb-1 text-sm font-medium" htmlFor="call-date">
               Date
             </label>
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   type="button"
@@ -137,6 +136,7 @@ export default function ScheduleCallDialog() {
                     "w-full justify-start text-left font-normal",
                     !date && "text-muted-foreground"
                   )}
+                  onClick={() => setCalendarOpen(!calendarOpen)}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -146,7 +146,7 @@ export default function ScheduleCallDialog() {
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={handleDateSelect}
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                   disabled={(d) => d < new Date()}
