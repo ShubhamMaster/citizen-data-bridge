@@ -180,16 +180,20 @@ const AdminDashboard = () => {
         x: 0, y: 762, width: 595, height: 80,
         color: rgb(225/255, 238/255, 255/255)
       });
-      // Embed logo
-      try {
-        const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
-        const logoImageRes = await fetch(logoUrl);
-        const logoImageBytes = await logoImageRes.arrayBuffer();
-        const logoImage = await pdfDoc.embedPng(logoImageBytes);
-        page.drawImage(logoImage, {
-          x: 35, y: 772, width: 65, height: 65
-        });
-      } catch {}
+
+      // Remove the direct await usage and use an async IIFE:
+      await (async () => {
+        try {
+          const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+          const logoImageRes = await fetch(logoUrl);
+          const logoImageBytes = await logoImageRes.arrayBuffer();
+          const logoImage = await pdfDoc.embedPng(logoImageBytes);
+          page.drawImage(logoImage, {
+            x: 35, y: 772, width: 65, height: 65
+          });
+        } catch {}
+      })();
+
       // Company name (right of logo)
       page.drawText(COMPANY_LETTERHEAD.companyName, {
         x: 110, y: 797, size: 22, font: fontBold, color: rgb(0.13,0.22,0.36)
@@ -197,7 +201,7 @@ const AdminDashboard = () => {
 
       y = 720; // below header
 
-      applications.forEach((app, i) => {
+      for (const app of applications) {
         if (y < 120) {
           page = pdfDoc.addPage([595, 842]);
           // draw header again for each page
@@ -205,15 +209,18 @@ const AdminDashboard = () => {
             x: 0, y: 762, width: 595, height: 80,
             color: rgb(225/255, 238/255, 255/255)
           });
-          try {
-            const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
-            const logoImageRes = await fetch(logoUrl);
-            const logoImageBytes = await logoImageRes.arrayBuffer();
-            const logoImage = await pdfDoc.embedPng(logoImageBytes);
-            page.drawImage(logoImage, {
-              x: 35, y: 772, width: 65, height: 65
-            });
-          } catch {}
+          // Repeat header logo usage inside async IIFE:
+          await (async () => {
+            try {
+              const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+              const logoImageRes = await fetch(logoUrl);
+              const logoImageBytes = await logoImageRes.arrayBuffer();
+              const logoImage = await pdfDoc.embedPng(logoImageBytes);
+              page.drawImage(logoImage, {
+                x: 35, y: 772, width: 65, height: 65
+              });
+            } catch {}
+          })();
           page.drawText(COMPANY_LETTERHEAD.companyName, {
             x: 110, y: 797, size: 22, font: fontBold, color: rgb(0.13,0.22,0.36)
           });
@@ -234,7 +241,7 @@ const AdminDashboard = () => {
         y -= 20;
         page.drawText("-------------------------------------------", { x: 40, y, size: 8, font, color: rgb(0.7,0.7,0.7) });
         y -= 18;
-      });
+      }
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
@@ -278,19 +285,21 @@ const AdminDashboard = () => {
         color: rgb(225/255, 238/255, 255/255)
       });
 
-      // Logo
-      try {
-        const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
-        const logoImageRes = await fetch(logoUrl);
-        const logoImageBytes = await logoImageRes.arrayBuffer();
-        const logoImage = await pdfDoc.embedPng(logoImageBytes);
-        page.drawImage(logoImage, {
-          x: 35,
-          y: pageHeight - 70,
-          width: 65,
-          height: 65,
-        });
-      } catch {}
+      // Again, use an async IIFE for await:
+      await (async () => {
+        try {
+          const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+          const logoImageRes = await fetch(logoUrl);
+          const logoImageBytes = await logoImageRes.arrayBuffer();
+          const logoImage = await pdfDoc.embedPng(logoImageBytes);
+          page.drawImage(logoImage, {
+            x: 35,
+            y: pageHeight - 70,
+            width: 65,
+            height: 65,
+          });
+        } catch {}
+      })();
 
       // Company name (right of logo)
       page.drawText(COMPANY_LETTERHEAD.companyName, {
