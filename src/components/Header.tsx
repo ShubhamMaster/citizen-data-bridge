@@ -26,30 +26,16 @@ const Header = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
-  const navigation = [{
-    name: 'Home',
-    href: '/'
-  }, {
-    name: 'About Us',
-    href: '/about'
-  }, {
-    name: 'Services',
-    href: '/services'
-  }, {
-    name: 'Projects',
-    href: '/#projects'
-  },
-  // swapped from Industries
-  {
-    name: 'Innovation Lab',
-    href: '/innovation-lab'
-  }, {
-    name: 'Careers',
-    href: '/careers'
-  }, {
-    name: 'Contact',
-    href: '/contact'
-  }];
+ const navigation = [
+  { name: 'Home', href: '/' },
+  { name: 'Projects', href: '/#projects' },  // Move right after Home
+  { name: 'About Us', href: '/about' },
+  { name: 'Services', href: '/services' },
+  { name: 'Innovation Lab', href: '/innovation-lab' },
+  { name: 'Careers', href: '/careers' },
+  { name: 'Contact', href: '/contact' }
+];
+
   const isActive = (href: string) => {
     if (href === '/') {
       return location.pathname === '/';
