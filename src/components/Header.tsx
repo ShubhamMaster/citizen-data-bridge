@@ -43,18 +43,20 @@ const SubMenuDesktop: React.FC<{
 
 const SubMenuMobile: React.FC<{
   subGroups: NavSubGroup[];
+  openGroup: string | null;
+  setOpenGroup: (label: string | null) => void;
   closeMenu: () => void;
-}> = ({ subGroups, closeMenu }) => {
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
+}> = ({ subGroups, openGroup, setOpenGroup, closeMenu }) => {
   return (
     <div className="pl-4 space-y-1 mt-1">
       {subGroups.map(group => (
         <div key={group.label}>
           <button
             className="w-full text-left py-2 px-2 rounded flex justify-between items-center font-semibold text-sm text-civora-teal dark:text-civora-teal/80 focus:outline-civora-teal transition"
-            onClick={() => setOpenGroup(group.label === openGroup ? null : group.label)}
+            onClick={() => setOpenGroup(openGroup === group.label ? null : group.label)}
             aria-expanded={openGroup === group.label}
             aria-controls={`mobile-group-${group.label}`}
+            type="button"
           >
             {group.label}
             <ChevronDown className={`ml-2 w-4 h-4 transition-transform ${openGroup === group.label ? "rotate-180" : ""}`} />
@@ -111,14 +113,16 @@ const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: st
 export const Header: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+
+  // New: Track which sub-group is open in mobile menu
+  const [mobileOpenGroup, setMobileOpenGroup] = useState<{ [main: string]: string | null }>({});
+
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
-  // Close dropdown when clicking outside (desktop)
   useOutsideClick(dropdownRef, () => setDropdownOpen(null));
 
-  // Dropdown close helper for desktop
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Keyboard ESC support for mobile menu
@@ -137,6 +141,11 @@ export const Header: React.FC = () => {
     setMobileOpen(false);
     setDropdownOpen(null);
   }, [location.pathname]);
+
+  // When you close mobile menu, also close all mobile sub groups
+  React.useEffect(() => {
+    if (!mobileOpen) setMobileOpenGroup({});
+  }, [mobileOpen]);
 
   // Main render
   return (
@@ -241,7 +250,14 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
-                  onClick={() => setDropdownOpen(dropdownOpen === main.label ? null : main.label)}
+                  onClick={() => {
+                    setDropdownOpen(dropdownOpen === main.label ? null : main.label);
+                    // Reset sub-group open on main menu toggle
+                    setMobileOpenGroup((prev) => ({
+                      ...prev,
+                      [main.label]: null,
+                    }));
+                  }}
                   aria-expanded={dropdownOpen === main.label}
                   aria-controls={`mobile-dropdown-${main.label}`}
                 >
@@ -250,7 +266,15 @@ export const Header: React.FC = () => {
                 </button>
                 {/* Sub-groups */}
                 {dropdownOpen === main.label && (
-                  <SubMenuMobile subGroups={main.subGroups} closeMenu={() => { setMobileOpen(false); setDropdownOpen(null); }} />
+                  <SubMenuMobile
+                    subGroups={main.subGroups}
+                    openGroup={mobileOpenGroup[main.label] || null}
+                    setOpenGroup={label => setMobileOpenGroup(prev => ({
+                      ...prev,
+                      [main.label]: prev[main.label] === label ? null : label
+                    }))}
+                    closeMenu={() => { setMobileOpen(false); setDropdownOpen(null); }}
+                  />
                 )}
               </li>
             ) : (
