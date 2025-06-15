@@ -47,6 +47,9 @@ import GDPRCCPA from "./pages/GDPRCCPA";
 import ISO from "./pages/ISO";
 import DataSecurity from "./pages/DataSecurity";
 import Accessibility from "./pages/Accessibility";
+import SalesInquiry from "./pages/SalesInquiry";
+import HelpCenter from "./pages/HelpCenter";
+import TechnicalSupport from "./pages/TechnicalSupport";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +87,9 @@ const App = () => {
             <Route path="/services/automation" element={<Automation />} />
             <Route path="/services/custom-integrations" element={<CustomIntegrations />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/contact/sales" element={<SalesInquiry />} />
+            <Route path="/support/help-center" element={<HelpCenter />} />
+            <Route path="/support/technical-support" element={<TechnicalSupport />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/careers/jobs" element={<CareersJobs />} />
             <Route path="/careers/life" element={<LifeAtCivora />} />
