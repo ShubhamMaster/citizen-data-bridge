@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
@@ -92,44 +91,44 @@ const AdminDashboard: React.FC = () => {
             </Drawer>
           </div>
         </div>
-        {/* Desktop Tabs - moved Tabs here */}
+        {/* Desktop Tabs */}
         <nav className="hidden md:block w-auto ml-6 flex-shrink-0">
-          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-            <div className="flex items-center">
-              {/* TabsList with responsive gap and scroll */}
-              <TabsList className="gap-1 overflow-x-auto max-w-full">
-                {/* Render all tab triggers */}
-                {tabs.map(tab => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="min-w-[100px] md:min-w-[128px]"
-                  >
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-            {/* Desktop TabsContent */}
-            <div>
+          <div className="flex items-center">
+            {/* TabsList with responsive gap and scroll */}
+            <TabsList className="gap-1 overflow-x-auto max-w-full">
+              {/* Render all tab triggers */}
               {tabs.map(tab => (
-                <TabsContent
+                <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="py-4"
+                  className="min-w-[100px] md:min-w-[128px]"
                 >
-                  {/* Wrap tab content for responsiveness */}
-                  <section className="w-full flex flex-col gap-6 lg:gap-8">
-                    {tab.component}
-                  </section>
-                </TabsContent>
+                  {tab.label}
+                </TabsTrigger>
               ))}
-            </div>
-          </Tabs>
+            </TabsList>
+          </div>
         </nav>
       </header>
       {/* Main Content */}
       <main className="flex-1 flex flex-col w-full px-2 sm:px-6 md:px-8 lg:px-16">
+        {/* Desktop TabsContent */}
+        <div className="hidden md:block">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+            {tabs.map(tab => (
+              <TabsContent
+                key={tab.value}
+                value={tab.value}
+                className="py-4"
+              >
+                {/* Wrap tab content for responsiveness */}
+                <section className="w-full flex flex-col gap-6 lg:gap-8">
+                  {tab.component}
+                </section>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
         {/* Mobile: Render current tab content only, full width, no Tabs */}
         <div className="block md:hidden pt-3">
           {/* Hamburger dropdown for mobile navigation */}
