@@ -26,37 +26,32 @@ const Header = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
- const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Projects', href: '/#projects' },  // Move right after Home
-  { name: 'About Us', href: '/about' },
-  { name: 'Services', href: '/services' },
-  { name: 'Innovation Lab', href: '/innovation-lab' },
-  { name: 'Careers', href: '/careers' },
-  { name: 'Contact', href: '/contact' }
-];
+  
+  // Update navigation array: "Projects" now uses '/projects'
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Projects', href: '/projects' },  // Now matches the /projects page!
+    { name: 'About Us', href: '/about' },
+    { name: 'Services', href: '/services' },
+    { name: 'Innovation Lab', href: '/innovation-lab' },
+    { name: 'Careers', href: '/careers' },
+    { name: 'Contact', href: '/contact' }
+  ];
 
+  // Simplify isActive: only match by pathname
   const isActive = (href: string) => {
     if (href === '/') {
       return location.pathname === '/';
     }
-    if (href.startsWith('/#')) {
-      return location.pathname === '/' && location.hash === href.substring(1);
-    }
-    return location.pathname.startsWith(href);
+    return location.pathname === href;
   };
-  const handleNavClick = (href: string) => {
-    if (href.startsWith('/#')) {
-      const element = document.querySelector(href.substring(1));
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth'
-        });
-      }
-    }
+
+  const handleNavClick = () => {
     setIsMenuOpen(false);
   };
-  return <header className="bg-white/95 backdrop-blur-sm shadow-lg sticky top-0 z-50 border-b border-gray-100">
+
+  return (
+    <header className="bg-white/95 backdrop-blur-sm shadow-lg sticky top-0 z-50 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
@@ -80,25 +75,14 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-1 xl:space-x-2">
             {navigation.map(item =>
-              item.href.startsWith('/#')
-                ? <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={e => {
-                      e.preventDefault();
-                      handleNavClick(item.href);
-                    }}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}
-                  >
-                    {item.name}
-                  </a>
-                : <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}
-                  >
-                    {item.name}
-                  </Link>
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={handleNavClick}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}
+              >
+                {item.name}
+              </Link>
             )}
           </nav>
 
@@ -136,31 +120,19 @@ const Header = () => {
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && <div className="md:hidden pb-4 border-t border-gray-100 animate-fade-in">
+        {isMenuOpen && (
+          <div className="md:hidden pb-4 border-t border-gray-100 animate-fade-in">
             <nav className="flex flex-col space-y-2 pt-4">
               {navigation.map(item =>
-                item.href.startsWith('/#')
-                  ? <a
-                      key={item.name}
-                      href={item.href}
-                      onClick={e => {
-                        e.preventDefault();
-                        handleNavClick(item.href);
-                      }}
-                      className={`font-medium transition-all duration-200 text-left px-4 py-3 rounded-lg ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`}
-                    >
-                      {item.name}
-                    </a>
-                  : <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`font-medium transition-all duration-200 px-4 py-3 rounded-lg block ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`font-medium transition-all duration-200 px-4 py-3 rounded-lg block ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
               )}
-              
               <div className="pt-4 space-y-3 border-t border-gray-100">
                 {isLoggedIn ? <>
                     <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
@@ -188,10 +160,10 @@ const Header = () => {
                   </>}
               </div>
             </nav>
-          </div>}
+          </div>
+        )}
       </div>
-    </header>;
+    </header>
+  );
 };
 export default Header;
-
-// NOTE: This file is now 240+ lines. Consider refactoring it for maintainability!
