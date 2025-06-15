@@ -119,6 +119,46 @@ const AdminDashboard = () => {
     return colors[status as keyof typeof colors] || colors.pending;
   };
 
+  // CSV Export for applications
+  const handleExportApplications = () => {
+    if (applications.length === 0) {
+      toast({
+        title: "Nothing to export",
+        description: "There are no applications to export.",
+      });
+      return;
+    }
+    const csvHeaders = [
+      "Applicant Name",
+      "Applicant Email",
+      "Position",
+      "Applied Date",
+      "Status"
+    ];
+    const csvRows = applications.map((app) => [
+      `"${(app.application_data?.name ?? '').replace(/"/g, '""')}"`,
+      `"${(app.application_data?.email ?? '').replace(/"/g, '""')}"`,
+      `"${(app.application_data?.position ?? 'General Application').replace(/"/g, '""')}"`,
+      `"${new Date(app.created_at).toLocaleString().replace(/"/g, '""')}"`,
+      `"${(app.status ?? 'pending').replace(/"/g, '""')}"`
+    ]);
+    const csvContent = [csvHeaders, ...csvRows].map(row => row.join(",")).join("\r\n");
+
+    // Create a blob and download it
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "job-applications.csv");
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 0);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -237,7 +277,7 @@ const AdminDashboard = () => {
                         className="pl-10 w-64"
                       />
                     </div>
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={handleExportApplications}>
                       <Download className="h-4 w-4 mr-2" />
                       Export
                     </Button>
