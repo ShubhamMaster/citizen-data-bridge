@@ -73,28 +73,9 @@ const Careers = () => {
     setIsSubmitting(true);
 
     try {
-      // Create a temporary goal for the application since the schema requires it
-      const { data: goalData, error: goalError } = await supabase
-        .from('goals')
-        .insert([
-          {
-            goal_type: 'career',
-            custom_description: `Job application for ${selectedJob?.title || 'General Position'}`,
-            user_id: 'temp-user-id', // Should be replaced with actual user ID if auth is implemented
-          }
-        ])
-        .select()
-        .single();
-
-      if (goalError) {
-        console.error('Goal creation error:', goalError);
-        throw goalError;
-      }
-
-      // Submit application
       const applicationData = {
-        goal_id: goalData.id,
-        user_id: 'temp-user-id', // Should be replaced with actual user ID if auth is implemented
+        job_id: selectedJob?.id || null,
+        user_id: 'temp-user-id', // Can be replaced with actual user ID if auth is implemented
         data_source: 'careers_page',
         status: 'pending',
         application_data: {
@@ -123,7 +104,6 @@ const Careers = () => {
         description: "Thank you for your interest. We'll review your application and get back to you soon.",
       });
 
-      // Reset form
       setFormData({
         name: '',
         email: '',
