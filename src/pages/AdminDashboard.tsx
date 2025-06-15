@@ -204,6 +204,38 @@ const AdminDashboard = () => {
     );
   }
 
+  // Missing handlers for ApplicationsCard
+  const exportCSV = () => {
+    // Stub: show a toast instead of real export
+    // eslint-disable-next-line no-console
+    console.log("Export CSV - not yet implemented");
+  };
+
+  const exportPDF = () => {
+    // Stub: show a toast instead of real export
+    // eslint-disable-next-line no-console
+    console.log("Export PDF - not yet implemented");
+  };
+
+  const handleDownloadApplication = (app: any) => {
+    // Stub: show a toast instead of real download
+    // eslint-disable-next-line no-console
+    console.log("Download application - not yet implemented", app);
+  };
+
+  const handleStatusChange = (id: number, newStatus: string) => {
+    // Stub: show a toast instead of real status change
+    // eslint-disable-next-line no-console
+    console.log(`Status change for ${id} -> ${newStatus}`);
+  };
+
+  // Missing handler for toggleCallDone in Scheduled Calls tab
+  const toggleCallDone = (id: number, nextVal: boolean) => {
+    // Stub: show a toast instead of real update
+    // eslint-disable-next-line no-console
+    console.log(`Toggle call done for ${id} -> ${nextVal}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}

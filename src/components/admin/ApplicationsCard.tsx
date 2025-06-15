@@ -1,7 +1,8 @@
 
 import React from "react";
-// ...relevant imports...
-import { Card, CardHeader, CardContent, CardTitle, Button, Input } from "@/components/ui";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Download, Search, Eye, FileText } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
@@ -79,3 +80,4 @@ const ApplicationsCard: React.FC<ApplicationsCardProps> = ({
 );
 
 export default ApplicationsCard;
+
