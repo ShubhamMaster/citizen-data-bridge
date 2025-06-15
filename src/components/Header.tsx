@@ -254,11 +254,15 @@ export const Header: React.FC = () => {
                   type="button"
                   className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
                   onClick={() => {
+                    const isOpening = dropdownOpen !== main.label;
                     setDropdownOpen(dropdownOpen === main.label ? null : main.label);
-                    setMobileOpenGroup((prev) => ({
-                      ...prev,
-                      [main.label]: null,
-                    }));
+                    // Only reset sub-groups when opening a new main dropdown
+                    if (isOpening) {
+                      setMobileOpenGroup((prev) => ({
+                        ...prev,
+                        [main.label]: null,
+                      }));
+                    }
                   }}
                   aria-expanded={dropdownOpen === main.label}
                   aria-controls={`mobile-dropdown-${main.label}`}
