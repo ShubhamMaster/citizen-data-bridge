@@ -47,6 +47,7 @@ const AdminDashboard = () => {
   const [viewedApp, setViewedApp] = useState<any | null>(null);
   const [statusSaving, setStatusSaving] = useState<string | null>(null);
   const [websiteVisits, setWebsiteVisits] = useState<any[]>([]);
+  const [showVisitorsTable, setShowVisitorsTable] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -538,7 +539,13 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card
+            className="cursor-pointer group transition-shadow hover:shadow-md"
+            onClick={() => setShowVisitorsTable(v => !v)}
+            tabIndex={0}
+            aria-pressed={showVisitorsTable}
+            title="Click to show visitors table"
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -547,53 +554,11 @@ const AdminDashboard = () => {
                   <p className="text-xs text-gray-500">
                     Since launch
                   </p>
+                  <p className="text-xs mt-2 text-civora-teal opacity-80 group-hover:underline">
+                    Click to {showVisitorsTable ? "hide" : "show"} visitors table
+                  </p>
                 </div>
                 <Users className="h-8 w-8 text-civora-teal" />
-              </div>
-              {/* Visitors Table */}
-              <div className="overflow-x-auto mt-5 max-h-64">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr>
-                      <th className="px-2 py-1">Date</th>
-                      <th className="px-2 py-1">Path</th>
-                      <th className="px-2 py-1">Device</th>
-                      <th className="px-2 py-1">Brand</th>
-                      <th className="px-2 py-1">Model</th>
-                      <th className="px-2 py-1">OS</th>
-                      <th className="px-2 py-1">Browser</th>
-                      <th className="px-2 py-1">City</th>
-                      <th className="px-2 py-1">Country</th>
-                      <th className="px-2 py-1">IP</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {websiteVisits.length === 0 ? (
-                      <tr>
-                        <td colSpan={10} className="text-center text-gray-400 py-4">
-                          No visits logged yet
-                        </td>
-                      </tr>
-                    ) : (
-                      websiteVisits.map((v) => (
-                        <tr key={v.id}>
-                          <td className="px-2 py-1">
-                            {new Date(v.visited_at).toLocaleString()}
-                          </td>
-                          <td className="px-2 py-1">{v.path}</td>
-                          <td className="px-2 py-1">{v.device_type}</td>
-                          <td className="px-2 py-1">{v.device_brand}</td>
-                          <td className="px-2 py-1">{v.device_model}</td>
-                          <td className="px-2 py-1">{v.os_name}</td>
-                          <td className="px-2 py-1">{v.browser_name}</td>
-                          <td className="px-2 py-1">{v.city}</td>
-                          <td className="px-2 py-1">{v.country}</td>
-                          <td className="px-2 py-1">{v.ip_address}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
               </div>
             </CardContent>
           </Card>
@@ -1007,6 +972,61 @@ const AdminDashboard = () => {
           </TabsContent>
 
         </Tabs>
+
+        {/* Visitors Table moved below everything else, shown if showVisitorsTable is true */}
+        {showVisitorsTable && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Website Visitors Log</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto max-h-96">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr>
+                      <th className="px-2 py-1">Date</th>
+                      <th className="px-2 py-1">Path</th>
+                      <th className="px-2 py-1">Device</th>
+                      <th className="px-2 py-1">Brand</th>
+                      <th className="px-2 py-1">Model</th>
+                      <th className="px-2 py-1">OS</th>
+                      <th className="px-2 py-1">Browser</th>
+                      <th className="px-2 py-1">City</th>
+                      <th className="px-2 py-1">Country</th>
+                      <th className="px-2 py-1">IP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {websiteVisits.length === 0 ? (
+                      <tr>
+                        <td colSpan={10} className="text-center text-gray-400 py-4">
+                          No visits logged yet
+                        </td>
+                      </tr>
+                    ) : (
+                      websiteVisits.map((v) => (
+                        <tr key={v.id}>
+                          <td className="px-2 py-1">
+                            {new Date(v.visited_at).toLocaleString()}
+                          </td>
+                          <td className="px-2 py-1">{v.path}</td>
+                          <td className="px-2 py-1">{v.device_type}</td>
+                          <td className="px-2 py-1">{v.device_brand}</td>
+                          <td className="px-2 py-1">{v.device_model}</td>
+                          <td className="px-2 py-1">{v.os_name}</td>
+                          <td className="px-2 py-1">{v.browser_name}</td>
+                          <td className="px-2 py-1">{v.city}</td>
+                          <td className="px-2 py-1">{v.country}</td>
+                          <td className="px-2 py-1">{v.ip_address}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
