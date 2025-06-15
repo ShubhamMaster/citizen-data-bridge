@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,11 +16,37 @@ const Contact = () => {
     email: '',
     message: ''
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', formData);
-    // Handle form submission
+    setLoading(true);
+
+    // Insert contact message into Supabase
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        }
+      ]);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "We couldn't send your message. Please try again.",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Message sent!",
+        description: "Thank you for contacting us. We'll be in touch soon.",
+      });
+      setFormData({ name: '', email: '', message: '' });
+    }
+    setLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -64,6 +92,7 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       className="mt-1"
+                      disabled={loading}
                     />
                   </div>
                   
@@ -77,6 +106,7 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       className="mt-1"
+                      disabled={loading}
                     />
                   </div>
                   
@@ -90,11 +120,12 @@ const Contact = () => {
                       required
                       rows={6}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-civora-teal focus:border-transparent"
+                      disabled={loading}
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full bg-civora-teal hover:bg-civora-teal/90">
-                    Send Message
+                  <Button type="submit" className="w-full bg-civora-teal hover:bg-civora-teal/90" disabled={loading}>
+                    {loading ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </CardContent>
