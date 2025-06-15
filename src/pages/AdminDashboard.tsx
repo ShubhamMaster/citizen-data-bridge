@@ -170,36 +170,67 @@ const AdminDashboard = () => {
     try {
       const pdfDoc = await PDFDocument.create();
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      let y = 800;
+      const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      let y = 720; // reserve header space
 
       let page = pdfDoc.addPage([595, 842]);
-      page.drawText("Civora Nexus - Job Applications", { x: 40, y, size: 18, font, color: rgb(0.14, 0.23, 0.35) });
-      y -= 30;
+      // --- Header: Logo (left) & Company Name (right) on light background ---
+      // Background rectangle (light blue/gray)
+      page.drawRectangle({
+        x: 0, y: 762, width: 595, height: 80,
+        color: rgb(225/255, 238/255, 255/255)
+      });
+      // Embed logo
+      try {
+        const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+        const logoImageRes = await fetch(logoUrl);
+        const logoImageBytes = await logoImageRes.arrayBuffer();
+        const logoImage = await pdfDoc.embedPng(logoImageBytes);
+        page.drawImage(logoImage, {
+          x: 35, y: 772, width: 65, height: 65
+        });
+      } catch {}
+      // Company name (right of logo)
+      page.drawText(COMPANY_LETTERHEAD.companyName, {
+        x: 110, y: 797, size: 22, font: fontBold, color: rgb(0.13,0.22,0.36)
+      });
 
-      applications.forEach((app) => {
-        if (y < 100) {
+      y = 720; // below header
+
+      applications.forEach((app, i) => {
+        if (y < 120) {
           page = pdfDoc.addPage([595, 842]);
-          y = 800;
+          // draw header again for each page
+          page.drawRectangle({
+            x: 0, y: 762, width: 595, height: 80,
+            color: rgb(225/255, 238/255, 255/255)
+          });
+          try {
+            const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+            const logoImageRes = await fetch(logoUrl);
+            const logoImageBytes = await logoImageRes.arrayBuffer();
+            const logoImage = await pdfDoc.embedPng(logoImageBytes);
+            page.drawImage(logoImage, {
+              x: 35, y: 772, width: 65, height: 65
+            });
+          } catch {}
+          page.drawText(COMPANY_LETTERHEAD.companyName, {
+            x: 110, y: 797, size: 22, font: fontBold, color: rgb(0.13,0.22,0.36)
+          });
+          y = 720;
         }
-
-        // Catch Unicode issues (replace with basic ASCII fallback)
-        const safeText = (text: string) => {
-          if (!text) return "";
-          // limit to ascii, replace non-ascii
-          return text.replace(/[^\x00-\x7F]/g, "?");
-        };
-
-        page.drawText(`Applicant: ${safeText(app.application_data?.name ?? 'N/A')}`, { x: 40, y, size: 12, font });
-        y -= 16;
-        page.drawText(`Email: ${safeText(app.application_data?.email ?? 'N/A')}`, { x: 40, y, size: 10, font });
+        const safeText = (text: string) => (text ? String(text).replace(/[^\x00-\x7F]/g, "?") : "");
+        page.drawText(`Applicant: ${safeText(app.application_data?.name ?? 'N/A')}`, { x: 40, y, size: 12, font: fontBold });
+        y -= 18;
+        page.drawText(`Email: ${safeText(app.application_data?.email ?? 'N/A')}`, { x: 40, y, size: 11, font });
         y -= 14;
-        page.drawText(`Position: ${safeText(app.application_data?.position ?? 'General Application')}`, { x: 40, y, size: 10, font });
+        page.drawText(`Position: ${safeText(app.application_data?.position ?? 'General Application')}`, { x: 40, y, size: 11, font });
         y -= 14;
-        page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 10, font });
+        page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 11, font });
         y -= 14;
-        page.drawText(`Status: ${safeText(app.status ?? 'pending')}`, { x: 40, y, size: 10, font });
+        page.drawText(`Status: ${safeText(app.status ?? 'pending')}`, { x: 40, y, size: 11, font });
         y -= 14;
-        page.drawText(`Message: ${safeText(app.application_data?.message ?? '')}`, { x: 40, y, size: 10, font });
+        page.drawText(`Message: ${safeText(app.application_data?.message ?? '')}`, { x: 40, y, size: 11, font });
         y -= 20;
         page.drawText("-------------------------------------------", { x: 40, y, size: 8, font, color: rgb(0.7,0.7,0.7) });
         y -= 18;
@@ -215,7 +246,7 @@ const AdminDashboard = () => {
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-      }, 100);
+      }, 0);
     } catch (err) {
       toast({
         title: "PDF export failed",
@@ -233,103 +264,63 @@ const AdminDashboard = () => {
       const pdfDoc = await PDFDocument.create();
       const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
       const fontNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
       const pageWidth = 595;
       const pageHeight = 842;
-      let contentY = pageHeight - 110 - 35;
 
       const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
-      // HEADER RECTANGLE
+      // Header - light background with logo and company name
       page.drawRectangle({
         x: 0,
-        y: pageHeight - 110,
+        y: pageHeight - 80,
         width: pageWidth,
-        height: 110,
-        color: rgb(20/255, 54/255, 134/255)
+        height: 80,
+        color: rgb(225/255, 238/255, 255/255)
       });
 
-      // EMBED LOGO (catch if fails)
+      // Logo
       try {
         const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
         const logoImageRes = await fetch(logoUrl);
         const logoImageBytes = await logoImageRes.arrayBuffer();
         const logoImage = await pdfDoc.embedPng(logoImageBytes);
-
-        const LOGO_WIDTH = 65;
-        const LOGO_HEIGHT = 90;
         page.drawImage(logoImage, {
-          x: 25,
-          y: pageHeight - 95 - LOGO_HEIGHT / 2,
-          width: LOGO_WIDTH,
-          height: LOGO_HEIGHT,
+          x: 35,
+          y: pageHeight - 70,
+          width: 65,
+          height: 65,
         });
-      } catch (e) {
-        // If logo fails, ignore
-      }
+      } catch {}
 
+      // Company name (right of logo)
       page.drawText(COMPANY_LETTERHEAD.companyName, {
-        x: 100,
-        y: pageHeight - 70,
-        size: 18,
+        x: 110,
+        y: pageHeight - 35,
+        size: 22,
         font,
-        color: rgb(1,1,1),
-      });
-      page.drawText(COMPANY_LETTERHEAD.slogan, {
-        x: 100,
-        y: pageHeight - 92,
-        size: 11,
-        font: fontNormal,
-        color: rgb(195/255,235/255,255/255),
+        color: rgb(0.13, 0.22, 0.36)
       });
 
-      // Contact info header right
-      page.drawText(`Email: ${COMPANY_LETTERHEAD.email}`, {
-        x: pageWidth - 220,
-        y: pageHeight - 62,
-        size: 10,
-        font: fontNormal,
-        color: rgb(1,1,1),
-      });
-      page.drawText(`CIN: ${COMPANY_LETTERHEAD.cin}`, {
-        x: pageWidth - 220,
-        y: pageHeight - 77,
-        size: 10,
-        font: fontNormal,
-        color: rgb(1,1,1),
-      });
-      page.drawText(`GSTIN: ${COMPANY_LETTERHEAD.gstin}`, {
-        x: pageWidth - 220,
-        y: pageHeight - 92,
-        size: 10,
-        font: fontNormal,
-        color: rgb(1,1,1),
-      });
-
-      // Helper for safe ASCII (to prevent pdf-lib Unicode errors, replace non-ascii chars)
-      const safeText = (text: string) => {
-        if (!text) return "";
-        return text.replace(/[^\x00-\x7F]/g, "?");
-      };
-
-      // Main Details
+      // Main Content (application fields)
+      let contentY = pageHeight - 100;
+      const safeText = (text: string) => (text ? String(text).replace(/[^\x00-\x7F]/g, "?") : "");
       const drawField = (label: string, value: string) => {
         page.drawText(`${label}:`, {
           x: 50,
           y: contentY,
-          size: 11.5,
+          size: 12,
           font,
           color: rgb(20/255, 54/255, 134/255),
         });
         page.drawText(safeText(value), {
-          x: 170,
+          x: 180,
           y: contentY,
-          size: 11.5,
+          size: 12,
           font: fontNormal,
           color: rgb(50/255, 50/255, 50/255),
-          maxWidth: pageWidth - 200,
+          maxWidth: pageWidth - 210,
         });
-        contentY -= 26;
+        contentY -= 28;
       };
 
       drawField("Applicant Name", app.application_data?.name ?? "N/A");
@@ -344,32 +335,13 @@ const AdminDashboard = () => {
         drawField("Resume", app.application_data.resume_name);
       }
 
-      // FOOTER RECTANGLE
-      page.drawRectangle({
-        x: 0,
-        y: 0,
-        width: pageWidth,
-        height: 48,
-        color: rgb(20/255, 54/255, 134/255),
-      });
-
-      // Footer info
-      page.drawText(
-        `${COMPANY_LETTERHEAD.phone}   |   ${COMPANY_LETTERHEAD.address}`,
-        {
-          x: 42,
-          y: 18,
-          size: 10,
-          font: fontNormal,
-          color: rgb(230/255, 245/255, 255/255),
-        }
-      );
-
-      // --- Download PDF
+      // Download PDF
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      const filename = `job-application-${(app.application_data?.name || "applicant").replace(/\s+/g, "_").toLowerCase()}.pdf`;
+      const filename = `job-application-${(app.application_data?.name || "applicant")
+        .replace(/\s+/g, "_")
+        .toLowerCase()}.pdf`;
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", filename);
@@ -378,8 +350,7 @@ const AdminDashboard = () => {
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-      }, 100);
-
+      }, 0);
     } catch (err) {
       toast({
         title: "PDF download failed",
