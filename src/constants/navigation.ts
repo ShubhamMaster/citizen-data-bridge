@@ -1,80 +1,112 @@
 
-export type NavItem = {
+import { ROUTES } from "./routes";
+
+export type NavSubGroup = {
   label: string;
-  href?: string;
-  children?: NavItem[];
+  items: { label: string; href: string }[];
 };
 
-export const NAVIGATION: NavItem[] = [
+export type NavMainItem = {
+  label: string;
+  href?: string;
+  subGroups?: NavSubGroup[];
+};
+
+export const NAVIGATION: NavMainItem[] = [
   {
     label: "Home",
-    href: "/"
+    href: ROUTES.home,
   },
   {
-    label: "About",
-    children: [
-      { label: "About Us", href: "/about-us" },
-      { label: "Leadership", href: "/about-us/leadership" },
-      { label: "Board of Directors", href: "/about-us/board-of-directors" },
-      { label: "Partners", href: "/about-us/partners" },
-      { label: "Investors", href: "/about-us/investors" }
-    ]
+    label: "About & Company",
+    subGroups: [
+      {
+        label: "Company Info",
+        items: [
+          { label: "About Us", href: ROUTES.aboutUs },
+          { label: "Leadership", href: ROUTES.leadership },
+          { label: "Board of Directors", href: ROUTES.boardOfDirectors },
+          { label: "Partners", href: ROUTES.partners },
+          { label: "Investors", href: ROUTES.investors },
+        ],
+      },
+      {
+        label: "Policies",
+        items: [
+          { label: "Privacy Policy", href: ROUTES.privacy },
+          { label: "Terms & Conditions", href: ROUTES.terms },
+          { label: "Accessibility", href: ROUTES.accessibility },
+        ],
+      },
+    ],
   },
   {
-    label: "Services",
-    children: [
-      { label: "Services", href: "/services" },
-      { label: "AI Solutions", href: "/services/ai-solutions" },
-      { label: "SaaS Development", href: "/services/saas-development" },
-      { label: "Cloud Hosting", href: "/services/cloud-hosting" },
-      { label: "Automation", href: "/services/automation" },
-      { label: "Custom Integrations", href: "/services/custom-integrations" }
-    ]
+    label: "Services & Innovation",
+    subGroups: [
+      {
+        label: "Our Services",
+        items: [
+          { label: "Services Overview", href: ROUTES.services },
+          { label: "AI Solutions", href: ROUTES.aiSolutions },
+          { label: "SaaS Development", href: ROUTES.saasDevelopment },
+          { label: "Cloud Hosting", href: ROUTES.cloudHosting },
+          { label: "Automation", href: ROUTES.automation },
+          { label: "Custom Integrations", href: ROUTES.customIntegrations },
+        ],
+      },
+      {
+        label: "Innovation Lab",
+        items: [
+          { label: "Innovation Lab", href: ROUTES.innovationLab },
+          { label: "R&D", href: ROUTES.rnd },
+          { label: "AI Research", href: ROUTES.aiResearch },
+          { label: "Patents", href: ROUTES.patents },
+        ],
+      },
+    ],
   },
   {
-    label: "Projects",
-    children: [
-      { label: "Projects", href: "/projects" },
-      { label: "Case Studies", href: "/projects/case-studies" },
-      { label: "Client Success Stories", href: "/projects/client-success-stories" }
-    ]
+    label: "Careers & Projects",
+    subGroups: [
+      {
+        label: "Careers",
+        items: [
+          { label: "Careers Overview", href: ROUTES.careers },
+          { label: "Job Openings", href: ROUTES.careersJobs },
+          { label: "Life at Civora", href: ROUTES.lifeAtCivora },
+          { label: "Internships", href: ROUTES.internships },
+        ],
+      },
+      {
+        label: "Projects",
+        items: [
+          { label: "Projects Overview", href: ROUTES.projects },
+          { label: "Case Studies", href: ROUTES.caseStudies },
+          { label: "Client Success Stories", href: ROUTES.clientSuccessStories },
+        ],
+      },
+    ],
   },
   {
-    label: "Innovation Lab",
-    children: [
-      { label: "Innovation Lab", href: "/innovation-lab" },
-      { label: "R&D", href: "/innovation-lab/rnd" },
-      { label: "AI Research", href: "/innovation-lab/ai-research" },
-      { label: "Patents", href: "/innovation-lab/patents" }
-    ]
+    label: "Support & Compliance",
+    subGroups: [
+      {
+        label: "Contact & Help",
+        items: [
+          { label: "Contact", href: ROUTES.contact },
+          { label: "Sales Inquiry", href: ROUTES.salesInquiry },
+          { label: "Help Center", href: ROUTES.helpCenter },
+          { label: "Technical Support", href: ROUTES.technicalSupport },
+        ],
+      },
+      {
+        label: "Compliance",
+        items: [
+          { label: "GDPR / CCPA", href: ROUTES.gdpr },
+          { label: "ISO Certifications", href: ROUTES.iso },
+          { label: "Data Security", href: ROUTES.dataSecurity },
+        ],
+      },
+    ],
   },
-  {
-    label: "Careers",
-    children: [
-      { label: "Careers", href: "/careers" },
-      { label: "Job Openings", href: "/careers/jobs" },
-      { label: "Life at Civora", href: "/careers/life" },
-      { label: "Internships", href: "/careers/internships" }
-    ]
-  },
-  {
-    label: "Legal & Compliance",
-    children: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-      { label: "GDPR / CCPA", href: "/compliance/gdpr" },
-      { label: "ISO Certifications", href: "/compliance/iso" },
-      { label: "Data Security", href: "/compliance/security" },
-      { label: "Accessibility", href: "/compliance/accessibility" }
-    ]
-  },
-  {
-    label: "Contact & Support",
-    children: [
-      { label: "Contact", href: "/contact" },
-      { label: "Sales Inquiry", href: "/contact/sales" },
-      { label: "Help Center", href: "/support/help-center" },
-      { label: "Technical Support", href: "/support/technical-support" }
-    ]
-  }
 ];

@@ -1,164 +1,270 @@
+
 import React, { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { NAVIGATION, NavItem } from "@/constants/navigation";
-import { Menu, X } from "lucide-react";
+import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
+import { Menu, X, ChevronDown, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
-// SubMenu for Desktop: handles up to 2 levels
-const SubMenu: React.FC<{
-  items: NavItem[];
-  closeMenu: () => void;
-  level?: number;
-}> = ({
-  items,
-  closeMenu,
-  level = 1
-}) => <ul className={level === 1 ? "space-y-2" : "pl-4 space-y-0"}>
-    {items.map(item => <li key={item.label} className="relative">
-        {item.children ? <>
-            <span className="block py-1.5 px-4 rounded hover:bg-civora-teal/10 hover:text-civora-teal font-semibold cursor-default" tabIndex={-1}>
-              {item.label}
-            </span>
-            <SubMenu items={item.children} closeMenu={closeMenu} level={level + 1} />
-          </> : <Link to={item.href ?? "#"} className="block py-1.5 px-4 rounded hover:bg-civora-teal/10 hover:text-civora-teal focus:bg-civora-teal/10 focus:text-civora-teal transition-colors" tabIndex={0} onClick={closeMenu}>
-            {item.label}
-          </Link>}
-      </li>)}
-  </ul>;
-
-// SubMenu for Mobile Accordion: Handles unlimited nesting
-const MobileSubMenu: React.FC<{
-  item: NavItem;
-  openItems: Record<string, boolean>;
-  setOpenItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-  closeMenu: () => void;
-}> = ({
-  item,
-  openItems,
-  setOpenItems,
-  closeMenu
-}) => {
-  const isOpen = !!openItems[item.label];
-  return <li>
-      {item.children ? <>
-          <button className={`w-full flex justify-between items-center px-4 py-2 rounded-lg font-medium transition-colors focus:outline-civora-teal
-              ${isOpen ? "text-civora-teal bg-civora-teal/10" : "text-gray-800 hover:bg-gray-50 hover:text-civora-teal"}`} onClick={() => setOpenItems(prev => ({
-        ...prev,
-        [item.label]: !isOpen
-      }))} aria-expanded={isOpen}>
-            {item.label}
-            <svg className={`ml-2 w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 20 20">
-              <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
-          </button>
-          {isOpen && <ul className="pl-2 border-l ml-2 flex flex-col gap-1 mt-1">
-              {item.children.map(child => <MobileSubMenu key={child.label} item={child} openItems={openItems} setOpenItems={setOpenItems} closeMenu={closeMenu} />)}
-            </ul>}
-        </> : <Link to={item.href ?? "#"} className="block px-6 py-2 rounded-md transition-colors hover:bg-civora-teal/10 hover:text-civora-teal focus:bg-civora-teal/10 focus:text-civora-teal" onClick={closeMenu}>
-          {item.label}
-        </Link>}
-    </li>;
+const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, close: () => void) => {
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) close();
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [ref, close]);
 };
-export const Header: React.FC = () => {
+
+const SubMenuDesktop: React.FC<{
+  subGroups: NavSubGroup[];
+  close: () => void;
+}> = ({ subGroups, close }) => (
+  <div
+    role="menu"
+    className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-800 w-max px-1 py-3 flex gap-8 animate-fade-in"
+    tabIndex={-1}
+    onKeyDown={e => { (e.key === "Escape") && close(); }}
+  >
+    {subGroups.map((group) => (
+      <div key={group.label} className="min-w-[170px]">
+        <span className="text-xs font-bold text-civora-teal dark:text-civora-teal/80 pl-2">{group.label}</span>
+        <ul className="mt-1.5 space-y-1" role="group" aria-label={group.label}>
+          {group.items.map((item) => (
+            <li key={item.label}>
+              <NavLinkItem to={item.href} className="block text-gray-800 dark:text-gray-100 px-3 py-1.5 rounded-md hover:bg-civora-teal/10 hover:text-civora-teal dark:hover:bg-civora-teal/10 dark:hover:text-civora-teal font-medium text-sm transition-colors" onClick={close}>
+                {item.label}
+              </NavLinkItem>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+);
+
+const SubMenuMobile: React.FC<{
+  subGroups: NavSubGroup[];
+  closeMenu: () => void;
+}> = ({ subGroups, closeMenu }) => {
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  return (
+    <div className="pl-4 space-y-1 mt-1">
+      {subGroups.map(group => (
+        <div key={group.label}>
+          <button
+            className="w-full text-left py-2 px-2 rounded flex justify-between items-center font-semibold text-sm text-civora-teal dark:text-civora-teal/80 focus:outline-civora-teal focus:ring-civora-teal transition"
+            onClick={() => setOpenGroup(group.label === openGroup ? null : group.label)}
+            aria-expanded={openGroup === group.label}
+            aria-controls={`mobile-group-${group.label}`}
+          >
+            {group.label}
+            <ChevronDown className={`ml-2 w-4 h-4 transition-transform ${openGroup === group.label ? "rotate-180" : ""}`} />
+          </button>
+          <ul
+            id={`mobile-group-${group.label}`}
+            className={`ml-2 border-l dark:border-gray-800 border-gray-200 overflow-hidden transition-all duration-200 ${
+              openGroup === group.label ? "max-h-[400px] mt-1" : "max-h-0"
+            }`}
+            style={{ transitionProperty: "max-height" }}
+            aria-hidden={openGroup !== group.label}
+          >
+            {group.items.map(item => (
+              <li key={item.label}>
+                <NavLinkItem
+                  to={item.href}
+                  className="block px-5 py-2 text-gray-700 dark:text-gray-200 rounded hover:bg-civora-teal/10 hover:text-civora-teal dark:hover:bg-civora-teal/10 dark:hover:text-civora-teal transition"
+                  onClick={closeMenu}
+                >
+                  {item.label}
+                </NavLinkItem>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: string; onClick?: () => void }>> = ({
+  to,
+  className,
+  children,
+  onClick,
+}) => {
   const location = useLocation();
-  const [isMobileOpen, setMobileOpen] = useState(false);
-  const [desktopDropdown, setDesktopDropdown] = useState<string | null>(null);
-  const [dropdownHovering, setDropdownHovering] = useState(false);
-  const closeTimer = useRef<NodeJS.Timeout | null>(null);
-  const [mobileAccordions, setMobileAccordions] = useState<Record<string, boolean>>({});
+  const active =
+    to !== "/" && location.pathname.startsWith(to)
+      ? true
+      : location.pathname === to;
+  const base =
+    "transition-colors outline-none";
+  const activeStyle = active
+    ? "text-civora-teal font-bold dark:text-civora-teal underline underline-offset-4"
+    : "";
+  return (
+    <Link to={to} className={`${base} ${activeStyle} ${className ?? ""}`} onClick={onClick}>
+      {children}
+    </Link>
+  );
+};
 
-  // Nav item highlighting
-  const isLinkActive = (href?: string) => href && location.pathname === href;
+export const Header: React.FC = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
 
-  // Desktop: handle menu open/close logic robustly
-  const openDropdown = (label: string) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setDesktopDropdown(label);
-    setDropdownHovering(true);
-  };
-  const closeDropdown = () => {
-    setDropdownHovering(false);
-    closeTimer.current = setTimeout(() => {
-      setDesktopDropdown(null);
-    }, 180);
-  };
+  // Close dropdown when clicking outside (desktop)
+  useOutsideClick(dropdownRef, () => setDropdownOpen(null));
 
-  // Keyboard support: ESC closes dropdown, arrow navigation, tab cycle
+  // Keyboard ESC support for mobile menu
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setDesktopDropdown(null);
+      if (e.key === "Escape") {
+        setDropdownOpen(null);
+        setMobileOpen(false);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    setMobileOpen(false);
+    setDropdownOpen(null);
+  }, [location.pathname]);
 
-  // Render Desktop menu (mega dropdown)
-  const renderDesktopMenu = (item: NavItem) => {
-    if (item.children) {
-      const open = desktopDropdown === item.label;
-      return <div key={item.label} className="relative group" onMouseEnter={() => openDropdown(item.label)} onMouseLeave={closeDropdown} onFocus={() => openDropdown(item.label)} onBlur={closeDropdown} tabIndex={-1}>
-          <button className={`px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-1 transition-colors focus:outline-civora-teal
-            ${open ? "text-civora-teal bg-civora-teal/10" : "text-gray-800 hover:bg-gray-50 hover:text-civora-teal"}`} aria-haspopup="menu" aria-expanded={open} aria-controls={`desktop-dropdown-${item.label}`} onClick={() => setDesktopDropdown(open ? null : item.label)} tabIndex={0} type="button">
-            {item.label}
-            <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
-          </button>
-          {/* Mega menu: opens on hover/focus/click, stays open until intent to leave */}
-          {open && <div id={`desktop-dropdown-${item.label}`} role="menu" aria-label={item.label} className="absolute left-0 mt-2 min-w-[270px] bg-white border border-gray-200 shadow-xl rounded-lg p-5 z-50 animate-fade-in" onMouseEnter={() => setDropdownHovering(true)} onMouseLeave={closeDropdown} onClick={e => {
-          // If the click was a menu item, close; if submenu, keep open
-          if ((e.target as HTMLElement).closest("a")) setDesktopDropdown(null);
-        }}>
-              <SubMenu items={item.children} closeMenu={() => setDesktopDropdown(null)} />
-            </div>}
-        </div>;
-    }
-    // Plain link
-    return <Link key={item.label} to={item.href ?? "#"} className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${isLinkActive(item.href) ? "text-civora-teal bg-civora-teal/10" : "text-gray-800 hover:bg-gray-50 hover:text-civora-teal"} focus:outline-civora-teal`} tabIndex={0}>
-        {item.label}
-      </Link>;
-  };
-
-  // Render Mobile Accordion menu
-  const renderMobileMenu = (item: NavItem) => <MobileSubMenu key={item.label} item={item} openItems={mobileAccordions} setOpenItems={setMobileAccordions} closeMenu={() => setMobileOpen(false)} />;
-  return <header className="sticky top-0 z-50 bg-white/90 border-b border-gray-200 backdrop-blur-md" aria-label="Site navigation">
+  // Main render
+  return (
+    <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800 backdrop-blur supports-backdrop-blur:backdrop-blur">
       <div className="max-w-7xl mx-auto flex items-center justify-between py-2 px-4 md:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 focus:outline-civora-teal" tabIndex={0}>
           <img src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" alt="Civora Nexus Pvt Ltd Logo" className="w-12 h-12 object-contain" />
           <div className="ml-1">
-            <span className="text-xl font-bold text-civora-navy">Civora Nexus</span>
+            <span className="text-xl font-bold text-civora-navy dark:text-white">Civora Nexus</span>
             <span className="block text-xs text-civora-teal font-semibold">Pvt Ltd</span>
           </div>
         </Link>
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex gap-1 items-center ml-6" role="navigation" aria-label="Main navigation">
-          {NAVIGATION.map(renderDesktopMenu)}
-          {/* CTAs */}
-          
-          <Link to="/login" className="ml-2 px-5 py-2 font-semibold text-civora-teal border-2 border-civora-teal hover:bg-civora-teal hover:text-white transition-colors rounded-lg shadow focus:outline-civora-teal" tabIndex={0}>
-            Login
-          </Link>
+        {/* Desktop Nav */}
+        <nav className="hidden lg:flex gap-2 items-center ml-10" role="navigation" aria-label="Main menu">
+          {NAVIGATION.map((main) => (
+            main.subGroups ? (
+              <div key={main.label} className="relative group">
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(dropdownOpen === main.label ? null : main.label)}
+                  onMouseEnter={() => setDropdownOpen(main.label)}
+                  onMouseLeave={() => setTimeout(() => setDropdownOpen(cur => cur === main.label ? null : cur), 220)}
+                  onFocus={() => setDropdownOpen(main.label)}
+                  className={`px-3 py-2 text-sm font-bold rounded-lg flex items-center gap-1 transition-colors focus:outline-civora-teal focus:shadow focus:ring-2 focus:ring-civora-teal/40 dark:text-gray-100
+                    ${dropdownOpen === main.label ? "text-civora-teal bg-civora-teal/10 dark:text-civora-teal" : "text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal"}`}
+                  aria-haspopup="menu"
+                  aria-expanded={(dropdownOpen === main.label) ? true : undefined}
+                  aria-controls={`dropdown-${main.label}`}
+                >
+                  {main.label}
+                  <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${dropdownOpen === main.label ? "rotate-180" : ""}`} />
+                </button>
+                {/* Dropdown */}
+                {dropdownOpen === main.label && (
+                  <div
+                    id={`dropdown-${main.label}`}
+                    ref={dropdownRef}
+                    className="absolute left-0 mt-2"
+                    onMouseEnter={() => setDropdownOpen(main.label)}
+                    onMouseLeave={() => setDropdownOpen(null)}
+                  >
+                    <SubMenuDesktop subGroups={main.subGroups} close={() => setDropdownOpen(null)} />
+                  </div>
+                )}
+              </div>
+            )
+            : (
+              <NavLinkItem to={main.href ?? "#"} key={main.label} className="px-3 py-2 text-sm font-bold rounded-lg text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal dark:text-gray-100 focus:outline-civora-teal">
+                {main.label}
+              </NavLinkItem>
+            )
+          ))}
+          {/* Dark mode toggle */}
+          <button
+            title="Toggle dark mode"
+            className="ml-4 p-2 rounded-full transition-colors hover:bg-civora-teal/10 hover:text-civora-teal focus:outline-civora-teal"
+            aria-label="Toggle dark mode"
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
         </nav>
-        {/* Mobile menu button */}
-        <button className="lg:hidden p-2 rounded text-civora-navy hover:bg-gray-200 hover:text-civora-teal focus:outline-civora-teal" aria-label={isMobileOpen ? "Close navigation menu" : "Open navigation menu"} aria-controls="mobile-menu" aria-expanded={isMobileOpen} onClick={() => setMobileOpen(open => !open)}>
-          {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
+        {/* Hamburger for mobile */}
+        <button
+          className="lg:hidden p-2 rounded text-civora-navy dark:text-civora-teal hover:bg-gray-200 hover:text-civora-teal focus:outline-civora-teal"
+          aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-controls="mobile-menu"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((open) => !open)}
+        >
+          {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
-      {/* Mobile menu */}
-      <nav id="mobile-menu" className={`lg:hidden transition-all duration-300 bg-white border-t border-gray-100 shadow ${isMobileOpen ? "max-h-[900px] py-4 px-2" : "max-h-0 overflow-hidden"}`}>
+      {/* Mobile Menu */}
+      <nav
+        id="mobile-menu"
+        className={`lg:hidden transition-all duration-300 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow ${
+          mobileOpen ? "max-h-[850px] py-4 px-2" : "max-h-0 overflow-hidden"
+        }`}
+        aria-hidden={!mobileOpen}
+        role="menu"
+      >
         <ul className="flex flex-col gap-2">
-          {NAVIGATION.map(renderMobileMenu)}
-          {/* CTAs */}
-          <li className="mt-2">
-            <Link to="/request-demo" className="block w-full text-center px-6 py-3 font-semibold text-white bg-civora-teal hover:bg-civora-navy transition-colors rounded-lg shadow focus:outline-civora-teal" onClick={() => setMobileOpen(false)} tabIndex={0}>
-              Request Demo
-            </Link>
-            <Link to="/login" className="block w-full text-center mt-2 px-6 py-3 font-semibold text-civora-teal border-2 border-civora-teal hover:bg-civora-teal hover:text-white transition-colors rounded-lg shadow focus:outline-civora-teal" onClick={() => setMobileOpen(false)} tabIndex={0}>
-              Login
-            </Link>
+          {NAVIGATION.map((main) =>
+            main.subGroups ? (
+              <li key={main.label}>
+                <button
+                  type="button"
+                  className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
+                  onClick={() => setDropdownOpen(dropdownOpen === main.label ? null : main.label)}
+                  aria-expanded={dropdownOpen === main.label}
+                  aria-controls={`mobile-dropdown-${main.label}`}
+                >
+                  {main.label}
+                  <ChevronDown className={`ml-3 w-4 h-4 transition-transform ${dropdownOpen === main.label ? "rotate-180" : ""}`} />
+                </button>
+                {/* Sub-groups */}
+                {dropdownOpen === main.label && (
+                  <SubMenuMobile subGroups={main.subGroups} closeMenu={() => { setMobileOpen(false); setDropdownOpen(null); }} />
+                )}
+              </li>
+            ) : (
+              <li key={main.label}>
+                <NavLinkItem
+                  to={main.href ?? "#"}
+                  className="block px-6 py-2 font-bold text-gray-800 dark:text-gray-100 rounded-md hover:bg-civora-teal/10 hover:text-civora-teal focus:bg-civora-teal/10 focus:text-civora-teal"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {main.label}
+                </NavLinkItem>
+              </li>
+            )
+          )}
+          {/* Dark mode toggle */}
+          <li className="px-4 py-2 mt-2 flex items-center gap-3">
+            Theme:
+            <button
+              title="Toggle dark mode"
+              className="p-2 rounded-full transition-colors focus:outline-civora-teal hover:bg-civora-teal/10"
+              aria-label="Toggle dark mode"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
           </li>
         </ul>
       </nav>
-    </header>;
+    </header>
+  );
 };
+
 export default Header;
