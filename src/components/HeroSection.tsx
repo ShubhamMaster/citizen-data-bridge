@@ -1,65 +1,65 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Handshake, Hospital, Globe, Users, Shield, Heart } from "lucide-react";
+import { Handshake, Hospital, Globe, Users, Shield, Heart, City, Network, Building2, ChevronRight, ArrowRight } from "lucide-react";
 
-// Animated abstract SVG Illustration
+// Modern, professional "digital bridge" illustration with icons – NOT a circle/blob
 const HeroIllustration = () => (
-  <div className="w-full h-full flex items-center justify-center">
+  <div className="w-full h-full flex items-center justify-center px-2 md:px-0">
     <svg
-      className="w-[320px] h-[320px] md:w-[420px] md:h-[420px] max-w-full"
-      viewBox="0 0 420 420"
+      viewBox="0 0 430 210"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      className="w-[340px] h-[210px] md:w-[420px] md:h-[210px] max-w-full"
       aria-hidden="true"
+      focusable="false"
     >
-      {/* Digital Transformation Blob Shape */}
+      {/* Subtle background gradient */}
+      <defs>
+        <linearGradient id="bridge-bg" x1="0" y1="0" x2="430" y2="210" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#F8FEFD" />
+          <stop offset="1" stopColor="#DFF6F7" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="430" height="210" fill="url(#bridge-bg)" rx="32"/>
+      
+      {/* Central horizontal digital "bridge" bar */}
+      <rect x="50" y="105" width="330" height="10" rx="5" fill="#2EA6AA" opacity="0.14"/>
+      <rect x="50" y="108" width="330" height="4" rx="2" fill="#2EA6AA" opacity="0.34"/>
+      {/* Bridge accent ping-dots */}
+      <circle cx="80" cy="110" r="3.6" fill="#2EA6AA" className="animate-pulse"/>
+      <circle cx="180" cy="110" r="3.6" fill="#2EA6AA" className=""/>
+      <circle cx="260" cy="110" r="3.6" fill="#2EA6AA" className=""/>
+      <circle cx="340" cy="110" r="3.6" fill="#2EA6AA" className="animate-pulse"/>
+      
+      {/* "Network" links above the bridge */}
+      <line x1="80" y1="110" x2="110" y2="50" stroke="#AACEDF" strokeWidth="2" strokeDasharray="5 4" />
+      <line x1="180" y1="110" x2="130" y2="80" stroke="#AACEDF" strokeWidth="2" strokeDasharray="5 4" />
+      <line x1="260" y1="110" x2="310" y2="60" stroke="#AACEDF" strokeWidth="2" strokeDasharray="5 4" />
+      <line x1="340" y1="110" x2="370" y2="80" stroke="#AACEDF" strokeWidth="2" strokeDasharray="5 4" />
+      
+      {/* Left city/building icons group */}
       <g>
-        <defs>
-          <radialGradient id="bgblob" cx="50%" cy="50%" r="62%" fx="60%" fy="40%">
-            <stop offset="0%" stopColor="#2ea6aa44" />
-            <stop offset="100%" stopColor="#2EA6AA10" />
-          </radialGradient>
-        </defs>
-        <ellipse
-          cx="210"
-          cy="200"
-          rx="180"
-          ry="140"
-          fill="url(#bgblob)"
-          className="animate-pulse"
-          opacity="0.95"
-        />
+        <rect x="62" y="135" width="18" height="36" rx="4" fill="#2EA6AA" opacity="0.18"/>
+        <rect x="85" y="145" width="13" height="25" rx="2.2" fill="#112B52" opacity="0.15"/>
+        <City x={66} y={147} size={18} color="#2EA6AA" strokeWidth={2} />
+        <Building2 x={84} y={158} size={13} color="#2EA6AA" strokeWidth={1.7}/>
       </g>
-      {/* Smart city buildings (abstract) */}
-      <g className="animate-[fade-in_0.9s_ease-in]">
-        <rect x="80" y="200" width="30" height="80" rx="7" fill="#BFE9EA" />
-        <rect x="120" y="170" width="32" height="110" rx="8" fill="#2EA6AA" opacity="0.9" />
-        <rect x="164" y="210" width="20" height="70" rx="5" fill="#2EA6AA" opacity="0.5" />
-        <rect x="196" y="152" width="60" height="128" rx="14" fill="#112B52" opacity="0.8"/>
-        <rect x="268" y="230" width="24" height="50" rx="6" fill="#BFE9EA" />
-        <rect x="298" y="180" width="40" height="100" rx="10" fill="#2EA6AA" />
+      {/* Right hospital/care icons group */}
+      <g>
+        <rect x="325" y="135" width="18" height="36" rx="4" fill="#2EA6AA" opacity="0.18"/>
+        <rect x="346" y="141" width="13" height="29" rx="2.2" fill="#112B52" opacity="0.15"/>
+        <Hospital x={330} y={147} size={18} color="#2EA6AA" strokeWidth={2} />
+        <Heart x={343} y={157} size={13} color="#2EA6AA" strokeWidth={1.7}/>
       </g>
-      {/* Health + engagement icons (bubbles) */}
-      <g className="animate-[fade-in_1.1s_ease-in]">
-        <circle cx="105" cy="148" r="19" fill="#fff" opacity="0.78" />
-        <g>
-          <Globe x={90} y={134} size={18} color="#2EA6AA" strokeWidth={1.8} />
-        </g>
-        <circle cx="345" cy="205" r="17" fill="#fff" opacity="0.80" />
-        <g>
-          <Heart x={335} y={192} size={16} color="#2EA6AA" strokeWidth={1.7} />
-        </g>
-        <circle cx="180" cy="106" r="13" fill="#fff" opacity="0.90" />
-        <g>
-          <Users x={171} y={96} size={13} color="#2EA6AA" strokeWidth={1.7} />
-        </g>
+      {/* People (community) and collaboration in the center */}
+      <g>
+        <circle cx="214" cy="92" r="14" fill="#fff" opacity="0.94" />
+        <Users x={203} y={81} size={22} color="#2EA6AA" strokeWidth={2}/>
+        {/* Connectivity icon */}
+        <Network x={225} y={98} size={14} color="#2EA6AA" strokeWidth={1.7} />
       </g>
-      {/* Connection lines */}
-      <polyline points="120,170 180,106 196,152" stroke="#2EA6AA" strokeWidth="2.5" strokeDasharray="7 6" />
-      <polyline points="298,180 345,205 320,230" stroke="#2EA6AA" strokeWidth="2.5" strokeDasharray="6 9" />
-      {/* Base */}
-      <ellipse cx="210" cy="336" rx="140" ry="22" fill="#2EA6AA22" />
+      {/* Dotted connection (city↔people↔health) */}
+      <polyline points="75,110 200,95 214,92 230,98 340,110" stroke="#2EA6AA" strokeWidth="2" strokeDasharray="7 6" opacity="0.30"/>
     </svg>
   </div>
 );
@@ -86,7 +86,7 @@ const HeroSection: React.FC = () => {
   return (
     <section className="relative min-h-[630px] bg-white py-10 md:py-20 w-full flex items-center">
       <div className="absolute inset-0 pointer-events-none select-none -z-10">
-        {/* Subtle gradient ribbons for depth */}
+        {/* Subtle accent gradients for depth */}
         <div className="hidden md:block absolute left-[40%] top-12 w-[120px] h-[320px] rounded-full blur-3xl bg-gradient-to-b from-civora-teal/30 via-white/0 to-white/0 z-10 rotate-12"/>
         <div className="block absolute right-6 top-6 w-[70px] h-[220px] rounded-full blur-2xl bg-gradient-to-br from-civora-teal/30 via-civora-navy/0 to-white/0 z-10 rotate-[20deg]"/>
         <div className="absolute bottom-2 left-1/6 w-[300px] h-[30px] rounded-full bg-civora-teal/5 blur-xl opacity-60"/>
@@ -126,8 +126,8 @@ const HeroSection: React.FC = () => {
           </div>
           <TrustBadges />
         </div>
-        {/* Right - Illustration */}
-        <div className="flex-1 flex items-center justify-center w-full max-w-lg min-h-[320px] md:min-h-[410px] animate-fade-in">
+        {/* Right - Professional, creative, but flat digital bridge illustration */}
+        <div className="flex-1 flex items-center justify-center w-full max-w-lg min-h-[180px] md:min-h-[210px] animate-fade-in">
           <HeroIllustration />
         </div>
       </div>
