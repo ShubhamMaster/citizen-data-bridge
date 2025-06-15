@@ -28,6 +28,7 @@ import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption } from "@/components/ui/table";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
+  const [scheduledCalls, setScheduledCalls] = useState<any[]>([]);
   const navigate = useNavigate();
   const [viewedApp, setViewedApp] = useState<any | null>(null);
   const [statusSaving, setStatusSaving] = useState<string | null>(null);
@@ -57,6 +59,7 @@ const AdminDashboard = () => {
         // Load data
         await loadDashboardData();
         await loadContactMessages();
++       await loadScheduledCalls();
       } catch (error) {
         console.error("Auth check error:", error);
         setLoading(false);
@@ -105,6 +108,18 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Error loading contact messages:", error);
+    }
+  };
+
+  const loadScheduledCalls = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("scheduled_calls")
+        .select("*")
+        .order('created_at', { ascending: false });
+      if (!error && data) setScheduledCalls(data);
+    } catch (e) {
+      console.error("Error loading scheduled calls:", e);
     }
   };
 
@@ -518,12 +533,13 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="jobs">Job Management</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="content">Content Management</TabsTrigger>
             <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
++           <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
           </TabsList>
 
           {/* Applications Tab */}
@@ -775,6 +791,57 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Scheduled Calls Tab */}
+          <TabsContent value="calls" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Scheduled Calls</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {scheduledCalls.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Table className="w-full mb-4">
+                      <TableCaption>No calls scheduled.</TableCaption>
+                    </Table>
+                    <p className="text-gray-500 mt-2">Calls scheduled via the website will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Time</TableHead>
+                          <TableHead>Reason</TableHead>
+                          <TableHead>Scheduled At</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {scheduledCalls.map((call) => (
+                          <TableRow key={call.id}>
+                            <TableCell>{call.name}</TableCell>
+                            <TableCell>
+                              {call.date ? new Date(call.date).toLocaleDateString() : ""}
+                            </TableCell>
+                            <TableCell>{call.time}</TableCell>
+                            <TableCell className="whitespace-pre-line">{call.reason}</TableCell>
+                            <TableCell>
+                              {call.created_at
+                                ? new Date(call.created_at).toLocaleString()
+                                : ""}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
       </div>
     </div>
