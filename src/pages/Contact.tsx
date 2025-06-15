@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useWebsiteContent } from "@/hooks/useWebsiteContent"; // <-- Import custom hook
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,12 @@ const Contact = () => {
     message: ''
   });
   const [loading, setLoading] = useState(false);
+
+  // Fetch contact info from Supabase
+  const { content } = useWebsiteContent("contact");
+  const email = content?.email || "civoranexus@gmail.com";
+  const phone = content?.phone || "+91 XXX XXX XXXX";
+  const address = content?.address || "India";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,7 +154,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-civora-navy">Email</h3>
-                    <p className="text-gray-600">civoranexus@gmail.com</p>
+                    <p className="text-gray-600">{email}</p>
                   </div>
                 </div>
 
@@ -157,7 +164,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-civora-navy">Phone</h3>
-                    <p className="text-gray-600">+91 XXX XXX XXXX</p>
+                    <p className="text-gray-600">{phone}</p>
                   </div>
                 </div>
 
@@ -167,7 +174,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-civora-navy">Office</h3>
-                    <p className="text-gray-600">India</p>
+                    <p className="text-gray-600">{address}</p>
                   </div>
                 </div>
               </div>
@@ -194,3 +201,4 @@ const Contact = () => {
 };
 
 export default Contact;
+
