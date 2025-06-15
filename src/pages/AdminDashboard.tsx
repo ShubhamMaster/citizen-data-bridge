@@ -225,13 +225,12 @@ const AdminDashboard = () => {
     const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
     // --- HEADER: Company Branding Area ---
-    // Blue header rectangle (letterhead)
     page.drawRectangle({
       x: 0,
       y: pageHeight - 110,
       width: pageWidth,
       height: 110,
-      color: rgb(20/255, 54/255, 134/255), // dark blue
+      color: rgb(20/255, 54/255, 134/255),
     });
 
     // Embed company logo as PNG
@@ -241,7 +240,7 @@ const AdminDashboard = () => {
       const logoImageBytes = await logoImageRes.arrayBuffer();
       const logoImage = await pdfDoc.embedPng(logoImageBytes);
 
-      // Draw logo: left-aligned, about 65px wide, 90px high, vertically centered in header
+      // Draw logo: left-aligned
       const LOGO_WIDTH = 65;
       const LOGO_HEIGHT = 90;
       page.drawImage(logoImage, {
@@ -328,7 +327,6 @@ const AdminDashboard = () => {
     }
 
     // --- FOOTER ---
-    // Blue footer rectangle
     page.drawRectangle({
       x: 0,
       y: 0,
@@ -337,21 +335,24 @@ const AdminDashboard = () => {
       color: rgb(20/255, 54/255, 134/255),
     });
 
-    // Footer Contact Info
-    page.drawText(`${COMPANY_LETTERHEAD.phone}   |   ${COMPANY_LETTERHEAD.address}`, {
-      x: 42,
-      y: 18,
-      size: 10,
-      font: fontNormal,
-      color: rgb(230/255, 245/255, 255/255),
-    });
+    page.drawText(
+      `${COMPANY_LETTERHEAD.phone}   |   ${COMPANY_LETTERHEAD.address}`,
+      {
+        x: 42,
+        y: 18,
+        size: 10,
+        font: fontNormal,
+        color: rgb(230/255, 245/255, 255/255),
+      }
+    );
 
-    // Download PDF
+    // --- Download PDF (FIX: properly declare "url") ---
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob); // <-- Fix: define "url" properly here
     const filename = `job-application-${app.application_data?.name || "applicant"}.pdf`.replace(/\s+/g, "_").toLowerCase();
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
+    link.href = url;
     link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
