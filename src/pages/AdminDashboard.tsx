@@ -1071,12 +1071,12 @@ const AdminDashboard = () => {
                             </TableCell>
                             <TableCell>{call.time}</TableCell>
                             <TableCell className="whitespace-pre-line">
-                              {call.reason && call.reason.length > 15 ? (
+                              {call.reason && call.reason.length > 10 ? (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <span>
                                       <span className="cursor-pointer underline decoration-dotted">
-                                        {call.reason.slice(0, 15) + "…"}
+                                        {call.reason.slice(0, 10) + "…"}
                                       </span>
                                       <button
                                         tabIndex={-1}
