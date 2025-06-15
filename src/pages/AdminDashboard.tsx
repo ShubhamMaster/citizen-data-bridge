@@ -26,6 +26,8 @@ import { toast } from "@/hooks/use-toast";
 import JobManagement from "@/components/JobManagement";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import { Textarea } from "@/components/ui/textarea";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,6 +38,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
   const navigate = useNavigate();
+  const [viewedApp, setViewedApp] = useState<any | null>(null);
+  const [statusSaving, setStatusSaving] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -119,8 +123,8 @@ const AdminDashboard = () => {
     return colors[status as keyof typeof colors] || colors.pending;
   };
 
-  // CSV Export for applications
-  const handleExportApplications = () => {
+  // CSV Export for applications (Excel compatible)
+  const exportCSV = () => {
     if (applications.length === 0) {
       toast({
         title: "Nothing to export",
@@ -143,8 +147,6 @@ const AdminDashboard = () => {
       `"${(app.status ?? 'pending').replace(/"/g, '""')}"`
     ]);
     const csvContent = [csvHeaders, ...csvRows].map(row => row.join(",")).join("\r\n");
-
-    // Create a blob and download it
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
@@ -157,6 +159,102 @@ const AdminDashboard = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }, 0);
+  };
+
+  // Generate PDF for all applications
+  const exportPDF = async () => {
+    if (!applications.length) {
+      toast({ title: "Nothing to export", description: "No applications available." });
+      return;
+    }
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    let y = 800;
+
+    let page = pdfDoc.addPage([595, 842]);
+    page.drawText("Civora Nexus - Job Applications", { x: 40, y, size: 18, font, color: rgb(0.14, 0.23, 0.35) });
+    y -= 30;
+
+    applications.forEach((app, i) => {
+      if (y < 100) {
+        page = pdfDoc.addPage([595, 842]);
+        y = 800;
+      }
+      page.drawText(`Applicant: ${app.application_data?.name ?? 'N/A'}`, { x: 40, y, size: 12, font });
+      y -= 16;
+      page.drawText(`Email: ${app.application_data?.email ?? 'N/A'}`, { x: 40, y, size: 10, font });
+      y -= 14;
+      page.drawText(`Position: ${app.application_data?.position ?? 'General Application'}`, { x: 40, y, size: 10, font });
+      y -= 14;
+      page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 10, font });
+      y -= 14;
+      page.drawText(`Status: ${app.status ?? 'pending'}`, { x: 40, y, size: 10, font });
+      y -= 14;
+      page.drawText(`Message: ${app.application_data?.message ?? ''}`, { x: 40, y, size: 10, font });
+      y -= 20;
+      page.drawText("-------------------------------------------", { x: 40, y, size: 8, font, color: rgb(0.7,0.7,0.7) });
+      y -= 18;
+    });
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "job-applications.pdf");
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 0);
+  };
+
+  // Download individual application as PDF
+  const downloadAppPDF = async (app: any) => {
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    let y = 800;
+    const page = pdfDoc.addPage([595, 842]);
+    page.drawText("Civora Nexus - Job Application", { x: 40, y, size: 18, font, color: rgb(0.14, 0.23, 0.35) });
+    y -= 30;
+    page.drawText(`Applicant: ${app.application_data?.name ?? 'N/A'}`, { x: 40, y, size: 12, font });
+    y -= 16;
+    page.drawText(`Email: ${app.application_data?.email ?? 'N/A'}`, { x: 40, y, size: 10, font });
+    y -= 14;
+    page.drawText(`Position: ${app.application_data?.position ?? 'General Application'}`, { x: 40, y, size: 10, font });
+    y -= 14;
+    page.drawText(`Applied: ${new Date(app.created_at).toLocaleString()}`, { x: 40, y, size: 10, font });
+    y -= 14;
+    page.drawText(`Status: ${app.status ?? 'pending'}`, { x: 40, y, size: 10, font });
+    y -= 14;
+    page.drawText(`Message: ${app.application_data?.message ?? ''}`, { x: 40, y, size: 10, font });
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const fn = `job-application-${app.application_data?.name || 'applicant'}.pdf`;
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fn.replace(/\s+/g, "_").toLowerCase());
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 0);
+  };
+
+  // Application status update
+  const handleStatusChange = async (appId: number, newStatus: string) => {
+    setStatusSaving(String(appId));
+    const { error } = await supabase.from("applications").update({ status: newStatus }).eq("id", appId);
+    if (error) {
+      toast({ title: "Update failed", description: "Could not update application status.", variant: "destructive" });
+    } else {
+      setApplications((apps) => apps.map(a => a.id === appId ? { ...a, status: newStatus } : a));
+      toast({ title: "Status Updated", description: "The application status has been updated." });
+    }
+    setStatusSaving(null);
   };
 
   if (loading) {
@@ -277,10 +375,19 @@ const AdminDashboard = () => {
                         className="pl-10 w-64"
                       />
                     </div>
-                    <Button variant="outline" onClick={handleExportApplications}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                    </Button>
+                    {/* Export Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline">
+                          <Download className="h-4 w-4 mr-2" />
+                          Export
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={exportCSV}>Export as Excel (CSV)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={exportPDF}>Export as PDF</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </CardHeader>
@@ -315,16 +422,25 @@ const AdminDashboard = () => {
                             <td className="py-3 px-4">{app.application_data?.position || 'General Application'}</td>
                             <td className="py-3 px-4">{new Date(app.created_at).toLocaleDateString()}</td>
                             <td className="py-3 px-4">
-                              <Badge className={getStatusBadge(app.status || 'pending')}>
-                                {app.status || 'pending'}
-                              </Badge>
+                              <select
+                                value={app.status || "pending"}
+                                disabled={statusSaving === String(app.id)}
+                                className="border rounded p-1 text-xs min-w-[120px] bg-white"
+                                onChange={e => handleStatusChange(app.id, e.target.value)}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="in process">In Process</option>
+                                <option value="reviewed">Reviewed</option>
+                                <option value="accepted">Accepted</option>
+                                <option value="rejected">Rejected</option>
+                              </select>
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex gap-2">
-                                <Button size="sm" variant="outline">
+                                <Button size="sm" variant="outline" onClick={() => setViewedApp(app)}>
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button size="sm" variant="outline">
+                                <Button size="sm" variant="outline" onClick={() => downloadAppPDF(app)}>
                                   <Download className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -333,6 +449,32 @@ const AdminDashboard = () => {
                         ))}
                       </tbody>
                     </table>
+                    {/* Application details modal */}
+                    {viewedApp && (
+                      <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+                        <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
+                          <button
+                            className="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-xl"
+                            onClick={() => setViewedApp(null)}
+                          >×</button>
+                          <h3 className="text-lg font-bold mb-2">Application Details</h3>
+                          <dl className="text-sm">
+                            <dt className="font-semibold">Name</dt>
+                            <dd className="mb-2">{viewedApp.application_data?.name ?? 'N/A'}</dd>
+                            <dt className="font-semibold">Email</dt>
+                            <dd className="mb-2">{viewedApp.application_data?.email ?? 'N/A'}</dd>
+                            <dt className="font-semibold">Position</dt>
+                            <dd className="mb-2">{viewedApp.application_data?.position ?? 'N/A'}</dd>
+                            <dt className="font-semibold">Applied</dt>
+                            <dd className="mb-2">{new Date(viewedApp.created_at).toLocaleString()}</dd>
+                            <dt className="font-semibold">Status</dt>
+                            <dd className="mb-2 capitalize">{viewedApp.status ?? 'pending'}</dd>
+                            <dt className="font-semibold">Message</dt>
+                            <dd className="mb-2">{viewedApp.application_data?.message ?? ''}</dd>
+                          </dl>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
