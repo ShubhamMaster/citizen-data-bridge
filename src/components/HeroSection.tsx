@@ -1,9 +1,22 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Handshake, Hospital, Globe, Users, Shield, Heart, City, Network, Building2, ChevronRight, ArrowRight } from "lucide-react";
+import {
+  Handshake,
+  Hospital,
+  Globe,
+  Users,
+  Shield,
+  Heart,
+  Network,
+  Building2,
+  Building,
+  Landmark,
+  ChevronRight,
+  ArrowRight,
+} from "lucide-react";
 
-// Modern, professional "digital bridge" illustration with icons – NOT a circle/blob
+// Modern, professional "digital bridge" illustration with valid lucide-react icons
 const HeroIllustration = () => (
   <div className="w-full h-full flex items-center justify-center px-2 md:px-0">
     <svg
@@ -37,26 +50,40 @@ const HeroIllustration = () => (
       <line x1="260" y1="110" x2="310" y2="60" stroke="#AACEDF" strokeWidth="2" strokeDasharray="5 4" />
       <line x1="340" y1="110" x2="370" y2="80" stroke="#AACEDF" strokeWidth="2" strokeDasharray="5 4" />
       
-      {/* Left city/building icons group */}
+      {/* Left city/building icons group - using Building and Landmark */}
       <g>
         <rect x="62" y="135" width="18" height="36" rx="4" fill="#2EA6AA" opacity="0.18"/>
         <rect x="85" y="145" width="13" height="25" rx="2.2" fill="#112B52" opacity="0.15"/>
-        <City x={66} y={147} size={18} color="#2EA6AA" strokeWidth={2} />
-        <Building2 x={84} y={158} size={13} color="#2EA6AA" strokeWidth={1.7}/>
+        {/* "Building" icon */}
+        <g transform="translate(66,147)">
+          <Building size={18} color="#2EA6AA" strokeWidth={2} />
+        </g>
+        {/* "Landmark" icon */}
+        <g transform="translate(84,158)">
+          <Landmark size={13} color="#2EA6AA" strokeWidth={1.7} />
+        </g>
       </g>
       {/* Right hospital/care icons group */}
       <g>
         <rect x="325" y="135" width="18" height="36" rx="4" fill="#2EA6AA" opacity="0.18"/>
         <rect x="346" y="141" width="13" height="29" rx="2.2" fill="#112B52" opacity="0.15"/>
-        <Hospital x={330} y={147} size={18} color="#2EA6AA" strokeWidth={2} />
-        <Heart x={343} y={157} size={13} color="#2EA6AA" strokeWidth={1.7}/>
+        <g transform="translate(330,147)">
+          <Hospital size={18} color="#2EA6AA" strokeWidth={2} />
+        </g>
+        <g transform="translate(343,157)">
+          <Heart size={13} color="#2EA6AA" strokeWidth={1.7} />
+        </g>
       </g>
       {/* People (community) and collaboration in the center */}
       <g>
         <circle cx="214" cy="92" r="14" fill="#fff" opacity="0.94" />
-        <Users x={203} y={81} size={22} color="#2EA6AA" strokeWidth={2}/>
+        <g transform="translate(203,81)">
+          <Users size={22} color="#2EA6AA" strokeWidth={2}/>
+        </g>
         {/* Connectivity icon */}
-        <Network x={225} y={98} size={14} color="#2EA6AA" strokeWidth={1.7} />
+        <g transform="translate(225,98)">
+          <Network size={14} color="#2EA6AA" strokeWidth={1.7} />
+        </g>
       </g>
       {/* Dotted connection (city↔people↔health) */}
       <polyline points="75,110 200,95 214,92 230,98 340,110" stroke="#2EA6AA" strokeWidth="2" strokeDasharray="7 6" opacity="0.30"/>
