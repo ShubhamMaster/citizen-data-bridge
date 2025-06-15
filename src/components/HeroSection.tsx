@@ -13,7 +13,7 @@ const HeroSection: React.FC = () => {
     );
   }
 
-  // Provide fallback/default text if content not set
+  // Use dynamic Hero Section content, fallback only if not set in Supabase
   const title = content?.title || "Enabling Smarter Governance";
   const subtitle = content?.subtitle || "Building citizen-centric, digital-first solutions for India's evolving urban needs.";
 

@@ -5,12 +5,13 @@ import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import { Mail, Phone, MapPin } from "lucide-react";
 
 const Footer: React.FC = () => {
-  const { content } = useWebsiteContent("contact");
+  // Dynamically fetch contact info from Supabase 'website_content'
+  const { content: contactContent } = useWebsiteContent("contact");
 
-  // Fallbacks for public contact info
-  const email = content?.email || "civoranexus@gmail.com";
-  const phone = content?.phone || "+91-9146 2687 10";
-  const address = content?.address || "Sangamner, Maharashtra";
+  // Fetch only once for performance. Provide fallback if data missing.
+  const email = contactContent?.email || "civoranexus@gmail.com";
+  const phone = contactContent?.phone || "+91-9146 2687 10";
+  const address = contactContent?.address || "Sangamner, Maharashtra";
 
   // All navigation links
   const navLinks = [
@@ -97,16 +98,14 @@ const Footer: React.FC = () => {
               Empowering communities through <br />smart civic & healthcare technology.
             </p>
           </div>
-          {/* Social Links or placeholder */}
           <div className="flex gap-3 mt-2">
-            <a href="mailto:civoranexus@gmail.com" aria-label="Email Us" className="hover:text-civora-teal transition-colors text-lg">
+            <a href={`mailto:${email}`} aria-label="Email Us" className="hover:text-civora-teal transition-colors text-lg">
               <Mail className="w-5 h-5" />
             </a>
-            {/* Add more social icons here as needed */}
+            {/* Add social icons if needed */}
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto text-center mt-8 pt-5 border-t border-civora-teal/10 text-xs text-gray-400">
         &copy; {new Date().getFullYear()} Civora Nexus Pvt. Ltd. All rights reserved.
       </div>

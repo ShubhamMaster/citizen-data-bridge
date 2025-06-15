@@ -13,7 +13,7 @@ const ServicesSection: React.FC = () => {
     );
   }
 
-  // Parse comma-separated, or array from backend
+  // Use services from content; fallback only if none present in Supabase
   const services: string[] =
     Array.isArray(content?.services)
       ? content.services
