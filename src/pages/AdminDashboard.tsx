@@ -53,6 +53,12 @@ const AdminDashboard = () => {
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
   const logoutTimerRef = useRef<any>(null);
 
+  // Helper: get remaining seconds from sessionExpiry
+  const getRemainingSeconds = () => {
+    if (!sessionExpiry) return null;
+    return Math.floor((sessionExpiry.getTime() - Date.now()) / 1000);
+  };
+
   useEffect(() => {
     // Setup session and expiration tracking
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
@@ -597,11 +603,15 @@ const AdminDashboard = () => {
             <div className="flex items-center gap-5">
               {remainingTime && (
                 <div
-                  className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                    remainingTime === "Expired"
-                      ? "bg-red-50 text-red-600"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+                  className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors duration-200
+                    ${
+                      remainingTime === "Expired"
+                        ? "bg-red-100 text-red-800"
+                        : getRemainingSeconds() !== null && getRemainingSeconds() <= 300
+                        ? "bg-red-100 text-red-800"
+                        : "bg-green-100 text-green-800"
+                    }
+                  `}
                   title="Remaining session time"
                   data-testid="session-remaining"
                 >
