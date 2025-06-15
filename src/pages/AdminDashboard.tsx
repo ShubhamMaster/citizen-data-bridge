@@ -30,6 +30,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption } from "@/components/ui/table";
 import AdminProfilePage from "@/components/AdminProfilePage";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,6 +55,8 @@ const AdminDashboard = () => {
   const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
   const logoutTimerRef = useRef<any>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Helper: get remaining seconds from sessionExpiry
   const getRemainingSeconds = () => {
@@ -601,7 +605,8 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-civora-navy">Admin Dashboard</h1>
               <p className="text-gray-600">Civora Nexus Management Portal</p>
             </div>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3">
+              {/* Remaining Time Badge */}
               {remainingTime && (
                 <div
                   className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors duration-200
@@ -619,15 +624,50 @@ const AdminDashboard = () => {
                   Session expires in: {remainingTime}
                 </div>
               )}
-              <Button variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
+
+              {/* Profile Icon with menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="rounded-full focus:outline-none focus:ring-2 focus:ring-civora-teal/70 transition-shadow shadow-lg hover:ring-4 hover:ring-civora-teal/40"
+                    aria-label="Open profile menu"
+                  >
+                    <Avatar className="w-9 h-9">
+                      {/* Fake fallback for now (initials), enhance if session provides avatar in future */}
+                      <AvatarImage src={session?.user?.user_metadata?.avatar_url ?? ""} alt="Profile" />
+                      <AvatarFallback>
+                        {session?.user?.user_metadata?.name
+                          ? session.user.user_metadata.name
+                              .split(" ")
+                              .map((n: string) => n[0])
+                              .join("")
+                              .toUpperCase()
+                          : "AD"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="z-50 bg-white shadow-lg min-w-[160px] p-0">
+                  <DropdownMenuItem
+                    onClick={() => setProfileOpen(true)}
+                    className="hover:bg-civora-teal/10 focus:bg-civora-teal/20 cursor-pointer"
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="hover:bg-red-100 focus:bg-red-200 text-red-600 cursor-pointer"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Website Visitors card now just shows stats, does not toggle anything */}
@@ -692,15 +732,14 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="jobs">Job Management</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="content">Content Management</TabsTrigger>
+            <TabsTrigger value="content">Content Mgmt</TabsTrigger>
             <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
             <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
-            <TabsTrigger value="visitors">Website Visitors</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="visitors">Visitors</TabsTrigger>
           </TabsList>
 
           {/* Applications Tab */}
@@ -1114,13 +1153,23 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
-            <AdminProfilePage />
-          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Profile Modal */}
+      {profileOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-2 sm:p-0">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative animate-fade-in-up">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold"
+              onClick={() => setProfileOpen(false)}
+              aria-label="Close profile"
+            >×</button>
+            {/* Place the AdminProfilePage in modal */}
+            <AdminProfilePage />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
