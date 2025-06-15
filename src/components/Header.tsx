@@ -117,7 +117,7 @@ export const Header: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-  // New: Track which sub-group is open in mobile menu
+  // Track which sub-group is open for each main dropdown in mobile
   const [mobileOpenGroup, setMobileOpenGroup] = useState<{ [main: string]: string | null }>({});
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -275,11 +275,21 @@ export const Header: React.FC = () => {
                   <SubMenuMobile
                     subGroups={main.subGroups}
                     openGroup={mobileOpenGroup[main.label] || null}
-                    setOpenGroup={label => setMobileOpenGroup(prev => ({
-                      ...prev,
-                      [main.label]: prev[main.label] === label ? null : label
-                    }))}
-                    closeMenu={() => { setMobileOpen(false); setDropdownOpen(null); }}
+                    setOpenGroup={(label) =>
+                      setMobileOpenGroup((prev) => ({
+                        ...prev,
+                        [main.label]: prev[main.label] === label ? null : label,
+                      }))
+                    }
+                    closeMenu={() => {
+                      setMobileOpen(false);
+                      setDropdownOpen(null);
+                      // Always close sub-group on menu close
+                      setMobileOpenGroup((prev) => ({
+                        ...prev,
+                        [main.label]: null,
+                      }));
+                    }}
                   />
                 )}
               </li>
