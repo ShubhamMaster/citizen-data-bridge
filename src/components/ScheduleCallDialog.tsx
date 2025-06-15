@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -19,11 +18,11 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Time slot values according to request
+// Time slot values in readable format with leading zeros and AM/PM
 const TIME_SLOTS = [
-  "8am - 11am",
-  "11am - 2pm",
-  "2pm - 5pm",
+  "08:00 AM - 11:00 AM",
+  "11:00 AM - 02:00 PM",
+  "02:00 PM - 05:00 PM",
 ];
 
 export default function ScheduleCallDialog() {
