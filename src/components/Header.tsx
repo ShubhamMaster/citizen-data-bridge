@@ -20,12 +20,12 @@ const SubMenuDesktop: React.FC<{
 }> = ({ subGroups, close }) => (
   <div
     role="menu"
-    className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-800 w-max px-1 py-3 flex gap-8 animate-fade-in"
+    className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-800 w-max px-1 py-3 flex flex-col gap-6 animate-fade-in"
     tabIndex={-1}
     onKeyDown={e => { (e.key === "Escape") && close(); }}
   >
     {subGroups.map((group) => (
-      <div key={group.label} className="min-w-[170px]">
+      <div key={group.label} className="min-w-[170px] mb-0 last:mb-0">
         <span className="text-xs font-bold text-civora-teal dark:text-civora-teal/80 pl-2">{group.label}</span>
         <ul className="mt-1.5 space-y-1" role="group" aria-label={group.label}>
           {group.items.map((item) => (
