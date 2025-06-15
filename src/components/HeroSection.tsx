@@ -18,7 +18,29 @@ const TrustBadges = () => (
   </div>
 );
 
+const isMobileDevice = () => {
+  if (typeof navigator === "undefined") return false;
+  return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+};
+
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleGetInTouch = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (isMobileDevice()) {
+        window.location.href = "mailto:contact@civoranexus.com";
+      } else {
+        navigate("/contact");
+      }
+    },
+    [navigate]
+  );
+
   return (
     <section className="relative min-h-[450px] md:min-h-[560px] flex items-center justify-center bg-civora-navy w-full overflow-hidden py-12 md:py-24">
       <div className="container mx-auto flex flex-col items-center justify-center w-full max-w-2xl z-10 px-4">
@@ -37,20 +59,12 @@ const HeroSection: React.FC = () => {
             <a href="#services">Discover Solutions</a>
           </Button>
           <Button
-            asChild
             size="lg"
-            // Custom creative navy button with white text, gradient border, and creative effect
             className="relative bg-civora-navy text-white font-semibold border-2 border-civora-teal shadow-xl overflow-hidden px-7 py-3.5 transition-all duration-200 hover:bg-gradient-to-r hover:from-civora-navy hover:to-civora-teal/90 hover:text-white hover:scale-105 before:absolute before:inset-0 before:border-2 before:border-civora-teal/30 before:rounded-lg before:opacity-0 hover:before:opacity-100 before:pointer-events-none"
             variant="outline"
+            onClick={handleGetInTouch}
           >
-            <a
-              href="mailto:contact@civoranexus.com"
-              className="relative z-10"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Get in Touch
-            </a>
+            <span className="relative z-10">Get in Touch</span>
           </Button>
         </div>
         <TrustBadges />
