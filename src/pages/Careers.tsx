@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MapPin, Clock, DollarSign, Send, Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +16,6 @@ type Job = Database["public"]["Tables"]["jobs"]["Row"];
 
 const Careers = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | { title: string; id: number } | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,7 +26,6 @@ const Careers = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch jobs from Supabase
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true);
@@ -74,17 +71,17 @@ const Careers = () => {
 
     try {
       const applicationData = {
-        job_id: selectedJob?.id || null,
-        user_id: 'temp-user-id', // Can be replaced with actual user ID if auth is implemented
-        data_source: 'careers_page',
+        job_id: null,
+        user_id: 'temp-user-id',
+        data_source: 'careers_page_general_application',
         status: 'pending',
         application_data: {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           message: formData.message,
-          job_id: selectedJob?.id || 0,
-          job_title: selectedJob?.title || 'General Application',
+          job_id: 0,
+          job_title: 'General Application',
           resume_name: formData.resume?.name || '',
           applied_at: new Date().toISOString()
         }
@@ -112,7 +109,6 @@ const Careers = () => {
         resume: null
       });
 
-      setSelectedJob(null);
     } catch (error) {
       console.error('Error submitting application:', error);
       toast({
@@ -185,174 +181,9 @@ const Careers = () => {
         </div>
       </section>
 
-      {/* Job Listings */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-civora-navy mb-4">Open Positions</h2>
-            <p className="text-xl text-gray-600">We're looking for talented individuals to join our founding team</p>
-          </div>
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin h-8 w-8 border-4 border-civora-teal rounded-full border-t-transparent mx-auto mb-4" />
-              <p className="text-gray-700">Loading jobs...</p>
-            </div>
-          ) : (
-            <>
-              {jobs.length === 0 ? (
-                <div className="text-center py-16">
-                  <Briefcase className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No job postings available</h3>
-                  <p className="text-gray-500">Check back soon for new openings!</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-6">
-                  {jobs.map((job) => (
-                    <Card key={job.id} className="hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <CardTitle className="text-xl text-civora-navy mb-2">{job.title}</CardTitle>
-                            <div className="flex flex-wrap gap-2 mb-3">
-                              <Badge variant="secondary">{job.department}</Badge>
-                              <Badge variant="outline">{job.type}</Badge>
-                            </div>
-                          </div>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                className="bg-civora-teal hover:bg-civora-teal/90"
-                                onClick={() => setSelectedJob(job)}
-                              >
-                                Apply Now
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                              <DialogHeader>
-                                <DialogTitle>Apply for {job.title}</DialogTitle>
-                              </DialogHeader>
-                              <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                  <Label htmlFor="name">Full Name *</Label>
-                                  <Input
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    required
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="email">Email *</Label>
-                                  <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="phone">Phone Number</Label>
-                                  <Input
-                                    id="phone"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="resume">Resume/CV</Label>
-                                  <Input
-                                    id="resume"
-                                    name="resume"
-                                    type="file"
-                                    accept=".pdf,.doc,.docx"
-                                    onChange={handleFileChange}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="message">Cover Letter / Message</Label>
-                                  <Textarea
-                                    id="message"
-                                    name="message"
-                                    value={formData.message}
-                                    onChange={handleInputChange}
-                                    placeholder="Tell us why you're interested in this position..."
-                                    rows={4}
-                                  />
-                                </div>
-                                <Button 
-                                  type="submit" 
-                                  disabled={isSubmitting}
-                                  className="w-full bg-civora-teal hover:bg-civora-teal/90"
-                                >
-                                  {isSubmitting ? (
-                                    "Submitting..."
-                                  ) : (
-                                    <>
-                                      <Send className="h-4 w-4 mr-2" />
-                                      Submit Application
-                                    </>
-                                  )}
-                                </Button>
-                              </form>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {job.location}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {job.type}
-                          </div>
-                          {job.salary_range && (
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4" />
-                              {job.salary_range}
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-gray-700 mb-4">{job.description}</p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <h4 className="font-semibold text-civora-navy mb-2">Requirements:</h4>
-                            <ul className="text-sm text-gray-600 space-y-1">
-                              {(job.requirements?.split('\n') ?? []).map((req, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                  <span className="text-civora-teal mt-1">•</span>
-                                  {req}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-civora-navy mb-2">Responsibilities:</h4>
-                            <ul className="text-sm text-gray-600 space-y-1">
-                              {/* The jobs table doesn't have responsibilities, but you can add this if you add such a field */}
-                              <li className="flex items-start gap-2 text-gray-400 italic">
-                                Information will be provided if available.
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </section>
-
+      {/* REMOVE job listing and application modal section */}
+      {/* Job Listings section is moved to CareersJobs page */}
+      
       {/* Call to Action */}
       <section className="py-20 bg-civora-navy text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -365,7 +196,6 @@ const Careers = () => {
               <Button 
                 size="lg" 
                 className="bg-civora-teal hover:bg-civora-teal/90"
-                onClick={() => setSelectedJob({ title: 'General Application', id: 0 })}
               >
                 Submit General Application
               </Button>

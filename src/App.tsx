@@ -40,6 +40,7 @@ import CustomIntegrations from "./pages/CustomIntegrations";
 import Rnd from "./pages/Rnd";
 import AIResearch from "./pages/AIResearch";
 import Patents from "./pages/Patents";
+import CareersJobs from "./pages/CareersJobs";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/services/custom-integrations" element={<CustomIntegrations />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
+            <Route path="/careers/jobs" element={<CareersJobs />} />
             <Route path="/innovation-lab" element={<InnovationLab />} />
             <Route path="/innovation-lab/rnd" element={<Rnd />} />
             <Route path="/innovation-lab/ai-research" element={<AIResearch />} />
