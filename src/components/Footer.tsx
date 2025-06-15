@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
     { name: "Home", to: "/" },
     { name: "About Us", to: "/about" },
     { name: "Services", to: "/services" },
-    { name: "Industries", to: "/#industries" },
+    { name: "Projects", to: "/#projects" },
     { name: "Innovation Lab", to: "/innovation-lab" },
     { name: "Careers", to: "/careers" },
     { name: "Contact", to: "/contact" },
@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
   // Group links for column layout
   const navGroups = [
     navLinks.slice(0, 3), // Home, About Us, Services
-    navLinks.slice(3, 6), // Industries, Innovation Lab, Careers
+    navLinks.slice(3, 6), // Projects, Innovation Lab, Careers
     navLinks.slice(6, 9), // Contact, Privacy, Terms
   ];
 
