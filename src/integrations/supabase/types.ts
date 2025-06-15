@@ -161,6 +161,54 @@ export type Database = {
         }
         Relationships: []
       }
+      website_visits: {
+        Row: {
+          browser_name: string | null
+          city: string | null
+          country: string | null
+          device_brand: string | null
+          device_model: string | null
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          os_name: string | null
+          path: string
+          region: string | null
+          user_agent: string | null
+          visited_at: string
+        }
+        Insert: {
+          browser_name?: string | null
+          city?: string | null
+          country?: string | null
+          device_brand?: string | null
+          device_model?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          os_name?: string | null
+          path: string
+          region?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Update: {
+          browser_name?: string | null
+          city?: string | null
+          country?: string | null
+          device_brand?: string | null
+          device_model?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          os_name?: string | null
+          path?: string
+          region?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
