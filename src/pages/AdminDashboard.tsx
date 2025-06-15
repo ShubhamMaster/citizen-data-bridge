@@ -1052,6 +1052,7 @@ const AdminDashboard = () => {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Name</TableHead>
+                          <TableHead>Mobile</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Time</TableHead>
                           <TableHead>Reason</TableHead>
@@ -1063,6 +1064,7 @@ const AdminDashboard = () => {
                         {filteredScheduledCalls.map((call) => (
                           <TableRow key={call.id}>
                             <TableCell>{call.name}</TableCell>
+                            <TableCell>{call.mobile || "-"}</TableCell>
                             <TableCell>
                               {call.date ? new Date(call.date).toLocaleDateString() : ""}
                             </TableCell>
