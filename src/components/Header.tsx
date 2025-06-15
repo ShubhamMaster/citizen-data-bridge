@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
@@ -52,7 +51,7 @@ const SubMenuMobile: React.FC<{
       {subGroups.map(group => (
         <div key={group.label}>
           <button
-            className="w-full text-left py-2 px-2 rounded flex justify-between items-center font-semibold text-sm text-civora-teal dark:text-civora-teal/80 focus:outline-civora-teal focus:ring-civora-teal transition"
+            className="w-full text-left py-2 px-2 rounded flex justify-between items-center font-semibold text-sm text-civora-teal dark:text-civora-teal/80 focus:outline-civora-teal transition"
             onClick={() => setOpenGroup(group.label === openGroup ? null : group.label)}
             aria-expanded={openGroup === group.label}
             aria-controls={`mobile-group-${group.label}`}
@@ -119,6 +118,9 @@ export const Header: React.FC = () => {
   // Close dropdown when clicking outside (desktop)
   useOutsideClick(dropdownRef, () => setDropdownOpen(null));
 
+  // Dropdown close helper for desktop
+  const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
+
   // Keyboard ESC support for mobile menu
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -150,19 +152,36 @@ export const Header: React.FC = () => {
         </Link>
         {/* Desktop Nav */}
         <nav className="hidden lg:flex gap-2 items-center ml-10" role="navigation" aria-label="Main menu">
-          {NAVIGATION.map((main) => (
+          {NAVIGATION.map((main) =>
             main.subGroups ? (
-              <div key={main.label} className="relative group">
+              <div
+                key={main.label}
+                className="relative group"
+                onMouseEnter={() => {
+                  if (dropdownTimeout.current) clearTimeout(dropdownTimeout.current);
+                  setDropdownOpen(main.label);
+                }}
+                onMouseLeave={() => {
+                  dropdownTimeout.current = setTimeout(() => setDropdownOpen(null), 120);
+                }}
+                onFocus={() => setDropdownOpen(main.label)}
+                onBlur={(e) => {
+                  // Hide dropdown only if focus moves outside both the button and the menu
+                  if (
+                    !e.currentTarget.contains(e.relatedTarget as Node)
+                  ) {
+                    setDropdownOpen(null);
+                  }
+                }}
+                tabIndex={-1}
+              >
                 <button
                   type="button"
                   onClick={() => setDropdownOpen(dropdownOpen === main.label ? null : main.label)}
-                  onMouseEnter={() => setDropdownOpen(main.label)}
-                  onMouseLeave={() => setTimeout(() => setDropdownOpen(cur => cur === main.label ? null : cur), 220)}
-                  onFocus={() => setDropdownOpen(main.label)}
                   className={`px-3 py-2 text-sm font-bold rounded-lg flex items-center gap-1 transition-colors focus:outline-civora-teal focus:shadow focus:ring-2 focus:ring-civora-teal/40 dark:text-gray-100
                     ${dropdownOpen === main.label ? "text-civora-teal bg-civora-teal/10 dark:text-civora-teal" : "text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal"}`}
                   aria-haspopup="menu"
-                  aria-expanded={(dropdownOpen === main.label) ? true : undefined}
+                  aria-expanded={dropdownOpen === main.label ? true : undefined}
                   aria-controls={`dropdown-${main.label}`}
                 >
                   {main.label}
@@ -173,21 +192,18 @@ export const Header: React.FC = () => {
                   <div
                     id={`dropdown-${main.label}`}
                     ref={dropdownRef}
-                    className="absolute left-0 mt-2"
-                    onMouseEnter={() => setDropdownOpen(main.label)}
-                    onMouseLeave={() => setDropdownOpen(null)}
+                    className="absolute left-0 mt-2 z-50"
                   >
                     <SubMenuDesktop subGroups={main.subGroups} close={() => setDropdownOpen(null)} />
                   </div>
                 )}
               </div>
-            )
-            : (
+            ) : (
               <NavLinkItem to={main.href ?? "#"} key={main.label} className="px-3 py-2 text-sm font-bold rounded-lg text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal dark:text-gray-100 focus:outline-civora-teal">
                 {main.label}
               </NavLinkItem>
             )
-          ))}
+          )}
           {/* Dark mode toggle */}
           <button
             title="Toggle dark mode"
