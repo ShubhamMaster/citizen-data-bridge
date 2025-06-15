@@ -1,11 +1,10 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import About from "./pages/About";
+import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import Careers from "./pages/Careers";
 import InnovationLab from "./pages/InnovationLab";
@@ -18,6 +17,14 @@ import NotFound from "./pages/NotFound";
 import Services from "./pages/Services";
 import ProjectsPage from "./pages/Projects";
 import { useLogVisit } from "@/hooks/useLogVisit";
+import Leadership from "./pages/Leadership";
+import BoardOfDirectors from "./pages/BoardOfDirectors";
+import Partners from "./pages/Partners";
+import Investors from "./pages/Investors";
+import CSRESG from "./pages/CSRESG";
+import Sustainability from "./pages/Sustainability";
+import CorporateResponsibility from "./pages/CorporateResponsibility";
+import SocialImpact from "./pages/SocialImpact";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +44,16 @@ const App = () => {
           <LogVisitEffect />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
+            {/* About section */}
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/about-us/leadership" element={<Leadership />} />
+            <Route path="/about-us/board-of-directors" element={<BoardOfDirectors />} />
+            <Route path="/about-us/partners" element={<Partners />} />
+            <Route path="/about-us/investors" element={<Investors />} />
+            <Route path="/about-us/csr-esg" element={<CSRESG />} />
+            <Route path="/about-us/csr-esg/sustainability" element={<Sustainability />} />
+            <Route path="/about-us/csr-esg/corporate-responsibility" element={<CorporateResponsibility />} />
+            <Route path="/about-us/csr-esg/social-impact" element={<SocialImpact />} />
             <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
