@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
@@ -189,7 +188,6 @@ export const Header: React.FC = () => {
                 }}
                 onFocus={() => setDesktopDropdownOpen(main.label)}
                 onBlur={(e) => {
-                  // Hide dropdown only if focus moves outside both the button and the menu
                   if (
                     !e.currentTarget.contains(e.relatedTarget as Node)
                   ) {
@@ -210,7 +208,6 @@ export const Header: React.FC = () => {
                   {main.label}
                   <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${desktopDropdownOpen === main.label ? "rotate-180" : ""}`} />
                 </button>
-                {/* Dropdown */}
                 {desktopDropdownOpen === main.label && (
                   <div
                     id={`dropdown-${main.label}`}
@@ -227,15 +224,6 @@ export const Header: React.FC = () => {
               </NavLinkItem>
             )
           )}
-          {/* Dark mode toggle */}
-          <button
-            title="Toggle dark mode"
-            className="ml-4 p-2 rounded-full transition-colors hover:bg-civora-teal/10 hover:text-civora-teal focus:outline-civora-teal"
-            aria-label="Toggle dark mode"
-            onClick={toggleTheme}
-          >
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
         </nav>
         {/* Hamburger for mobile */}
         <button
@@ -266,7 +254,6 @@ export const Header: React.FC = () => {
                   className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
                   onClick={() => {
                     setMobileDropdownOpen(mobileDropdownOpen === main.label ? null : main.label);
-                    // Do not reset sub-groups here! (they will persist within their main dropdown)
                   }}
                   aria-expanded={mobileDropdownOpen === main.label}
                   aria-controls={`mobile-dropdown-${main.label}`}
@@ -274,7 +261,6 @@ export const Header: React.FC = () => {
                   {main.label}
                   <ChevronDown className={`ml-3 w-4 h-4 transition-transform ${mobileDropdownOpen === main.label ? "rotate-180" : ""}`} />
                 </button>
-                {/* Sub-groups */}
                 {mobileDropdownOpen === main.label && (
                   <SubMenuMobile
                     subGroups={main.subGroups}
@@ -288,7 +274,6 @@ export const Header: React.FC = () => {
                     closeMenu={() => {
                       setMobileOpen(false);
                       setMobileDropdownOpen(null);
-                      // Always close sub-group on menu close
                       setMobileOpenGroup((prev) => ({
                         ...prev,
                         [main.label]: null,
@@ -309,18 +294,6 @@ export const Header: React.FC = () => {
               </li>
             )
           )}
-          {/* Dark mode toggle */}
-          <li className="px-4 py-2 mt-2 flex items-center gap-3">
-            Theme:
-            <button
-              title="Toggle dark mode"
-              className="p-2 rounded-full transition-colors focus:outline-civora-teal hover:bg-civora-teal/10"
-              aria-label="Toggle dark mode"
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-          </li>
         </ul>
       </nav>
     </header>
@@ -328,4 +301,3 @@ export const Header: React.FC = () => {
 };
 
 export default Header;
-
