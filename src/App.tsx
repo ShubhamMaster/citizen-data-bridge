@@ -37,6 +37,9 @@ import SaaSDevelopment from "./pages/SaaSDevelopment";
 import CloudHosting from "./pages/CloudHosting";
 import Automation from "./pages/Automation";
 import CustomIntegrations from "./pages/CustomIntegrations";
+import Rnd from "./pages/Rnd";
+import AIResearch from "./pages/AIResearch";
+import Patents from "./pages/Patents";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +79,9 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/innovation-lab" element={<InnovationLab />} />
+            <Route path="/innovation-lab/rnd" element={<Rnd />} />
+            <Route path="/innovation-lab/ai-research" element={<AIResearch />} />
+            <Route path="/innovation-lab/patents" element={<Patents />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<AdminDashboard />} />
