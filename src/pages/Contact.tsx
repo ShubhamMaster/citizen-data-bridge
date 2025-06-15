@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -185,7 +184,12 @@ const Contact = () => {
                   <p className="mb-4">
                     Let's discuss how we can help transform your organization with innovative technology solutions.
                   </p>
-                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-civora-navy">
+                  <Button
+                    variant="default"
+                    className="w-full sm:w-auto font-semibold text-base bg-civora-teal hover:bg-civora-teal/90 text-white shadow-md"
+                    style={{ backgroundColor: "#2EA6AA", color: "#fff" }}
+                    onClick={() => window.open("https://calendly.com/your-scheduling-link", "_blank")}
+                  >
                     Schedule a Call
                   </Button>
                 </CardContent>
@@ -201,4 +205,3 @@ const Contact = () => {
 };
 
 export default Contact;
-
