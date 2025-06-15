@@ -17,7 +17,8 @@ import {
   Plus,
   Search,
   Loader2,
-  Save
+  Save,
+  Mail
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +34,7 @@ const AdminDashboard = () => {
   const [recentVisitors, setRecentVisitors] = useState<any[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [contactMessages, setContactMessages] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +52,7 @@ const AdminDashboard = () => {
 
         // Load data
         await loadDashboardData();
+        await loadContactMessages();
       } catch (error) {
         console.error("Auth check error:", error);
         setLoading(false);
@@ -84,6 +87,20 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Error loading data:", error);
+    }
+  };
+
+  const loadContactMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("contact_messages")
+        .select("*")
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        setContactMessages(data);
+      }
+    } catch (error) {
+      console.error("Error loading contact messages:", error);
     }
   };
 
@@ -196,11 +213,12 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="jobs">Job Management</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="content">Content Management</TabsTrigger>
+            <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
           </TabsList>
 
           {/* Applications Tab */}
@@ -355,6 +373,49 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Contact Messages Tab */}
+          <TabsContent value="contact-messages" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Messages</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {contactMessages.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No contact messages yet</h3>
+                    <p className="text-gray-500">Messages submitted via the website contact form will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4">Name</th>
+                          <th className="text-left py-3 px-4">Email</th>
+                          <th className="text-left py-3 px-4">Message</th>
+                          <th className="text-left py-3 px-4">Submitted At</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {contactMessages.map((msg) => (
+                          <tr key={msg.id} className="border-b hover:bg-gray-50">
+                            <td className="py-3 px-4 font-medium">{msg.name}</td>
+                            <td className="py-3 px-4 text-civora-teal">{msg.email}</td>
+                            <td className="py-3 px-4">{msg.message}</td>
+                            <td className="py-3 px-4 text-xs text-gray-500">
+                              {new Date(msg.created_at).toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
