@@ -93,11 +93,27 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-1 xl:space-x-2">
-            {navigation.map(item => item.href.startsWith('/#') ? <button key={item.name} onClick={() => handleNavClick(item.href)} className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}>
-                  {item.name}
-                </button> : <Link key={item.name} to={item.href} className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}>
-                  {item.name}
-                </Link>)}
+            {navigation.map(item =>
+              item.href.startsWith('/#')
+                ? <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={e => {
+                      e.preventDefault();
+                      handleNavClick(item.href);
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}
+                  >
+                    {item.name}
+                  </a>
+                : <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy'}`}
+                  >
+                    {item.name}
+                  </Link>
+            )}
           </nav>
 
           {/* Auth Buttons */}
@@ -136,11 +152,28 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && <div className="md:hidden pb-4 border-t border-gray-100 animate-fade-in">
             <nav className="flex flex-col space-y-2 pt-4">
-              {navigation.map(item => item.href.startsWith('/#') ? <button key={item.name} onClick={() => handleNavClick(item.href)} className={`font-medium transition-all duration-200 text-left px-4 py-3 rounded-lg ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`}>
-                    {item.name}
-                  </button> : <Link key={item.name} to={item.href} className={`font-medium transition-all duration-200 px-4 py-3 rounded-lg block ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`} onClick={() => setIsMenuOpen(false)}>
-                    {item.name}
-                  </Link>)}
+              {navigation.map(item =>
+                item.href.startsWith('/#')
+                  ? <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={e => {
+                        e.preventDefault();
+                        handleNavClick(item.href);
+                      }}
+                      className={`font-medium transition-all duration-200 text-left px-4 py-3 rounded-lg ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`}
+                    >
+                      {item.name}
+                    </a>
+                  : <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`font-medium transition-all duration-200 px-4 py-3 rounded-lg block ${isActive(item.href) ? 'text-civora-teal bg-civora-teal/10' : 'text-gray-700 hover:text-civora-navy hover:bg-gray-50'}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+              )}
               
               <div className="pt-4 space-y-3 border-t border-gray-100">
                 {isLoggedIn ? <>
