@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCaption } from "@/components/ui/table";
+import AdminProfilePage from "@/components/AdminProfilePage";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -691,7 +692,7 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="jobs">Job Management</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -699,6 +700,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
             <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
             <TabsTrigger value="visitors">Website Visitors</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
           {/* Applications Tab */}
@@ -1111,6 +1113,11 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile" className="space-y-6">
+            <AdminProfilePage />
           </TabsContent>
         </Tabs>
       </div>
