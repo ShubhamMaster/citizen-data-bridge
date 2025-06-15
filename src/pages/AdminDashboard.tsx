@@ -214,7 +214,7 @@ const AdminDashboard = () => {
   const downloadAppPDF = async (app: any) => {
     const { PDFDocument, rgb, StandardFonts } = await import("pdf-lib");
 
-    // Create a new PDF Document
+    // Create new PDF Document
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const fontNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
     const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
     // --- HEADER: Company Branding Area ---
-    // Blue, diagonal header (approximate the swoosh)
+    // Blue header rectangle (letterhead)
     page.drawRectangle({
       x: 0,
       y: pageHeight - 110,
@@ -234,100 +234,85 @@ const AdminDashboard = () => {
       color: rgb(20/255, 54/255, 134/255), // dark blue
     });
 
-    // Light blue underlay to match the curve in top-right
-    page.drawEllipse({
-      x: pageWidth - 70,
-      y: pageHeight - 60,
-      xScale: 52,
-      yScale: 42,
-      color: rgb(53/255, 207/255, 255/255),
-      opacity: 1,
-    });
+    // Embed company logo as PNG
+    try {
+      const logoUrl = window.location.origin + COMPANY_LOGO_PATH;
+      const logoImageRes = await fetch(logoUrl);
+      const logoImageBytes = await logoImageRes.arrayBuffer();
+      const logoImage = await pdfDoc.embedPng(logoImageBytes);
 
-    // Logo (text-based placeholder in correct location)
-    page.drawText("Civora", {
-      x: 35,
-      y: pageHeight - 58,
-      size: 25,
-      font,
-      color: rgb(55/255, 167/255, 201/255),
-    });
-    page.drawText("Nexus", {
-      x: 35 + 65,
-      y: pageHeight - 58,
-      size: 25,
-      font,
-      color: rgb(44/255, 68/255, 143/255),
-    });
+      // Draw logo: left-aligned, about 65px wide, 90px high, vertically centered in header
+      const LOGO_WIDTH = 65;
+      const LOGO_HEIGHT = 90;
+      page.drawImage(logoImage, {
+        x: 25,
+        y: pageHeight - 95 - LOGO_HEIGHT / 2,
+        width: LOGO_WIDTH,
+        height: LOGO_HEIGHT,
+      });
+    } catch (e) {
+      // fail silently if logo fails to load
+    }
 
-    // Email / CIN / GSTIN (right-aligned)
-    page.drawText(`Email:  ${COMPANY_LETTERHEAD.email}`, {
-      x: pageWidth - 270,
-      y: pageHeight - 51,
-      size: 10,
-      font: fontNormal,
-      color: rgb(1, 1, 1),
-    });
-    page.drawText(`CIN:    ${COMPANY_LETTERHEAD.cin}`, {
-      x: pageWidth - 270,
-      y: pageHeight - 66,
-      size: 10,
-      font: fontNormal,
-      color: rgb(1, 1, 1),
-    });
-    page.drawText(`GSTIN:  ${COMPANY_LETTERHEAD.gstin}`, {
-      x: pageWidth - 270,
-      y: pageHeight - 81,
-      size: 10,
-      font: fontNormal,
-      color: rgb(1, 1, 1),
-    });
-
-    // Company Name (bold blue)
+    // Company Name and Slogan (beside logo)
     page.drawText(COMPANY_LETTERHEAD.companyName, {
-      x: 36,
-      y: pageHeight - 110 - 23,
-      size: 17.5,
+      x: 100,
+      y: pageHeight - 70,
+      size: 18,
       font,
-      color: rgb(44/255, 68/255, 143/255),
+      color: rgb(255/255,255/255,255/255),
+    });
+    page.drawText(COMPANY_LETTERHEAD.slogan, {
+      x: 100,
+      y: pageHeight - 92,
+      size: 11,
+      font: fontNormal,
+      color: rgb(195/255,235/255,255/255),
     });
 
-    // Slogan (gray-blue, small)
-    page.drawText(COMPANY_LETTERHEAD.slogan, {
-      x: 36,
-      y: pageHeight - 110 - 38,
+    // Contact info in header (top right)
+    page.drawText(`Email: ${COMPANY_LETTERHEAD.email}`, {
+      x: pageWidth - 220,
+      y: pageHeight - 62,
       size: 10,
       font: fontNormal,
-      color: rgb(64/255, 151/255, 193/255),
+      color: rgb(255,255,255),
+    });
+    page.drawText(`CIN: ${COMPANY_LETTERHEAD.cin}`, {
+      x: pageWidth - 220,
+      y: pageHeight - 77,
+      size: 10,
+      font: fontNormal,
+      color: rgb(255,255,255),
+    });
+    page.drawText(`GSTIN: ${COMPANY_LETTERHEAD.gstin}`, {
+      x: pageWidth - 220,
+      y: pageHeight - 92,
+      size: 10,
+      font: fontNormal,
+      color: rgb(255,255,255),
     });
 
-    // Underline below slogan
-    page.drawLine({
-      start: { x: 36, y: pageHeight - 110 - 41 },
-      end: { x: pageWidth - 36, y: pageHeight - 110 - 41 },
-      thickness: 1,
-      color: rgb(64/255, 151/255, 193/255),
-    });
-
-    // --- APPLICATION CONTENT ---
-    let contentY = pageHeight - 110 - 70;
+    // --- Main Application Content Section ---
+    let contentY = pageHeight - 110 - 35;
 
     const drawField = (label: string, value: string) => {
       page.drawText(`${label}:`, {
-        x: 55,
+        x: 50,
         y: contentY,
-        size: 11,
+        size: 11.5,
         font,
-        color: rgb(20/255, 54/255, 134/255)
+        color: rgb(20/255, 54/255, 134/255),
       });
       page.drawText(value, {
-        x: 160,
+        x: 170,
         y: contentY,
-        size: 11,
+        size: 11.5,
         font: fontNormal,
-        color: rgb(0, 0, 0)
+        color: rgb(50/255, 50/255, 50/255),
+        maxWidth: pageWidth - 200,
       });
-      contentY -= 22;
+      contentY -= 26;
     };
 
     drawField("Applicant Name", app.application_data?.name ?? "N/A");
@@ -335,54 +320,39 @@ const AdminDashboard = () => {
     drawField("Position", app.application_data?.position ?? "General Application");
     drawField("Applied Date", new Date(app.created_at).toLocaleString());
     drawField("Status", app.status ?? "pending");
-    drawField("Message", app.application_data?.message ?? "");
-
-    // If resume name exists
+    if (app.application_data?.message) {
+      drawField("Message", app.application_data?.message);
+    }
     if (app.application_data?.resume_name) {
       drawField("Resume", app.application_data.resume_name);
     }
 
-    // --- FOOTER Area ---
-    // Blue wave style at bottom (approximation)
+    // --- FOOTER ---
+    // Blue footer rectangle
     page.drawRectangle({
       x: 0,
       y: 0,
       width: pageWidth,
       height: 48,
-      color: rgb(20/255, 54/255, 134/255), // primary blue
-    });
-    page.drawEllipse({
-      x: 80,
-      y: 24,
-      xScale: 80,
-      yScale: 20,
-      color: rgb(53/255, 207/255, 255/255),
+      color: rgb(20/255, 54/255, 134/255),
     });
 
-    // Contact info
-    page.drawText(`\u{260E}  ${COMPANY_LETTERHEAD.phone}`, { // phone unicode
-      x: pageWidth - 255,
-      y: 23,
+    // Footer Contact Info
+    page.drawText(`${COMPANY_LETTERHEAD.phone}   |   ${COMPANY_LETTERHEAD.address}`, {
+      x: 42,
+      y: 18,
       size: 10,
       font: fontNormal,
-      color: rgb(1,1,1)
-    });
-    page.drawText("\u{1F4CD}  " + COMPANY_LETTERHEAD.address, { // map pin unicode
-      x: pageWidth - 255,
-      y: 10,
-      size: 10,
-      font: fontNormal,
-      color: rgb(1,1,1)
+      color: rgb(230/255, 245/255, 255/255),
     });
 
-    // Save & trigger download
+    // Download PDF
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-    const fn = `job-application-${app.application_data?.name || 'applicant'}.pdf`;
+    const filename = `job-application-${app.application_data?.name || "applicant"}.pdf`.replace(/\s+/g, "_").toLowerCase();
     const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", fn.replace(/\s+/g, "_").toLowerCase());
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     setTimeout(() => {
@@ -753,6 +723,7 @@ const AdminDashboard = () => {
 };
 
 // Company Letterhead constants (customizable to match your design)
+const COMPANY_LOGO_PATH = "/lovable-uploads/d5ddd61f-899e-4acf-a773-b03d953ab99f.png";
 const COMPANY_LETTERHEAD = {
   companyName: "Civora Nexus Pvt. Ltd.",
   slogan: "Connecting Citizens Through Intelligent Innovation",
