@@ -21,6 +21,8 @@ import CivicOne from "./pages/CivicOne";
 import HealthBridge from "./pages/HealthBridge";
 import UrbanData from "./pages/UrbanData";
 import ImpactTracker from "./pages/ImpactTracker";
+import CaseStudies from "./pages/CaseStudies";
+import ClientSuccessStories from "./pages/ClientSuccessStories";
 import { useLogVisit } from "@/hooks/useLogVisit";
 import Leadership from "./pages/Leadership";
 import BoardOfDirectors from "./pages/BoardOfDirectors";
@@ -80,12 +82,8 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/projects/smart-village" element={<SmartVillage />} />
-            <Route path="/projects/civicone" element={<CivicOne />} />
-            <Route path="/projects/healthbridge" element={<HealthBridge />} />
-            <Route path="/projects/urban-data" element={<UrbanData />} />
-            <Route path="/projects/impact-tracker" element={<ImpactTracker />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/projects/case-studies" element={<CaseStudies />} />
+            <Route path="/projects/client-success-stories" element={<ClientSuccessStories />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
