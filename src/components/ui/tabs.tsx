@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
@@ -13,9 +12,17 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      // Responsive, padding, horizontal scroll for mobile, hide scrollbar, allow gap between items
+      "inline-flex h-10 items-center p-1 rounded-md bg-muted text-muted-foreground w-full overflow-x-auto gap-1 no-scrollbar",
+      // Hide the ugly scrollbar
+      "scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent",
       className
     )}
+    style={{
+      WebkitOverflowScrolling: "touch",
+      scrollbarWidth: "none", // Firefox
+      msOverflowStyle: "none", // IE/Edge
+    }}
     {...props}
   />
 ))

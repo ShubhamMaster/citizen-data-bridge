@@ -732,16 +732,24 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="applications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="applications">Applications</TabsTrigger>
-            <TabsTrigger value="jobs">Job Management</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="content">Content Mgmt</TabsTrigger>
-            <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
-            <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
-            <TabsTrigger value="visitors">Visitors</TabsTrigger>
+          <TabsList
+            className="grid grid-cols-7 md:grid-cols-7 w-full mb-4
+            sm:gap-2 md:gap-2 lg:gap-2
+            sm:px-1 md:px-1 lg:px-1
+            overflow-x-auto no-scrollbar
+            "
+            style={{
+              gridTemplateColumns: "repeat(7, minmax(max-content, 1fr))"
+            }}
+          >
+            <TabsTrigger value="applications" className="flex-shrink-0 min-w-[120px]">Applications</TabsTrigger>
+            <TabsTrigger value="jobs" className="flex-shrink-0 min-w-[120px]">Job Management</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-shrink-0 min-w-[120px]">Analytics</TabsTrigger>
+            <TabsTrigger value="content" className="flex-shrink-0 min-w-[140px]">Content Mgmt</TabsTrigger>
+            <TabsTrigger value="contact-messages" className="flex-shrink-0 min-w-[160px]">Contact Messages</TabsTrigger>
+            <TabsTrigger value="calls" className="flex-shrink-0 min-w-[150px]">Scheduled Calls</TabsTrigger>
+            <TabsTrigger value="visitors" className="flex-shrink-0 min-w-[120px]">Visitors</TabsTrigger>
           </TabsList>
-
           {/* Applications Tab */}
           <TabsContent value="applications" className="space-y-6">
             <Card>
