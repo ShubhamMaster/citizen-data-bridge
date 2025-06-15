@@ -32,6 +32,9 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCap
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [jobsSearchTerm, setJobsSearchTerm] = useState('');
+  const [contactsSearchTerm, setContactsSearchTerm] = useState('');
+  const [callsSearchTerm, setCallsSearchTerm] = useState('');
   const [stats, setStats] = useState({ totalVisitors: 0, totalApplications: 0, activeJobs: 0, pendingReviews: 0 });
   const [applications, setApplications] = useState<any[]>([]);
   const [recentVisitors, setRecentVisitors] = useState<any[]>([]);
@@ -476,6 +479,26 @@ const AdminDashboard = () => {
     );
   }
 
+  // Add local search helpers
+  const filteredApplications = applications.filter(app =>
+    (app.application_data?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (app.application_data?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (app.application_data?.position || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredContactMessages = contactMessages.filter(msg =>
+    (msg.name || '').toLowerCase().includes(contactsSearchTerm.toLowerCase()) ||
+    (msg.email || '').toLowerCase().includes(contactsSearchTerm.toLowerCase()) ||
+    (msg.message || '').toLowerCase().includes(contactsSearchTerm.toLowerCase())
+  );
+
+  const filteredScheduledCalls = scheduledCalls.filter(call =>
+    (call.name || '').toLowerCase().includes(callsSearchTerm.toLowerCase()) ||
+    (call.reason || '').toLowerCase().includes(callsSearchTerm.toLowerCase()) ||
+    (call.date || '').toString().toLowerCase().includes(callsSearchTerm.toLowerCase()) ||
+    (call.time || '').toLowerCase().includes(callsSearchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -574,6 +597,7 @@ const AdminDashboard = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 w-64"
+                        aria-label="Search applications"
                       />
                     </div>
                     {/* Export Dropdown */}
@@ -593,7 +617,7 @@ const AdminDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {applications.length === 0 ? (
+                {filteredApplications.length === 0 ? (
                   <div className="text-center py-8">
                     <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
@@ -612,7 +636,7 @@ const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {applications.map((app) => (
+                        {filteredApplications.map((app) => (
                           <tr key={app.id} className="border-b hover:bg-gray-50">
                             <td className="py-3 px-4">
                               <div>
@@ -693,6 +717,21 @@ const AdminDashboard = () => {
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-6">
+            <div className="flex justify-end mb-4">
+              <div className="relative w-72">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="Search jobs..."
+                  value={jobsSearchTerm}
+                  onChange={e => setJobsSearchTerm(e.target.value)}
+                  className="pl-10"
+                  aria-label="Search jobs"
+                  // Note: this only affects if JobManagement supports filter prop, otherwise show for UI consistency
+                  disabled
+                  title="For demo: JobManagement search to be added in JobManagement component"
+                />
+              </div>
+            </div>
             <JobManagement />
           </TabsContent>
 
@@ -772,9 +811,21 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Contact Messages</CardTitle>
+                <div className="flex justify-end mt-2">
+                  <div className="relative w-72">
+                    <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search messages..."
+                      value={contactsSearchTerm}
+                      onChange={e => setContactsSearchTerm(e.target.value)}
+                      className="pl-10"
+                      aria-label="Search contact messages"
+                    />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                {contactMessages.length === 0 ? (
+                {filteredContactMessages.length === 0 ? (
                   <div className="text-center py-8">
                     <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No contact messages yet</h3>
@@ -792,7 +843,7 @@ const AdminDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {contactMessages.map((msg) => (
+                        {filteredContactMessages.map((msg) => (
                           <tr key={msg.id} className="border-b hover:bg-gray-50">
                             <td className="py-3 px-4 font-medium">{msg.name}</td>
                             <td className="py-3 px-4 text-civora-teal">{msg.email}</td>
@@ -815,9 +866,21 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Scheduled Calls</CardTitle>
+                <div className="flex justify-end mt-2">
+                  <div className="relative w-72">
+                    <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search calls..."
+                      value={callsSearchTerm}
+                      onChange={e => setCallsSearchTerm(e.target.value)}
+                      className="pl-10"
+                      aria-label="Search scheduled calls"
+                    />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                {scheduledCalls.length === 0 ? (
+                {filteredScheduledCalls.length === 0 ? (
                   <div className="text-center py-8">
                     <Table className="w-full mb-4">
                       <TableCaption>No calls scheduled.</TableCaption>
@@ -838,7 +901,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {scheduledCalls.map((call) => (
+                        {filteredScheduledCalls.map((call) => (
                           <TableRow key={call.id}>
                             <TableCell>{call.name}</TableCell>
                             <TableCell>
