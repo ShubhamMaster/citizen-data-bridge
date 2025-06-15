@@ -116,6 +116,7 @@ export type Database = {
           date: string
           id: number
           is_done: boolean
+          mobile: string | null
           name: string
           reason: string
           time: string
@@ -125,6 +126,7 @@ export type Database = {
           date: string
           id?: number
           is_done?: boolean
+          mobile?: string | null
           name: string
           reason: string
           time: string
@@ -134,6 +136,7 @@ export type Database = {
           date?: string
           id?: number
           is_done?: boolean
+          mobile?: string | null
           name?: string
           reason?: string
           time?: string

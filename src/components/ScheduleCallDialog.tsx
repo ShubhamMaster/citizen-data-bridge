@@ -28,6 +28,7 @@ const TIME_SLOTS = [
 export default function ScheduleCallDialog() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [mobile, setMobile] = useState(""); // NEW FIELD
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState("");
   const [reason, setReason] = useState("");
@@ -52,6 +53,7 @@ export default function ScheduleCallDialog() {
       const { error } = await supabase.from("scheduled_calls").insert([
         {
           name,
+          mobile, // Include mobile in the insert
           date: date ? format(date, "yyyy-MM-dd") : null,
           time,
           reason,
@@ -70,6 +72,7 @@ export default function ScheduleCallDialog() {
         });
         // Reset form after submission
         setName("");
+        setMobile(""); // Reset the field
         setDate(undefined);
         setTime("");
         setReason("");
@@ -117,6 +120,27 @@ export default function ScheduleCallDialog() {
                 className="w-full"
                 autoComplete="name"
                 placeholder="Your Name"
+              />
+            </div>
+          </div>
+
+          {/* Mobile field */}
+          <div>
+            <label className="block mb-1 text-sm font-medium" htmlFor="call-mobile">
+              Mobile Number
+            </label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="call-mobile"
+                type="tel"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                required
+                className="w-full"
+                autoComplete="tel"
+                placeholder="Your Mobile Number"
+                pattern="^[0-9+\-\s()]{8,16}$"
+                maxLength={16}
               />
             </div>
           </div>
@@ -196,7 +220,7 @@ export default function ScheduleCallDialog() {
             <Button
               type="submit"
               className="w-full bg-civora-teal hover:bg-civora-teal/90 text-white"
-              disabled={submitting || !name || !date || !time || !reason}
+              disabled={submitting || !name || !mobile || !date || !time || !reason}
             >
               {submitting ? "Scheduling..." : "Schedule"}
             </Button>
