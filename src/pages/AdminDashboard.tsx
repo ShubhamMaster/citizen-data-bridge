@@ -263,6 +263,30 @@ const AdminDashboard = () => {
     }
   };
 
+  // Helper to download a file by URL and trigger native browser download
+  const downloadFileByUrl = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("File not found");
+      const blob = await res.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }, 0);
+    } catch (err) {
+      toast({
+        title: "Download failed",
+        description: "Unable to download the attached file.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Download individual application as PDF
   const downloadAppPDF = async (app: any) => {
     try {
@@ -380,6 +404,24 @@ const AdminDashboard = () => {
       toast({ title: "Status Updated", description: "The application status has been updated." });
     }
     setStatusSaving(null);
+  };
+
+  // The original downloadAppPDF function remains, but we'll create a new download logic:
+  const handleDownloadApplication = async (app: any) => {
+    // Assume common fields; adjust field names as per your model!
+    const attachmentUrl = app.application_data?.resume_url || app.application_data?.attachment_url;
+    const attachmentName =
+      app.application_data?.resume_name ||
+      app.application_data?.attachment_name ||
+      "attachment";
+
+    if (attachmentUrl) {
+      // Download the attached file (PDF, DOCX, etc.)
+      await downloadFileByUrl(attachmentUrl, attachmentName);
+    } else {
+      // No attached file, generate PDF as before
+      await downloadAppPDF(app);
+    }
   };
 
   if (loading) {
@@ -565,7 +607,16 @@ const AdminDashboard = () => {
                                 <Button size="sm" variant="outline" onClick={() => setViewedApp(app)}>
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button size="sm" variant="outline" onClick={() => downloadAppPDF(app)}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDownloadApplication(app)}
+                                  title={
+                                    app.application_data?.resume_url || app.application_data?.attachment_url
+                                      ? "Download attachment"
+                                      : "Download as PDF"
+                                  }
+                                >
                                   <Download className="h-4 w-4" />
                                 </Button>
                               </div>
