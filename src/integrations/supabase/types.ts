@@ -115,6 +115,7 @@ export type Database = {
           created_at: string
           date: string
           id: number
+          is_done: boolean
           name: string
           reason: string
           time: string
@@ -123,6 +124,7 @@ export type Database = {
           created_at?: string
           date: string
           id?: number
+          is_done?: boolean
           name: string
           reason: string
           time: string
@@ -131,6 +133,7 @@ export type Database = {
           created_at?: string
           date?: string
           id?: number
+          is_done?: boolean
           name?: string
           reason?: string
           time?: string

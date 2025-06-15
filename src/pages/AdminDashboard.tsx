@@ -39,6 +39,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
   const [scheduledCalls, setScheduledCalls] = useState<any[]>([]);
+  const [isUpdatingCall, setIsUpdatingCall] = useState<number | null>(null);
   const navigate = useNavigate();
   const [viewedApp, setViewedApp] = useState<any | null>(null);
   const [statusSaving, setStatusSaving] = useState<string | null>(null);
@@ -59,7 +60,7 @@ const AdminDashboard = () => {
         // Load data
         await loadDashboardData();
         await loadContactMessages();
-+       await loadScheduledCalls();
+        await loadScheduledCalls();
       } catch (error) {
         console.error("Auth check error:", error);
         setLoading(false);
@@ -439,6 +440,23 @@ const AdminDashboard = () => {
     }
   };
 
+  const toggleCallDone = async (callId: number, newDone: boolean) => {
+    setIsUpdatingCall(callId);
+    const { error } = await supabase
+      .from("scheduled_calls")
+      .update({ is_done: newDone })
+      .eq("id", callId);
+    if (error) {
+      toast({ title: "Update failed", description: "Could not update call status.", variant: "destructive" });
+    } else {
+      setScheduledCalls(calls =>
+        calls.map(c => c.id === callId ? { ...c, is_done: newDone } : c)
+      );
+      toast({ title: "Call updated", description: `Marked as ${newDone ? "done" : "not done"}.` });
+    }
+    setIsUpdatingCall(null);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -539,7 +557,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="content">Content Management</TabsTrigger>
             <TabsTrigger value="contact-messages">Contact Messages</TabsTrigger>
-+           <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
+            <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
           </TabsList>
 
           {/* Applications Tab */}
@@ -816,6 +834,7 @@ const AdminDashboard = () => {
                           <TableHead>Time</TableHead>
                           <TableHead>Reason</TableHead>
                           <TableHead>Scheduled At</TableHead>
+                          <TableHead>Done?</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -831,6 +850,22 @@ const AdminDashboard = () => {
                               {call.created_at
                                 ? new Date(call.created_at).toLocaleString()
                                 : ""}
+                            </TableCell>
+                            <TableCell>
+                              <button
+                                className={`inline-flex items-center justify-center w-10 h-6 rounded-full border ${call.is_done ? "bg-civora-teal border-civora-teal" : "bg-gray-200 border-gray-300"} transition-colors duration-150`}
+                                onClick={() => toggleCallDone(call.id, !call.is_done)}
+                                disabled={isUpdatingCall === call.id}
+                                aria-pressed={!!call.is_done}
+                                title={call.is_done ? "Mark as not done" : "Mark as done"}
+                              >
+                                <span
+                                  className={`block w-5 h-5 rounded-full bg-white shadow transform transition-transform duration-150 ${call.is_done ? "translate-x-4" : "translate-x-0"}`}
+                                />
+                                {isUpdatingCall === call.id && (
+                                  <span className="absolute right-0 top-0 mr-1 mt-0.5 animate-spin w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full" />
+                                )}
+                              </button>
                             </TableCell>
                           </TableRow>
                         ))}
