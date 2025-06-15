@@ -58,7 +58,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-civora-navy flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
