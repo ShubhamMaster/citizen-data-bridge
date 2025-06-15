@@ -61,26 +61,29 @@ const SubMenuMobile: React.FC<{
             {group.label}
             <ChevronDown className={`ml-2 w-4 h-4 transition-transform ${openGroup === group.label ? "rotate-180" : ""}`} />
           </button>
-          <ul
+          <div
             id={`mobile-group-${group.label}`}
-            className={`ml-2 border-l dark:border-gray-800 border-gray-200 overflow-hidden transition-all duration-200 ${
-              openGroup === group.label ? "max-h-[400px] mt-1" : "max-h-0"
-            }`}
-            style={{ transitionProperty: "max-height" }}
+            className="overflow-hidden transition-[max-height] duration-300 border-l dark:border-gray-800 border-gray-200 ml-2"
+            style={{
+              maxHeight: openGroup === group.label ? 400 : 0,
+              transitionProperty: "max-height",
+            }}
             aria-hidden={openGroup !== group.label}
           >
-            {group.items.map(item => (
-              <li key={item.label}>
-                <NavLinkItem
-                  to={item.href}
-                  className="block px-5 py-2 text-gray-700 dark:text-gray-200 rounded hover:bg-civora-teal/10 hover:text-civora-teal dark:hover:bg-civora-teal/10 dark:hover:text-civora-teal transition"
-                  onClick={closeMenu}
-                >
-                  {item.label}
-                </NavLinkItem>
-              </li>
-            ))}
-          </ul>
+            <ul>
+              {group.items.map(item => (
+                <li key={item.label}>
+                  <NavLinkItem
+                    to={item.href}
+                    className="block px-5 py-2 text-gray-700 dark:text-gray-200 rounded hover:bg-civora-teal/10 hover:text-civora-teal dark:hover:bg-civora-teal/10 dark:hover:text-civora-teal transition"
+                    onClick={closeMenu}
+                  >
+                    {item.label}
+                  </NavLinkItem>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       ))}
     </div>
@@ -252,7 +255,6 @@ export const Header: React.FC = () => {
                   className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
                   onClick={() => {
                     setDropdownOpen(dropdownOpen === main.label ? null : main.label);
-                    // Reset sub-group open on main menu toggle
                     setMobileOpenGroup((prev) => ({
                       ...prev,
                       [main.label]: null,
