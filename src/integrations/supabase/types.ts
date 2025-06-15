@@ -9,6 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      applications: {
+        Row: {
+          application_data: Json | null
+          created_at: string
+          data_source: string | null
+          id: number
+          job_id: number | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          application_data?: Json | null
+          created_at?: string
+          data_source?: string | null
+          id?: number
+          job_id?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          application_data?: Json | null
+          created_at?: string
+          data_source?: string | null
+          id?: number
+          job_id?: number | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          created_at: string
+          department: string
+          description: string
+          id: number
+          is_active: boolean
+          location: string
+          requirements: string
+          salary_range: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          description: string
+          id?: number
+          is_active?: boolean
+          location: string
+          requirements: string
+          salary_range?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          description?: string
+          id?: number
+          is_active?: boolean
+          location?: string
+          requirements?: string
+          salary_range?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       website_content: {
         Row: {
           content: Json
