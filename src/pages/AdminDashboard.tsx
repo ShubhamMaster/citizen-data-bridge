@@ -1074,19 +1074,16 @@ const AdminDashboard = () => {
                               {call.reason && call.reason.length > 10 ? (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <span>
-                                      <span className="cursor-pointer underline decoration-dotted">
+                                    <span className="inline-flex items-center gap-1 cursor-pointer">
+                                      <span className="underline decoration-dotted">
                                         {call.reason.slice(0, 10) + "…"}
                                       </span>
-                                      <button
-                                        tabIndex={-1}
-                                        type="button"
-                                        aria-label="Read full reason"
-                                        className="inline-flex items-center ml-1 p-0.5 rounded text-green-600 hover:bg-green-50 transition-colors"
-                                        style={{ verticalAlign: 'baseline' }}
+                                      <span
+                                        className="ml-1 px-2 py-0.5 rounded bg-green-100 text-green-800 text-xs font-semibold"
+                                        tabIndex={0}
                                       >
-                                        <Eye className="h-4 w-4 text-green-600" />
-                                      </button>
+                                        Read more
+                                      </span>
                                     </span>
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="max-w-xs break-words">
