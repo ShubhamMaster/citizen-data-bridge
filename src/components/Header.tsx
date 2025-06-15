@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
 import { Menu, X, ChevronDown, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Button } from "@/components/ui/button";
 
 const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, close: () => void) => {
   React.useEffect(() => {
@@ -224,6 +225,12 @@ export const Header: React.FC = () => {
               </NavLinkItem>
             )
           )}
+          {/* Login button for desktop - aligned to the right of nav links */}
+          <Link to="/login" className="ml-4">
+            <Button variant="secondary" className="px-5">
+              Login
+            </Button>
+          </Link>
         </nav>
         {/* Hamburger for mobile */}
         <button
@@ -294,6 +301,14 @@ export const Header: React.FC = () => {
               </li>
             )
           )}
+          {/* Login button for mobile - stick to the bottom of the open nav */}
+          <li className="mt-4 flex flex-col items-center">
+            <Link to="/login" className="w-full max-w-xs">
+              <Button variant="secondary" className="w-full">
+                Login
+              </Button>
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>
