@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
+import { Mail, Phone, MapPin } from "lucide-react";
 
 const Footer: React.FC = () => {
   const { content } = useWebsiteContent("contact");
@@ -11,6 +12,7 @@ const Footer: React.FC = () => {
   const phone = content?.phone || "+91-9146 2687 10";
   const address = content?.address || "Sangamner, Maharashtra";
 
+  // All navigation links
   const navLinks = [
     { name: "Home", to: "/" },
     { name: "About Us", to: "/about" },
@@ -23,49 +25,89 @@ const Footer: React.FC = () => {
     { name: "Terms", to: "/terms" },
   ];
 
+  // Group links for column layout
+  const navGroups = [
+    navLinks.slice(0, 3), // Home, About Us, Services
+    navLinks.slice(3, 6), // Industries, Innovation Lab, Careers
+    navLinks.slice(6, 9), // Contact, Privacy, Terms
+  ];
+
   return (
-    <footer className="bg-civora-navy text-white pt-12 pb-8 px-4 mt-8 border-t border-civora-teal/10">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="text-center md:text-left mb-6 md:mb-0">
-          <h4 className="text-2xl font-bold mb-2 tracking-tight">Civora Nexus</h4>
-          <div className="text-civora-teal font-medium mb-1">{address}</div>
-          <div>
-            <span className="font-semibold">Email: </span>
-            <a href={`mailto:${email}`} className="underline text-civora-teal">{email}</a>
+    <footer className="bg-civora-navy text-white border-t border-civora-teal/10 mt-8 pt-12 pb-6 px-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
+
+        {/* Brand / About block */}
+        <div className="mb-8 md:mb-0 flex flex-col gap-2">
+          {/* Logo as simple text, replace with <img> if logo is available */}
+          <Link to="/" className="inline-flex items-center gap-2 mb-3 group">
+            <span className="sr-only">Civora Nexus Home</span>
+            <span className="font-bold text-2xl tracking-tight group-hover:text-civora-teal transition-colors">Civora Nexus</span>
+          </Link>
+          <p className="text-civora-teal font-medium mb-0">{address}</p>
+          <div className="flex items-center gap-2 mt-2">
+            <Mail className="w-4 h-4 text-civora-teal" />
+            <a href={`mailto:${email}`} className="underline hover:text-civora-teal transition-colors text-sm">{email}</a>
           </div>
-          <div>
-            <span className="font-semibold">Phone: </span>
-            <a href={`tel:${phone}`} className="underline text-civora-teal">{phone}</a>
+          <div className="flex items-center gap-2 mt-1">
+            <Phone className="w-4 h-4 text-civora-teal" />
+            <a href={`tel:${phone}`} className="underline hover:text-civora-teal transition-colors text-sm">{phone}</a>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <MapPin className="w-4 h-4 text-civora-teal" />
+            <span className="text-sm text-gray-200">{address}</span>
           </div>
         </div>
-        {/* Nav Links */}
-        <nav>
-          <ul className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
-            {navLinks.map(link =>
-              link.to.startsWith("/#") ? (
-                <li key={link.name}>
-                  <a
-                    href={link.to}
-                    className="hover:text-civora-teal transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ) : (
-                <li key={link.name}>
-                  <Link
-                    to={link.to}
-                    className="hover:text-civora-teal transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              )
-            )}
-          </ul>
-        </nav>
+
+        {/* Navigation Columns */}
+        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-8">
+          {navGroups.map((group, i) => (
+            <nav key={i} aria-label={`Footer Nav ${i + 1}`}>
+              <ul className="space-y-2">
+                {group.map(link =>
+                  link.to.startsWith("/#") ? (
+                    <li key={link.name}>
+                      <a
+                        href={link.to}
+                        className="hover:text-civora-teal transition-colors font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-civora-teal rounded"
+                      >
+                        {link.name}
+                      </a>
+                    </li>
+                  ) : (
+                    <li key={link.name}>
+                      <Link
+                        to={link.to}
+                        className="hover:text-civora-teal transition-colors font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-civora-teal rounded"
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  )
+                )}
+              </ul>
+            </nav>
+          ))}
+        </div>
+
+        {/* Newsletter Signup or tagline */}
+        <div className="flex flex-col items-start mt-8 md:mt-0">
+          <div className="mb-3">
+            <span className="font-semibold text-lg text-civora-teal">Let's Connect</span>
+            <p className="text-sm text-gray-200 mb-2 mt-1">
+              Empowering communities through <br />smart civic & healthcare technology.
+            </p>
+          </div>
+          {/* Social Links or placeholder */}
+          <div className="flex gap-3 mt-2">
+            <a href="mailto:civoranexus@gmail.com" aria-label="Email Us" className="hover:text-civora-teal transition-colors text-lg">
+              <Mail className="w-5 h-5" />
+            </a>
+            {/* Add more social icons here as needed */}
+          </div>
+        </div>
       </div>
-      <div className="max-w-7xl mx-auto text-center mt-6 text-xs text-gray-400">
+
+      <div className="max-w-7xl mx-auto text-center mt-8 pt-5 border-t border-civora-teal/10 text-xs text-gray-400">
         &copy; {new Date().getFullYear()} Civora Nexus Pvt. Ltd. All rights reserved.
       </div>
     </footer>
