@@ -26,7 +26,7 @@ const HeroSection: React.FC = () => {
           Smart. Simple. Civic.
         </h1>
         <p className="text-civora-teal text-lg md:text-2xl font-medium text-center mb-8" style={{ fontFamily: "Inter, Poppins, 'Open Sans', sans-serif" }}>
-          Technology for thriving communities and modern healthcare.
+          Innovative technology for thriving communities and modern healthcare.
         </p>
         <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 w-full max-w-sm mx-auto justify-center">
           <Button
@@ -39,10 +39,11 @@ const HeroSection: React.FC = () => {
           <Button
             asChild
             size="lg"
+            // Custom creative navy button with white text, gradient border, and creative effect
+            className="relative bg-civora-navy text-white font-semibold border-2 border-civora-teal shadow-xl overflow-hidden px-7 py-3.5 transition-all duration-200 hover:bg-gradient-to-r hover:from-civora-navy hover:to-civora-teal/90 hover:text-white hover:scale-105 before:absolute before:inset-0 before:border-2 before:border-civora-teal/30 before:rounded-lg before:opacity-0 hover:before:opacity-100 before:pointer-events-none"
             variant="outline"
-            className="border-civora-teal text-white hover:bg-civora-teal hover:text-civora-navy hover:border-civora-teal/80 transition-colors text-base font-semibold shadow px-7 py-3.5"
           >
-            <a href="#contact">Contact Us</a>
+            <a href="#contact" className="relative z-10">Get in Touch</a>
           </Button>
         </div>
         <TrustBadges />
