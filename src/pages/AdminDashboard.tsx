@@ -32,6 +32,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableCap
 import AdminProfilePage from "@/components/AdminProfilePage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -1069,7 +1070,22 @@ const AdminDashboard = () => {
                               {call.date ? new Date(call.date).toLocaleDateString() : ""}
                             </TableCell>
                             <TableCell>{call.time}</TableCell>
-                            <TableCell className="whitespace-pre-line">{call.reason}</TableCell>
+                            <TableCell className="whitespace-pre-line">
+                              {call.reason && call.reason.length > 15 ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-pointer underline decoration-dotted">
+                                      {call.reason.slice(0, 15) + "…"}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs break-words">
+                                    {call.reason}
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                call.reason || ""
+                              )}
+                            </TableCell>
                             <TableCell>
                               {call.created_at
                                 ? new Date(call.created_at).toLocaleString()
