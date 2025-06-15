@@ -55,9 +55,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <div className="flex-1 flex items-center justify-center p-4">
+      <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="text-2xl font-bold text-civora-navy mb-2">Civora Nexus</div>
@@ -138,7 +138,7 @@ const Login = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
       <Footer />
     </div>
   );
