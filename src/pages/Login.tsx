@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-civora-navy to-civora-navy/90 flex flex-col">
+    <div className="min-h-screen bg-civora-navy flex flex-col">
       <Header />
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -146,4 +145,3 @@ const Login = () => {
 };
 
 export default Login;
-
