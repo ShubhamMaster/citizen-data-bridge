@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminDashboard = () => {
@@ -63,7 +62,7 @@ const AdminDashboard = () => {
               <p className="text-gray-600">Civora Nexus Management Portal</p>
             </div>
             <Button variant="outline" onClick={async () => {
-              await supabase.auth.signOut(); 
+              await supabase.auth.signOut();
               navigate("/");
             }}>
               Logout
@@ -74,11 +73,82 @@ const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="visitors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-1">
-            <TabsTrigger value="visitors">
-              Website Visitors
-            </TabsTrigger>
+          <TabsList className="flex flex-wrap space-x-2 mb-4">
+            <TabsTrigger value="applications">Applications</TabsTrigger>
+            <TabsTrigger value="jobs">Job Management</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="content">Content Management</TabsTrigger>
+            <TabsTrigger value="contacts">Contact Messages</TabsTrigger>
+            <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
+            <TabsTrigger value="visitors">Website Visitors</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="applications">
+            <Card>
+              <CardHeader>
+                <CardTitle>Applications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">Applications management coming soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="jobs">
+            <Card>
+              <CardHeader>
+                <CardTitle>Job Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">Job postings and applications management coming soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <Card>
+              <CardHeader>
+                <CardTitle>Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">Analytics dashboard coming soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="content">
+            <Card>
+              <CardHeader>
+                <CardTitle>Content Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">Content editing coming soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="contacts">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Messages</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">Contact messages will show here.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="calls">
+            <Card>
+              <CardHeader>
+                <CardTitle>Scheduled Calls</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">Scheduled calls management coming soon.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="visitors" className="space-y-6">
             <Card>
               <CardHeader>
@@ -139,4 +209,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
