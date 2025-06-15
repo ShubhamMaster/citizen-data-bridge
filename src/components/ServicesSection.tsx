@@ -27,18 +27,18 @@ const ServicesSection: React.FC = () => {
         ];
 
   return (
-    <section className="px-4 py-16 bg-gray-50 text-center">
-      <h2 className="text-3xl font-bold mb-6 text-civora-navy">Our Services</h2>
-      <div className="flex flex-wrap gap-4 justify-center">
+    <section className="px-4 py-16 md:py-24 bg-gray-50 text-center">
+      <h2 className="text-3xl md:text-4xl font-bold mb-6 text-civora-navy">Our Services</h2>
+      <div className="flex flex-wrap gap-5 justify-center">
         {services.length === 0 ? (
           <p className="text-gray-500">No services available yet.</p>
         ) : (
           services.map((service, idx) => (
             <div
               key={service + idx}
-              className="bg-white shadow rounded-lg p-4 min-w-[220px] border border-civora-teal/10"
+              className="bg-white shadow rounded-lg p-6 min-w-[220px] max-w-xs border border-civora-teal/10 flex items-center justify-center text-civora-teal font-medium text-base"
             >
-              <span className="block text-civora-teal font-medium">{service}</span>
+              <span>{service}</span>
             </div>
           ))
         )}

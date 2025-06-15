@@ -18,9 +18,14 @@ const HeroSection: React.FC = () => {
   const subtitle = content?.subtitle || "Building citizen-centric, digital-first solutions for India's evolving urban needs.";
 
   return (
-    <section className="bg-civora-navy text-white px-4 py-24 text-center">
-      <h1 className="text-4xl md:text-6xl font-bold mb-6">{title}</h1>
-      <p className="text-lg md:text-2xl text-civora-teal mb-6">{subtitle}</p>
+    <section className="bg-civora-navy text-white px-4 py-28 sm:py-36 text-center flex flex-col items-center justify-center md:min-h-[530px]">
+      <h1 className="text-4xl md:text-6xl font-bold mb-5 md:mb-8 leading-tight md:leading-[1.15] tracking-tight">
+        {title}
+      </h1>
+      <p className="text-lg md:text-2xl text-civora-teal mb-6 max-w-2xl mx-auto">
+        {subtitle}
+      </p>
+      {/* (Optional) Add a hero call-to-action button here */}
     </section>
   );
 };

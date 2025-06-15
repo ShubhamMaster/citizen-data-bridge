@@ -8,11 +8,19 @@ import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header />
-      <HeroSection />
-      <ServicesSection />
-      <IndustriesSection />
+      <main className="flex-1">
+        {/* Hero Section with professional spacing */}
+        <HeroSection />
+        {/* Key sections spaced for clarity */}
+        <section id="services" className="scroll-mt-24">
+          <ServicesSection />
+        </section>
+        <section id="industries" className="scroll-mt-24">
+          <IndustriesSection />
+        </section>
+      </main>
       <Footer />
     </div>
   );
