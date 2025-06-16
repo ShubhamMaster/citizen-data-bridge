@@ -1,8 +1,8 @@
+
 import React, { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
-import { Menu, X, ChevronDown, Moon, Sun } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, close: () => void) => {
@@ -21,17 +21,21 @@ const SubMenuDesktop: React.FC<{
 }> = ({ subGroups, close }) => (
   <div
     role="menu"
-    className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-800 w-max px-1 py-3 flex flex-col gap-6 animate-fade-in"
+    className="bg-white rounded-xl shadow-soft-lg border border-border w-max px-2 py-4 flex flex-col gap-6 animate-slide-down z-50"
     tabIndex={-1}
     onKeyDown={e => { (e.key === "Escape") && close(); }}
   >
     {subGroups.map((group) => (
-      <div key={group.label} className="min-w-[170px] mb-0 last:mb-0">
-        <span className="text-xs font-bold text-civora-teal dark:text-civora-teal/80 pl-2">{group.label}</span>
-        <ul className="mt-1.5 space-y-1" role="group" aria-label={group.label}>
+      <div key={group.label} className="min-w-[180px]">
+        <span className="text-xs font-semibold text-primary uppercase tracking-wide pl-3 mb-2 block">{group.label}</span>
+        <ul className="space-y-1" role="group" aria-label={group.label}>
           {group.items.map((item) => (
             <li key={item.label}>
-              <NavLinkItem to={item.href} className="block text-gray-800 dark:text-gray-100 px-3 py-1.5 rounded-md hover:bg-civora-teal/10 hover:text-civora-teal dark:hover:bg-civora-teal/10 dark:hover:text-civora-teal font-medium text-sm transition-colors" onClick={close}>
+              <NavLinkItem 
+                to={item.href} 
+                className="block text-foreground px-3 py-2.5 rounded-lg hover:bg-primary/5 hover:text-primary font-medium text-sm transition-all duration-200" 
+                onClick={close}
+              >
                 {item.label}
               </NavLinkItem>
             </li>
@@ -49,34 +53,33 @@ const SubMenuMobile: React.FC<{
   closeMenu: () => void;
 }> = ({ subGroups, openGroup, setOpenGroup, closeMenu }) => {
   return (
-    <div className="pl-4 space-y-1 mt-1">
+    <div className="pl-4 space-y-2 mt-2">
       {subGroups.map(group => (
         <div key={group.label}>
           <button
-            className="w-full text-left py-2 px-2 rounded flex justify-between items-center font-semibold text-sm text-civora-teal dark:text-civora-teal/80 focus:outline-civora-teal transition"
+            className="w-full text-left py-3 px-3 rounded-lg flex justify-between items-center font-semibold text-sm text-primary hover:bg-primary/5 transition-colors duration-200"
             onClick={() => setOpenGroup(openGroup === group.label ? null : group.label)}
             aria-expanded={openGroup === group.label}
             aria-controls={`mobile-group-${group.label}`}
             type="button"
           >
             {group.label}
-            <ChevronDown className={`ml-2 w-4 h-4 transition-transform ${openGroup === group.label ? "rotate-180" : ""}`} />
+            <ChevronDown className={`ml-2 w-4 h-4 transition-transform duration-200 ${openGroup === group.label ? "rotate-180" : ""}`} />
           </button>
           <div
             id={`mobile-group-${group.label}`}
-            className="overflow-hidden transition-[max-height] duration-300 border-l dark:border-gray-800 border-gray-200 ml-2"
+            className="overflow-hidden transition-all duration-300 border-l-2 border-primary/20 ml-3"
             style={{
               maxHeight: openGroup === group.label ? 400 : 0,
-              transitionProperty: "max-height",
             }}
             aria-hidden={openGroup !== group.label}
           >
-            <ul>
+            <ul className="py-2">
               {group.items.map(item => (
                 <li key={item.label}>
                   <NavLinkItem
                     to={item.href}
-                    className="block px-5 py-2 text-gray-700 dark:text-gray-200 rounded hover:bg-civora-teal/10 hover:text-civora-teal dark:hover:bg-civora-teal/10 dark:hover:text-civora-teal transition"
+                    className="block px-6 py-2.5 text-muted-foreground rounded-lg hover:bg-primary/5 hover:text-primary transition-all duration-200"
                     onClick={closeMenu}
                   >
                     {item.label}
@@ -102,10 +105,9 @@ const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: st
     to !== "/" && location.pathname.startsWith(to)
       ? true
       : location.pathname === to;
-  const base =
-    "transition-colors outline-none";
+  const base = "transition-all duration-200 focus-ring";
   const activeStyle = active
-    ? "text-civora-teal font-bold dark:text-civora-teal underline underline-offset-4"
+    ? "text-primary font-semibold bg-primary/10"
     : "";
   return (
     <Link to={to} className={`${base} ${activeStyle} ${className ?? ""}`} onClick={onClick}>
@@ -116,25 +118,17 @@ const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: st
 
 export const Header: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  // For mobile: which MAIN dropdown is open? (string | null)
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null);
-  // For mobile: which SUBGROUP within which main is open? { [main]: subGroupLabel|null }
   const [mobileOpenGroup, setMobileOpenGroup] = useState<{ [main: string]: string | null }>({});
-
-  // For desktop: which main dropdown is open?
   const [desktopDropdownOpen, setDesktopDropdownOpen] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
-  // Desktop useOutsideClick for dropdown
   useOutsideClick(dropdownRef, () => setDesktopDropdownOpen(null));
 
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Keyboard ESC support for mobile & desktop menu
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -147,13 +141,12 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  // Close BOTH menus on route change
   React.useEffect(() => {
     setMobileOpen(false);
     setMobileDropdownOpen(null);
     setDesktopDropdownOpen(null);
   }, [location.pathname]);
-  // When you close the mobile menu, reset open groups
+
   React.useEffect(() => {
     if (!mobileOpen) {
       setMobileDropdownOpen(null);
@@ -161,20 +154,24 @@ export const Header: React.FC = () => {
     }
   }, [mobileOpen]);
 
-  // Main render
   return (
-    <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-800 backdrop-blur supports-backdrop-blur:backdrop-blur">
-      <div className="max-w-7xl mx-auto flex items-center justify-between py-2 px-4 md:px-8">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-border shadow-soft">
+      <div className="container-custom flex items-center justify-between py-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 focus:outline-civora-teal" tabIndex={0}>
-          <img src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" alt="Civora Nexus Pvt Ltd Logo" className="w-12 h-12 object-contain" />
-          <div className="ml-1">
-            <span className="text-xl font-bold text-civora-navy dark:text-white">Civora Nexus</span>
-            <span className="block text-xs text-civora-teal font-semibold">Pvt Ltd</span>
+        <Link to="/" className="flex items-center gap-3 focus-ring rounded-lg" tabIndex={0}>
+          <img 
+            src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
+            alt="Civora Nexus Logo" 
+            className="w-10 h-10 object-contain" 
+          />
+          <div>
+            <span className="text-xl font-bold text-foreground font-heading">Civora Nexus</span>
+            <span className="block text-xs text-primary font-semibold uppercase tracking-wide">Pvt Ltd</span>
           </div>
         </Link>
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex gap-2 items-center ml-10" role="navigation" aria-label="Main menu">
+
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex gap-1 items-center ml-10" role="navigation" aria-label="Main menu">
           {NAVIGATION.map((main) =>
             main.subGroups ? (
               <div
@@ -185,13 +182,11 @@ export const Header: React.FC = () => {
                   setDesktopDropdownOpen(main.label);
                 }}
                 onMouseLeave={() => {
-                  dropdownTimeout.current = setTimeout(() => setDesktopDropdownOpen(null), 120);
+                  dropdownTimeout.current = setTimeout(() => setDesktopDropdownOpen(null), 150);
                 }}
                 onFocus={() => setDesktopDropdownOpen(main.label)}
                 onBlur={(e) => {
-                  if (
-                    !e.currentTarget.contains(e.relatedTarget as Node)
-                  ) {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
                     setDesktopDropdownOpen(null);
                   }
                 }}
@@ -200,14 +195,16 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setDesktopDropdownOpen(desktopDropdownOpen === main.label ? null : main.label)}
-                  className={`px-3 py-2 text-sm font-bold rounded-lg flex items-center gap-1 transition-colors focus:outline-civora-teal focus:shadow focus:ring-2 focus:ring-civora-teal/40 dark:text-gray-100
-                    ${desktopDropdownOpen === main.label ? "text-civora-teal bg-civora-teal/10 dark:text-civora-teal" : "text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal"}`}
+                  className={`px-4 py-3 text-sm font-semibold rounded-lg flex items-center gap-2 transition-all duration-200 focus-ring
+                    ${desktopDropdownOpen === main.label 
+                      ? "text-primary bg-primary/10" 
+                      : "text-foreground hover:bg-muted hover:text-primary"}`}
                   aria-haspopup="menu"
                   aria-expanded={desktopDropdownOpen === main.label ? true : undefined}
                   aria-controls={`dropdown-${main.label}`}
                 >
                   {main.label}
-                  <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${desktopDropdownOpen === main.label ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${desktopDropdownOpen === main.label ? "rotate-180" : ""}`} />
                 </button>
                 {desktopDropdownOpen === main.label && (
                   <div
@@ -220,34 +217,41 @@ export const Header: React.FC = () => {
                 )}
               </div>
             ) : (
-              <NavLinkItem to={main.href ?? "#"} key={main.label} className="px-3 py-2 text-sm font-bold rounded-lg text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-civora-teal dark:text-gray-100 focus:outline-civora-teal">
+              <NavLinkItem 
+                to={main.href ?? "#"} 
+                key={main.label} 
+                className="px-4 py-3 text-sm font-semibold rounded-lg text-foreground hover:bg-muted hover:text-primary"
+              >
                 {main.label}
               </NavLinkItem>
             )
           )}
-          {/* Login button for desktop - aligned to the right of nav links */}
-          <Link to="/login" className="ml-4">
-            <Button variant="secondary" className="px-5">
+          
+          {/* Login Button */}
+          <Link to="/login" className="ml-6">
+            <Button className="btn-primary">
               Login
             </Button>
           </Link>
         </nav>
-        {/* Hamburger for mobile */}
+
+        {/* Mobile Menu Button */}
         <button
-          className="lg:hidden p-2 rounded text-civora-navy dark:text-civora-teal hover:bg-gray-200 hover:text-civora-teal focus:outline-civora-teal"
+          className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-colors duration-200 focus-ring"
           aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-controls="mobile-menu"
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((open) => !open)}
         >
-          {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
+
       {/* Mobile Menu */}
       <nav
         id="mobile-menu"
-        className={`lg:hidden transition-all duration-300 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow ${
-          mobileOpen ? "max-h-[850px] py-4 px-2" : "max-h-0 overflow-hidden"
+        className={`lg:hidden transition-all duration-300 bg-white border-t border-border ${
+          mobileOpen ? "max-h-[80vh] py-6 px-4" : "max-h-0 overflow-hidden"
         }`}
         aria-hidden={!mobileOpen}
         role="menu"
@@ -258,7 +262,7 @@ export const Header: React.FC = () => {
               <li key={main.label}>
                 <button
                   type="button"
-                  className="w-full flex justify-between items-center px-4 py-2 rounded-lg font-bold transition-colors focus:outline-civora-teal text-gray-800 dark:text-gray-100"
+                  className="w-full flex justify-between items-center px-4 py-3 rounded-lg font-semibold transition-colors duration-200 focus-ring text-foreground hover:bg-muted"
                   onClick={() => {
                     setMobileDropdownOpen(mobileDropdownOpen === main.label ? null : main.label);
                   }}
@@ -266,7 +270,7 @@ export const Header: React.FC = () => {
                   aria-controls={`mobile-dropdown-${main.label}`}
                 >
                   {main.label}
-                  <ChevronDown className={`ml-3 w-4 h-4 transition-transform ${mobileDropdownOpen === main.label ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileDropdownOpen === main.label ? "rotate-180" : ""}`} />
                 </button>
                 {mobileDropdownOpen === main.label && (
                   <SubMenuMobile
@@ -293,7 +297,7 @@ export const Header: React.FC = () => {
               <li key={main.label}>
                 <NavLinkItem
                   to={main.href ?? "#"}
-                  className="block px-6 py-2 font-bold text-gray-800 dark:text-gray-100 rounded-md hover:bg-civora-teal/10 hover:text-civora-teal focus:bg-civora-teal/10 focus:text-civora-teal"
+                  className="block px-4 py-3 font-semibold text-foreground rounded-lg hover:bg-muted hover:text-primary"
                   onClick={() => setMobileOpen(false)}
                 >
                   {main.label}
@@ -301,10 +305,11 @@ export const Header: React.FC = () => {
               </li>
             )
           )}
-          {/* Login button for mobile - stick to the bottom of the open nav */}
-          <li className="mt-4 flex flex-col items-center">
-            <Link to="/login" className="w-full max-w-xs">
-              <Button variant="secondary" className="w-full">
+          
+          {/* Mobile Login Button */}
+          <li className="mt-4 px-4">
+            <Link to="/login" className="block">
+              <Button className="w-full btn-primary">
                 Login
               </Button>
             </Link>

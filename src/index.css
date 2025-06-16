@@ -1,95 +1,69 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Gen Z-inspired Design System - Modern, Clean, Fresh */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light theme (primary) */
+    --background: 254 254 254; /* #FEFEFE - Ultra clean white */
+    --foreground: 15 23 42; /* #0F172A - Deep charcoal */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 255 255 255; /* #FFFFFF - Pure white */
+    --card-foreground: 15 23 42; /* #0F172A */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 255 255 255; /* #FFFFFF */
+    --popover-foreground: 15 23 42; /* #0F172A */
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 99 102 241; /* #6366F1 - Modern indigo */
+    --primary-foreground: 255 255 255; /* #FFFFFF */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 248 250 252; /* #F8FAFC - Soft gray */
+    --secondary-foreground: 71 85 105; /* #475569 */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 248 250 252; /* #F8FAFC */
+    --muted-foreground: 100 116 139; /* #64748B */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 6 182 212; /* #06B6D4 - Cyan */
+    --accent-foreground: 255 255 255; /* #FFFFFF */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 239 68 68; /* #EF4444 - Coral red */
+    --destructive-foreground: 255 255 255; /* #FFFFFF */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 226 232 240; /* #E2E8F0 - Light gray */
+    --input: 226 232 240; /* #E2E8F0 */
+    --ring: 99 102 241; /* #6366F1 - Primary */
 
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* Slightly more rounded for modern feel */
 
-    --sidebar-background: 0 0% 98%;
+    /* Success colors */
+    --success: 16 185 129; /* #10B981 - Mint green */
+    --success-foreground: 255 255 255;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Warning colors */
+    --warning: 245 158 11; /* #F59E0B - Soft amber */
+    --warning-foreground: 255 255 255;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Purple accent */
+    --purple: 139 92 246; /* #8B5CF6 */
+    --purple-foreground: 255 255 255;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Mint accent */
+    --mint: 20 184 166; /* #14B8A6 */
+    --mint-foreground: 255 255 255;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    /* Coral accent */
+    --coral: 255 107 107; /* #FF6B6B */
+    --coral-foreground: 255 255 255;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Lavender accent */
+    --lavender: 168 85 247; /* #A855F7 */
+    --lavender-foreground: 255 255 255;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+  /* Remove dark theme completely as requested */
 }
 
 @layer base {
@@ -98,6 +72,169 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Modern typography scale */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl leading-tight;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl leading-tight;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl leading-snug;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl leading-snug;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl leading-normal;
+  }
+
+  h6 {
+    @apply text-base md:text-lg leading-normal;
+  }
+
+  p {
+    @apply leading-relaxed text-muted-foreground;
+  }
+
+  /* Clean button styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 
+           transition-all duration-200 rounded-lg px-6 py-3 font-medium
+           shadow-soft hover:shadow-soft-lg active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80
+           border border-border transition-all duration-200 rounded-lg px-6 py-3 font-medium
+           shadow-soft hover:shadow-soft-lg active:scale-[0.98];
+  }
+
+  .btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90
+           transition-all duration-200 rounded-lg px-6 py-3 font-medium
+           shadow-soft hover:shadow-soft-lg active:scale-[0.98];
+  }
+
+  /* Clean card styles */
+  .card-clean {
+    @apply bg-card text-card-foreground rounded-xl border-0 shadow-soft
+           hover:shadow-soft-lg transition-all duration-300;
+  }
+
+  .card-clean-hover {
+    @apply bg-card text-card-foreground rounded-xl border-0 shadow-soft
+           hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300;
+  }
+
+  /* Section spacing */
+  .section-padding {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+
+  .section-padding-sm {
+    @apply py-12 md:py-16;
+  }
+
+  /* Container utilities */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-narrow {
+    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-accent to-purple bg-clip-text text-transparent;
+  }
+
+  /* Focus styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Smooth animations */
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-8 transition-all duration-700 ease-out;
+  }
+
+  .animate-on-scroll.in-view {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* Modern form inputs */
+  .input-clean {
+    @apply bg-background border border-input rounded-lg px-4 py-3
+           placeholder:text-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring
+           transition-colors duration-200;
+  }
+
+  /* Gen Z-inspired utility classes */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glow-effect {
+    @apply shadow-glow hover:shadow-glow-lg transition-shadow duration-300;
+  }
+
+  /* Clean separator */
+  .separator-clean {
+    @apply h-px bg-border w-full;
+  }
+}
+
+/* Scrollbar styling for modern browsers */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(203 213 225);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(148 163 184);
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    @apply hidden;
   }
 }

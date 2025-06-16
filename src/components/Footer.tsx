@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import FooterBrandSection from "./FooterBrandSection";
@@ -5,15 +6,12 @@ import FooterNavColumns from "./FooterNavColumns";
 import FooterConnectSection from "./FooterConnectSection";
 
 const Footer: React.FC = () => {
-  // Dynamically fetch contact info from Supabase 'website_content'
   const { content: contactContent } = useWebsiteContent("contact");
 
-  // Fetch only once for performance. Provide fallback if data missing.
   const email = contactContent?.email || "civoranexus@gmail.com";
   const phone = contactContent?.phone || "+91-9146 2687 10";
   const address = contactContent?.address || "Sangamner, Maharashtra";
 
-  // All navigation links
   const navLinks = [
     { name: "Home", to: "/" },
     { name: "About Us", to: "/about" },
@@ -26,22 +24,43 @@ const Footer: React.FC = () => {
     { name: "Terms", to: "/terms" },
   ];
 
-  // Group links for column layout
   const navGroups = [
-    navLinks.slice(0, 3), // Home, About Us, Services
-    navLinks.slice(3, 6), // Projects, Innovation Lab, Careers
-    navLinks.slice(6, 9), // Contact, Privacy, Terms
+    navLinks.slice(0, 3),
+    navLinks.slice(3, 6),
+    navLinks.slice(6, 9),
   ];
 
   return (
-    <footer className="bg-civora-navy text-white border-t border-civora-teal/10 mt-8 pt-12 pb-6 px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
-        <FooterBrandSection email={email} phone={phone} address={address} />
-        <FooterNavColumns navGroups={navGroups} />
-        <FooterConnectSection email={email} />
+    <footer className="bg-gradient-to-br from-muted/50 to-background border-t border-border mt-16">
+      {/* Main Footer Content */}
+      <div className="container-custom section-padding-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
+          <FooterBrandSection email={email} phone={phone} address={address} />
+          <FooterNavColumns navGroups={navGroups} />
+          <FooterConnectSection email={email} />
+        </div>
       </div>
-      <div className="max-w-7xl mx-auto text-center mt-8 pt-5 border-t border-civora-teal/10 text-xs text-gray-400">
-        &copy; {new Date().getFullYear()} Civora Nexus Pvt. Ltd. All rights reserved.
+
+      {/* Footer Bottom */}
+      <div className="border-t border-border bg-muted/30">
+        <div className="container-custom py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              &copy; {new Date().getFullYear()} Civora Nexus Pvt. Ltd. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6">
+              <a href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                Privacy Policy
+              </a>
+              <a href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                Terms of Service
+              </a>
+              <a href="/accessibility" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                Accessibility
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   );

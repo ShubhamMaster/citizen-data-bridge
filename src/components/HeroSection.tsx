@@ -1,20 +1,23 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Shield, Hospital, Handshake } from "lucide-react";
 
-// Trust badge component - unchanged for credibility, but can be minimized further if needed
+import React, { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Shield, Heart, Users } from "lucide-react";
+
 const TrustBadges = () => (
-  <div className="flex items-center gap-5 flex-wrap mt-7 md:mt-8">
-    <span className="flex items-center text-xs font-semibold text-civora-teal bg-white/10 border border-civora-teal/20 rounded px-3 py-1.5">
-      <Shield className="mr-2 text-civora-teal" size={17} />
-      Trusted by Governments & NGOs
-    </span>
-    <span className="flex items-center gap-2">
-      <Hospital className="text-civora-teal" size={18} />
-      <Handshake className="text-civora-teal" size={18} />
-      <span className="rounded bg-civora-teal/10 px-2 py-0.5 text-[11px] font-bold text-civora-teal">CityHealth</span>
-      <span className="rounded bg-civora-teal/10 px-2 py-0.5 text-[11px] font-bold text-civora-teal">CivicOne</span>
-    </span>
+  <div className="flex items-center justify-center gap-6 flex-wrap mt-8">
+    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
+      <Shield className="w-4 h-4 text-success" />
+      <span className="text-sm font-medium text-muted-foreground">Government Trusted</span>
+    </div>
+    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
+      <Heart className="w-4 h-4 text-coral" />
+      <span className="text-sm font-medium text-muted-foreground">Healthcare Focus</span>
+    </div>
+    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
+      <Users className="w-4 h-4 text-primary" />
+      <span className="text-sm font-medium text-muted-foreground">Community Impact</span>
+    </div>
   </div>
 );
 
@@ -22,9 +25,6 @@ const isMobileDevice = () => {
   if (typeof navigator === "undefined") return false;
   return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
 };
-
-import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -42,32 +42,62 @@ const HeroSection: React.FC = () => {
   );
 
   return (
-    <section className="relative min-h-[450px] md:min-h-[560px] flex items-center justify-center bg-civora-navy w-full overflow-hidden py-12 md:py-24">
-      <div className="container mx-auto flex flex-col items-center justify-center w-full max-w-2xl z-10 px-4">
-        <h1 className="text-white font-sans font-extrabold text-4xl md:text-6xl text-center leading-tight tracking-tight mb-4" style={{ fontFamily: "Inter, Poppins, 'Open Sans', sans-serif" }}>
-          Smart. Simple. Civic.
-        </h1>
-        <p className="text-civora-teal text-lg md:text-2xl font-medium text-center mb-8" style={{ fontFamily: "Inter, Poppins, 'Open Sans', sans-serif" }}>
-          Innovative technology for thriving communities and modern healthcare.
-        </p>
-        <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 w-full max-w-sm mx-auto justify-center">
-          <Button
-            asChild
-            size="lg"
-            className="bg-civora-teal text-civora-navy hover:bg-white hover:text-civora-teal transition-colors text-base font-semibold shadow-md px-7 py-3.5"
-          >
-            <a href="#services">Discover Solutions</a>
-          </Button>
-          <Button
-            size="lg"
-            className="relative bg-civora-navy text-white font-semibold border-2 border-civora-teal shadow-xl overflow-hidden px-7 py-3.5 transition-all duration-200 hover:bg-gradient-to-r hover:from-civora-navy hover:to-civora-teal/90 hover:text-white hover:scale-105 before:absolute before:inset-0 before:border-2 before:border-civora-teal/30 before:rounded-lg before:opacity-0 hover:before:opacity-100 before:pointer-events-none"
-            variant="outline"
-            onClick={handleGetInTouch}
-          >
-            <span className="relative z-10">Get in Touch</span>
-          </Button>
+    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl animate-float"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent/10 blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-purple/5 blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      <div className="relative z-10 container-custom text-center">
+        <div className="max-w-4xl mx-auto">
+          {/* Main Heading */}
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
+            <span className="gradient-text">Smart. Simple.</span>
+            <br />
+            <span className="text-foreground">Civic.</span>
+          </h1>
+
+          {/* Subheading */}
+          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            Innovative technology solutions for thriving communities and modern healthcare systems.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <Button
+              asChild
+              size="lg"
+              className="btn-primary group text-lg px-8 py-4 h-auto"
+            >
+              <a href="#services" className="flex items-center gap-2">
+                Discover Solutions
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+              </a>
+            </Button>
+            
+            <Button
+              size="lg"
+              className="btn-secondary text-lg px-8 py-4 h-auto hover:shadow-glow"
+              onClick={handleGetInTouch}
+            >
+              Get in Touch
+            </Button>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <TrustBadges />
+          </div>
         </div>
-        <TrustBadges />
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce-gentle">
+        <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-muted-foreground/50 rounded-full mt-2 animate-float"></div>
+        </div>
       </div>
     </section>
   );

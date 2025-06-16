@@ -1,45 +1,42 @@
 
 import React from "react";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
-import { Users, BotMessageSquare, Workflow, BarChart3, LucideProps } from "lucide-react";
+import { Users, Bot, Workflow, BarChart3, LucideProps } from "lucide-react";
 
-// Map icon keys to actual components for dynamic rendering
 const iconMap: { [key: string]: React.FC<LucideProps> } = {
   'smart-portals': Users,
-  'ai-grievance': BotMessageSquare,
+  'ai-grievance': Bot,
   'automation': Workflow,
   'data-analytics': BarChart3,
 };
 
-// Define a type for our service objects for better type safety
 interface Service {
   iconKey: string;
   title: string;
   description: string;
 }
 
-// Provide a professional fallback service list if none is fetched from the backend
 const fallbackServices: Service[] = [
-    {
-      iconKey: 'smart-portals',
-      title: "Smart Citizen Portals",
-      description: "Engaging platforms connecting citizens with city services seamlessly.",
-    },
-    {
-      iconKey: 'ai-grievance',
-      title: "AI Grievance Management",
-      description: "Intelligent systems to efficiently track and resolve public grievances.",
-    },
-    {
-      iconKey: 'automation',
-      title: "e-Governance Automation",
-      description: "Streamlining administrative processes for enhanced productivity and transparency.",
-    },
-    {
-      iconKey: 'data-analytics',
-      title: "Urban Data Analytics",
-      description: "Harnessing data to drive informed decisions for sustainable urban development.",
-    },
+  {
+    iconKey: 'smart-portals',
+    title: "Smart Citizen Portals",
+    description: "Engaging platforms connecting citizens with city services seamlessly and efficiently.",
+  },
+  {
+    iconKey: 'ai-grievance',
+    title: "AI Grievance Management",
+    description: "Intelligent systems to efficiently track, process and resolve public grievances.",
+  },
+  {
+    iconKey: 'automation',
+    title: "e-Governance Automation",
+    description: "Streamlining administrative processes for enhanced productivity and transparency.",
+  },
+  {
+    iconKey: 'data-analytics',
+    title: "Urban Data Analytics",
+    description: "Harnessing data insights to drive informed decisions for sustainable development.",
+  },
 ];
 
 const ServicesSection: React.FC = () => {
@@ -47,45 +44,83 @@ const ServicesSection: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="min-h-[320px] flex items-center justify-center bg-gray-50">
-        <div className="animate-spin h-8 w-8 border-4 border-civora-teal rounded-full border-t-transparent" />
+      <section className="section-padding bg-muted/30">
+        <div className="container-custom">
+          <div className="flex items-center justify-center min-h-[320px]">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
       </section>
     );
   }
 
-  // Use services from content if available and valid, otherwise use the fallback
   const services: Service[] = 
     content?.services && Array.isArray(content.services) && content.services.length > 0
     ? content.services 
     : fallbackServices;
 
   return (
-    <section className="px-4 py-20 md:py-28 bg-gray-50/70">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-civora-navy">
-          Our Core Services
-        </h2>
-        <p className="text-lg md:text-xl text-gray-600 mb-16 max-w-3xl mx-auto">
-          We offer a suite of digital solutions designed to enhance governance, improve public services, and empower communities.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+    <section id="services" className="section-padding bg-gradient-to-b from-background to-muted/30">
+      <div className="container-custom">
+        {/* Section Header */}
+        <div className="text-center mb-16 max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+            Our Core Services
+          </h2>
+          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+            We offer a comprehensive suite of digital solutions designed to enhance governance, 
+            improve public services, and empower communities through technology.
+          </p>
+        </div>
+
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((service, idx) => {
             const IconComponent = iconMap[service.iconKey];
             return (
               <div 
                 key={idx}
-                className="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-transparent hover:border-civora-teal/30 flex flex-col items-center"
+                className="group card-clean-hover p-8 text-center animate-fade-in"
+                style={{ animationDelay: `${idx * 0.1}s` }}
               >
+                {/* Icon */}
                 {IconComponent && (
-                  <div className="bg-civora-teal/10 p-4 rounded-full mb-6 ring-8 ring-civora-teal/5">
-                    <IconComponent className="w-8 h-8 text-civora-teal" strokeWidth={1.5} />
+                  <div className="relative mb-6 mx-auto w-16 h-16 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl group-hover:scale-110 transition-transform duration-300"></div>
+                    <IconComponent className="relative w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
                   </div>
                 )}
-                <h3 className="text-xl font-semibold text-civora-navy mb-3">{service.title}</h3>
-                <p className="text-gray-500 text-base leading-relaxed flex-grow">{service.description}</p>
+
+                {/* Content */}
+                <h3 className="text-xl font-semibold text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
+                  {service.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {service.description}
+                </p>
+
+                {/* Hover Effect */}
+                <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-accent mx-auto rounded-full"></div>
+                </div>
               </div>
             );
           })}
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center mt-16">
+          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-purple/10 rounded-2xl p-8 max-w-2xl mx-auto">
+            <h3 className="text-2xl font-semibold text-foreground mb-4">
+              Ready to Transform Your Community?
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Let's discuss how our solutions can help your organization achieve its goals.
+            </p>
+            <button className="btn-primary">
+              Schedule a Consultation
+            </button>
+          </div>
         </div>
       </div>
     </section>
