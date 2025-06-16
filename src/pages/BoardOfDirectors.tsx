@@ -1,4 +1,5 @@
 
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -6,11 +7,32 @@ export default function BoardOfDirectors() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+      
+      {/* Hero Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl lg:text-5xl font-bold text-civora-navy mb-4">Board of Directors</h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our esteemed Board of Directors ensures strategic direction and oversight for Civora Nexus Pvt Ltd.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <main className="max-w-3xl mx-auto py-20 px-4">
-        <h1 className="text-4xl font-bold text-civora-navy mb-6">Board of Directors</h1>
-        <p className="text-xl text-gray-700">Our esteemed Board of Directors ensures strategic direction and oversight for Civora Nexus Pvt Ltd.</p>
+        <div className="text-lg text-gray-700 space-y-4">
+          <p>
+            Our Board of Directors brings together decades of experience in technology, governance, and social impact. 
+            They provide strategic guidance and ensure our commitment to ethical practices and sustainable growth.
+          </p>
+          <p>
+            Detailed information about our board members will be updated here as we continue to build our leadership structure.
+          </p>
+        </div>
       </main>
       <Footer />
     </div>
   );
 }
+

@@ -1,4 +1,5 @@
 
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
@@ -34,11 +35,20 @@ export default function Leadership() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
       <Header />
+      
+      {/* Hero Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl lg:text-5xl font-bold text-civora-navy mb-4">Our Leadership Team</h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Meet the visionaries guiding Civora Nexus Pvt Ltd toward innovation, excellence, and impact.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <main className="flex-1 max-w-6xl mx-auto py-16 px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-civora-navy dark:text-white mb-6 text-center">Our Leadership Team</h1>
-        <p className="max-w-2xl mx-auto text-lg text-center text-gray-700 dark:text-gray-300 mb-12">
-          Meet the visionaries guiding Civora Nexus Pvt Ltd toward innovation, excellence, and impact.
-        </p>
         <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {leadershipTeam.map((leader) => (
             <Card key={leader.name} className="flex flex-col items-center text-center shadow-md hover-scale transition-all duration-200">
