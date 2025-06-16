@@ -59,12 +59,12 @@ const About = () => {
     <div className="min-h-screen bg-white">
       <Header />
       
-      {/* Page Title */}
-      <section className="py-16 bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-civora-navy to-civora-navy/90 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold text-civora-navy mb-4">About Civora Nexus</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h1 className="text-3xl lg:text-5xl font-bold mb-4">About Civora Nexus</h1>
+            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
               A new venture dedicated to empowering communities through innovative civic and healthcare technology solutions.
             </p>
           </div>
