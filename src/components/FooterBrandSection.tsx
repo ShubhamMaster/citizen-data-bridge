@@ -14,24 +14,51 @@ const FooterBrandSection: React.FC<FooterBrandSectionProps> = ({
   phone,
   address,
 }) => (
-  <div className="mb-8 md:mb-0 flex flex-col gap-2">
-    {/* Logo as simple text, replace with <img> if logo is available */}
-    <Link to="/" className="inline-flex items-center gap-2 mb-3 group">
-      <span className="sr-only">Civora Nexus Home</span>
-      <span className="font-bold text-2xl tracking-tight group-hover:text-civora-teal transition-colors">Civora Nexus</span>
+  <div className="mb-8 md:mb-0 flex flex-col gap-4">
+    {/* Logo */}
+    <Link to="/" className="inline-flex items-center gap-3 mb-4 group">
+      <img 
+        src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
+        alt="Civora Nexus Logo" 
+        className="w-8 h-8 object-contain" 
+      />
+      <div>
+        <span className="font-bold text-xl tracking-tight text-brand-navy group-hover:text-brand-teal transition-colors">
+          Civora Nexus
+        </span>
+        <span className="block text-xs text-brand-teal font-medium uppercase tracking-wide">
+          Pvt Ltd
+        </span>
+      </div>
     </Link>
-    <p className="text-civora-teal font-medium mb-0">{address}</p>
-    <div className="flex items-center gap-2 mt-2">
-      <Mail className="w-4 h-4 text-civora-teal" />
-      <a href={`mailto:${email}`} className="underline hover:text-civora-teal transition-colors text-sm">{email}</a>
-    </div>
-    <div className="flex items-center gap-2 mt-1">
-      <Phone className="w-4 h-4 text-civora-teal" />
-      <a href={`tel:${phone}`} className="underline hover:text-civora-teal transition-colors text-sm">{phone}</a>
-    </div>
-    <div className="flex items-center gap-2 mt-1">
-      <MapPin className="w-4 h-4 text-civora-teal" />
-      <span className="text-sm text-gray-200">{address}</span>
+
+    <p className="text-muted-foreground text-sm leading-relaxed mb-4 max-w-xs">
+      Empowering communities through smart civic & healthcare technology solutions.
+    </p>
+
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <Mail className="w-4 h-4 text-brand-teal flex-shrink-0" />
+        <a 
+          href={`mailto:${email}`} 
+          className="text-sm text-muted-foreground hover:text-brand-navy transition-colors duration-200"
+        >
+          {email}
+        </a>
+      </div>
+      <div className="flex items-center gap-3">
+        <Phone className="w-4 h-4 text-brand-teal flex-shrink-0" />
+        <a 
+          href={`tel:${phone}`} 
+          className="text-sm text-muted-foreground hover:text-brand-navy transition-colors duration-200"
+        >
+          {phone}
+        </a>
+      </div>
+      <div className="flex items-center gap-3">
+        <MapPin className="w-4 h-4 text-brand-teal flex-shrink-0" />
+        <span className="text-sm text-muted-foreground">{address}</span>
+      </div>
     </div>
   </div>
 );

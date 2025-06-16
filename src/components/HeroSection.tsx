@@ -6,16 +6,16 @@ import { ArrowRight, Shield, Heart, Users } from "lucide-react";
 
 const TrustBadges = () => (
   <div className="flex items-center justify-center gap-6 flex-wrap mt-8">
-    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
+    <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-clean border border-border">
       <Shield className="w-4 h-4 text-success" />
       <span className="text-sm font-medium text-muted-foreground">Government Trusted</span>
     </div>
-    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
-      <Heart className="w-4 h-4 text-coral" />
+    <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-clean border border-border">
+      <Heart className="w-4 h-4 text-destructive" />
       <span className="text-sm font-medium text-muted-foreground">Healthcare Focus</span>
     </div>
-    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
-      <Users className="w-4 h-4 text-primary" />
+    <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-clean border border-border">
+      <Users className="w-4 h-4 text-brand-teal" />
       <span className="text-sm font-medium text-muted-foreground">Community Impact</span>
     </div>
   </div>
@@ -42,21 +42,21 @@ const HeroSection: React.FC = () => {
   );
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center justify-center hero-section">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl animate-float"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent/10 blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-purple/5 blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-brand-navy/5 blur-3xl animate-float"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-brand-teal/5 blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-brand-navy/3 blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="relative z-10 container-custom text-center">
         <div className="max-w-4xl mx-auto">
           {/* Main Heading */}
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
-            <span className="gradient-text">Smart. Simple.</span>
+            <span className="text-gradient-brand">Smart. Simple.</span>
             <br />
-            <span className="text-foreground">Civic.</span>
+            <span className="text-brand-navy">Civic.</span>
           </h1>
 
           {/* Subheading */}
@@ -79,7 +79,7 @@ const HeroSection: React.FC = () => {
             
             <Button
               size="lg"
-              className="btn-secondary text-lg px-8 py-4 h-auto hover:shadow-glow"
+              className="btn-outline text-lg px-8 py-4 h-auto"
               onClick={handleGetInTouch}
             >
               Get in Touch
@@ -95,8 +95,8 @@ const HeroSection: React.FC = () => {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce-gentle">
-        <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-muted-foreground/50 rounded-full mt-2 animate-float"></div>
+        <div className="w-6 h-10 border-2 border-brand-navy/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-brand-navy/50 rounded-full mt-2 animate-float"></div>
         </div>
       </div>
     </section>

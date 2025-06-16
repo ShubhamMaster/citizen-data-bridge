@@ -44,10 +44,10 @@ const ServicesSection: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="section-padding bg-muted/30">
+      <section className="section-padding bg-muted-50">
         <div className="container-custom">
           <div className="flex items-center justify-center min-h-[320px]">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-brand-navy border-t-transparent rounded-full animate-spin" />
           </div>
         </div>
       </section>
@@ -60,11 +60,11 @@ const ServicesSection: React.FC = () => {
     : fallbackServices;
 
   return (
-    <section id="services" className="section-padding bg-gradient-to-b from-background to-muted/30">
+    <section id="services" className="section-padding bg-gradient-to-b from-background to-muted-50">
       <div className="container-custom">
         {/* Section Header */}
         <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gradient-brand">
             Our Core Services
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
@@ -80,19 +80,19 @@ const ServicesSection: React.FC = () => {
             return (
               <div 
                 key={idx}
-                className="group card-clean-hover p-8 text-center animate-fade-in"
+                className="group card-interactive p-8 text-center animate-fade-in"
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
                 {/* Icon */}
                 {IconComponent && (
                   <div className="relative mb-6 mx-auto w-16 h-16 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl group-hover:scale-110 transition-transform duration-300"></div>
-                    <IconComponent className="relative w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/10 to-brand-teal/10 rounded-2xl group-hover:scale-110 transition-transform duration-300"></div>
+                    <IconComponent className="relative w-8 h-8 text-brand-navy group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
                   </div>
                 )}
 
                 {/* Content */}
-                <h3 className="text-xl font-semibold text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
+                <h3 className="text-xl font-semibold text-foreground mb-4 group-hover:text-brand-navy transition-colors duration-300">
                   {service.title}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
@@ -101,7 +101,7 @@ const ServicesSection: React.FC = () => {
 
                 {/* Hover Effect */}
                 <div className="mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-12 h-0.5 bg-gradient-to-r from-primary to-accent mx-auto rounded-full"></div>
+                  <div className="w-12 h-0.5 bg-gradient-to-r from-brand-navy to-brand-teal mx-auto rounded-full"></div>
                 </div>
               </div>
             );
@@ -110,8 +110,8 @@ const ServicesSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-purple/10 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-semibold text-foreground mb-4">
+          <div className="bg-gradient-to-r from-brand-navy/5 via-brand-teal/5 to-brand-navy/5 rounded-2xl p-8 max-w-2xl mx-auto border border-border">
+            <h3 className="text-2xl font-semibold text-brand-navy mb-4">
               Ready to Transform Your Community?
             </h3>
             <p className="text-muted-foreground mb-6">
