@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -58,30 +59,16 @@ const About = () => {
     <div className="min-h-screen bg-white">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-civora-navy to-civora-navy/90 text-white py-28 md:py-36 flex items-center justify-center overflow-hidden">
-        {/* Decorative Blob/Graphic */}
-        <div
-          className="absolute left-[-110px] top-[-120px] md:left-[-200px] md:top-[-120px] pointer-events-none select-none animate-blob"
-          aria-hidden="true"
-        >
-          <svg width="480" height="480" viewBox="0 0 480 480" fill="none">
-            <ellipse cx="240" cy="240" rx="230" ry="190" fill="#2EA6AA" fillOpacity="0.23" />
-          </svg>
-        </div>
-
-        <div className="relative z-10 w-full">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h1 className="font-extrabold text-4xl md:text-6xl leading-tight tracking-tight mb-5 text-white drop-shadow-lg">
-              About <span className="text-civora-teal">Civora Nexus</span>
-            </h1>
-            <p className="text-xl md:text-2xl max-w-2xl mx-auto font-medium text-gray-200/90 md:mb-2">
+      {/* Page Title */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl lg:text-5xl font-bold text-civora-navy mb-4">About Civora Nexus</h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               A new venture dedicated to empowering communities through innovative civic and healthcare technology solutions.
             </p>
           </div>
         </div>
-        {/* Subtle overlay for polish and readability on backgrounds */}
-        <div className="absolute inset-0 bg-civora-navy opacity-55 pointer-events-none" aria-hidden="true"></div>
       </section>
 
       {/* Mission & Vision */}
