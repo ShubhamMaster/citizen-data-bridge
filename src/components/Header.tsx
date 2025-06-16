@@ -21,19 +21,19 @@ const SubMenuDesktop: React.FC<{
 }> = ({ subGroups, close }) => (
   <div
     role="menu"
-    className="bg-card rounded-xl shadow-clean-lg border border-border w-max px-2 py-4 flex flex-col gap-6 animate-slide-down z-50"
+    className="bg-white rounded-xl shadow-soft-lg border border-border w-max px-2 py-4 flex flex-col gap-6 animate-slide-down z-50"
     tabIndex={-1}
     onKeyDown={e => { (e.key === "Escape") && close(); }}
   >
     {subGroups.map((group) => (
       <div key={group.label} className="min-w-[180px]">
-        <span className="text-xs font-semibold text-brand-navy uppercase tracking-wide pl-3 mb-2 block">{group.label}</span>
+        <span className="text-xs font-semibold text-primary uppercase tracking-wide pl-3 mb-2 block">{group.label}</span>
         <ul className="space-y-1" role="group" aria-label={group.label}>
           {group.items.map((item) => (
             <li key={item.label}>
               <NavLinkItem 
                 to={item.href} 
-                className="block text-foreground px-3 py-2.5 rounded-lg hover:bg-brand-navy/5 hover:text-brand-navy font-medium text-sm transition-all duration-200" 
+                className="block text-foreground px-3 py-2.5 rounded-lg hover:bg-primary/5 hover:text-primary font-medium text-sm transition-all duration-200" 
                 onClick={close}
               >
                 {item.label}
@@ -57,7 +57,7 @@ const SubMenuMobile: React.FC<{
       {subGroups.map(group => (
         <div key={group.label}>
           <button
-            className="w-full text-left py-3 px-3 rounded-lg flex justify-between items-center font-semibold text-sm text-brand-navy hover:bg-brand-navy/5 transition-colors duration-200"
+            className="w-full text-left py-3 px-3 rounded-lg flex justify-between items-center font-semibold text-sm text-primary hover:bg-primary/5 transition-colors duration-200"
             onClick={() => setOpenGroup(openGroup === group.label ? null : group.label)}
             aria-expanded={openGroup === group.label}
             aria-controls={`mobile-group-${group.label}`}
@@ -68,7 +68,7 @@ const SubMenuMobile: React.FC<{
           </button>
           <div
             id={`mobile-group-${group.label}`}
-            className="overflow-hidden transition-all duration-300 border-l-2 border-brand-navy/20 ml-3"
+            className="overflow-hidden transition-all duration-300 border-l-2 border-primary/20 ml-3"
             style={{
               maxHeight: openGroup === group.label ? 400 : 0,
             }}
@@ -79,7 +79,7 @@ const SubMenuMobile: React.FC<{
                 <li key={item.label}>
                   <NavLinkItem
                     to={item.href}
-                    className="block px-6 py-2.5 text-muted-foreground rounded-lg hover:bg-brand-navy/5 hover:text-brand-navy transition-all duration-200"
+                    className="block px-6 py-2.5 text-muted-foreground rounded-lg hover:bg-primary/5 hover:text-primary transition-all duration-200"
                     onClick={closeMenu}
                   >
                     {item.label}
@@ -107,7 +107,7 @@ const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: st
       : location.pathname === to;
   const base = "transition-all duration-200 focus-ring";
   const activeStyle = active
-    ? "text-brand-navy font-semibold bg-brand-navy/10"
+    ? "text-primary font-semibold bg-primary/10"
     : "";
   return (
     <Link to={to} className={`${base} ${activeStyle} ${className ?? ""}`} onClick={onClick}>
@@ -155,7 +155,7 @@ export const Header: React.FC = () => {
   }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border shadow-clean">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-border shadow-soft">
       <div className="container-custom flex items-center justify-between py-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 focus-ring rounded-lg" tabIndex={0}>
@@ -165,8 +165,8 @@ export const Header: React.FC = () => {
             className="w-10 h-10 object-contain" 
           />
           <div>
-            <span className="text-xl font-bold text-brand-navy font-heading">Civora Nexus</span>
-            <span className="block text-xs text-brand-teal font-semibold uppercase tracking-wide">Pvt Ltd</span>
+            <span className="text-xl font-bold text-foreground font-heading">Civora Nexus</span>
+            <span className="block text-xs text-primary font-semibold uppercase tracking-wide">Pvt Ltd</span>
           </div>
         </Link>
 
@@ -197,8 +197,8 @@ export const Header: React.FC = () => {
                   onClick={() => setDesktopDropdownOpen(desktopDropdownOpen === main.label ? null : main.label)}
                   className={`px-4 py-3 text-sm font-semibold rounded-lg flex items-center gap-2 transition-all duration-200 focus-ring
                     ${desktopDropdownOpen === main.label 
-                      ? "text-brand-navy bg-brand-navy/10" 
-                      : "text-foreground hover:bg-muted hover:text-brand-navy"}`}
+                      ? "text-primary bg-primary/10" 
+                      : "text-foreground hover:bg-muted hover:text-primary"}`}
                   aria-haspopup="menu"
                   aria-expanded={desktopDropdownOpen === main.label ? true : undefined}
                   aria-controls={`dropdown-${main.label}`}
@@ -220,7 +220,7 @@ export const Header: React.FC = () => {
               <NavLinkItem 
                 to={main.href ?? "#"} 
                 key={main.label} 
-                className="px-4 py-3 text-sm font-semibold rounded-lg text-foreground hover:bg-muted hover:text-brand-navy"
+                className="px-4 py-3 text-sm font-semibold rounded-lg text-foreground hover:bg-muted hover:text-primary"
               >
                 {main.label}
               </NavLinkItem>
@@ -237,7 +237,7 @@ export const Header: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted hover:text-brand-navy transition-colors duration-200 focus-ring"
+          className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-colors duration-200 focus-ring"
           aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-controls="mobile-menu"
           aria-expanded={mobileOpen}
@@ -250,7 +250,7 @@ export const Header: React.FC = () => {
       {/* Mobile Menu */}
       <nav
         id="mobile-menu"
-        className={`lg:hidden transition-all duration-300 bg-card border-t border-border ${
+        className={`lg:hidden transition-all duration-300 bg-white border-t border-border ${
           mobileOpen ? "max-h-[80vh] py-6 px-4" : "max-h-0 overflow-hidden"
         }`}
         aria-hidden={!mobileOpen}
@@ -297,7 +297,7 @@ export const Header: React.FC = () => {
               <li key={main.label}>
                 <NavLinkItem
                   to={main.href ?? "#"}
-                  className="block px-4 py-3 font-semibold text-foreground rounded-lg hover:bg-muted hover:text-brand-navy"
+                  className="block px-4 py-3 font-semibold text-foreground rounded-lg hover:bg-muted hover:text-primary"
                   onClick={() => setMobileOpen(false)}
                 >
                   {main.label}
