@@ -2,28 +2,28 @@
 import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, Heart, Users, Sparkles, Play } from "lucide-react";
+import { ArrowRight, Shield, Heart, Users, Sparkles, Calendar } from "lucide-react";
 
 const StatsCard = ({ number, label }: { number: string; label: string }) => (
   <div className="text-center">
-    <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{number}</div>
+    <div className="text-2xl md:text-3xl font-bold text-primary mb-1">{number}</div>
     <div className="text-sm text-muted-foreground">{label}</div>
   </div>
 );
 
 const TrustBadges = () => (
-  <div className="flex items-center justify-center gap-6 flex-wrap mt-12">
-    <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 border border-gray-200 shadow-soft">
-      <Shield className="w-5 h-5 text-accent" />
-      <span className="text-sm font-medium text-primary">Government Trusted</span>
+  <div className="flex items-center justify-center gap-4 flex-wrap mt-8">
+    <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 border border-gray-200 shadow-sm">
+      <Shield className="w-4 h-4 text-accent" />
+      <span className="text-xs font-medium text-primary">Government Trusted</span>
     </div>
-    <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 border border-gray-200 shadow-soft">
-      <Heart className="w-5 h-5 text-red-500" />
-      <span className="text-sm font-medium text-primary">Healthcare Focus</span>
+    <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 border border-gray-200 shadow-sm">
+      <Heart className="w-4 h-4 text-red-500" />
+      <span className="text-xs font-medium text-primary">Healthcare Focus</span>
     </div>
-    <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 border border-gray-200 shadow-soft">
-      <Users className="w-5 h-5 text-blue-500" />
-      <span className="text-sm font-medium text-primary">Community Impact</span>
+    <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 border border-gray-200 shadow-sm">
+      <Users className="w-4 h-4 text-blue-500" />
+      <span className="text-xs font-medium text-primary">Community Impact</span>
     </div>
   </div>
 );
@@ -49,7 +49,7 @@ const HeroSection: React.FC = () => {
   );
 
   return (
-    <section className="relative bg-gradient-to-br from-gray-50 via-blue-50/30 to-cyan-50/30 min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative bg-gradient-to-br from-gray-50 via-blue-50/30 to-cyan-50/30 min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-accent/10 to-blue-500/10 rounded-full blur-3xl animate-float"></div>
@@ -68,55 +68,58 @@ const HeroSection: React.FC = () => {
       </div>
 
       <div className="relative z-10 container-custom text-center">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Animated Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 mb-8 border border-gray-200 shadow-soft animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-6 border border-gray-200 shadow-sm animate-fade-in">
             <Sparkles className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-primary">Next-Generation Civic Technology</span>
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 animate-fade-in text-primary" style={{ animationDelay: '0.1s' }}>
-            <span className="block">Smart.</span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in text-primary" style={{ animationDelay: '0.1s' }}>
+            <span className="block">Transforming</span>
             <span className="block text-transparent bg-gradient-to-r from-accent via-blue-600 to-purple-600 bg-clip-text">
-              Simple.
+              Governance
             </span>
-            <span className="block">Civic.</span>
+            <span className="block">Through Technology</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Empowering communities through innovative technology solutions for modern governance, 
-            healthcare delivery, and citizen engagement.
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            We deliver cutting-edge digital solutions that modernize public services, enhance citizen engagement, 
+            and drive innovation in healthcare and governance sectors.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <Button
               asChild
-              className="btn-primary group text-lg px-10 py-6 h-auto shadow-lg hover:shadow-xl"
+              size="lg"
+              className="bg-accent hover:bg-accent/90 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 group"
             >
-              <a href="#services" className="flex items-center gap-3">
-                Discover Solutions
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+              <a href="#services" className="flex items-center gap-2">
+                Explore Solutions
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
               </a>
             </Button>
             
             <Button
-              className="btn-secondary text-lg px-10 py-6 h-auto shadow-lg hover:shadow-xl"
+              variant="outline"
+              size="lg"
+              className="px-8 py-3 rounded-lg border-2 border-accent/20 hover:bg-accent/5 transition-all duration-200"
               onClick={handleGetInTouch}
             >
-              <Play className="w-5 h-5 mr-3" />
-              Watch Demo
+              <Calendar className="w-4 h-4 mr-2" />
+              Schedule Consultation
             </Button>
           </div>
 
           {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <StatsCard number="50+" label="Projects Delivered" />
             <StatsCard number="25+" label="Happy Clients" />
             <StatsCard number="98%" label="Success Rate" />
-            <StatsCard number="24/7" label="Support" />
+            <StatsCard number="24/7" label="Support Available" />
           </div>
 
           {/* Trust Badges */}
