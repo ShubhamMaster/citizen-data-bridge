@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SaveHereSection from '@/components/SaveHereSection';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { useWebsiteContent } from "@/hooks/useWebsiteContent"; // <-- Import custom hook
+import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import ScheduleCallDialog from "@/components/ScheduleCallDialog";
 
 const Contact = () => {
@@ -195,6 +196,7 @@ const Contact = () => {
         </div>
       </section>
 
+      <SaveHereSection />
       <Footer />
     </div>
   );

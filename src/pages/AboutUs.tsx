@@ -1,8 +1,8 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import UniformHeroSection from '@/components/UniformHeroSection';
+import SaveHereSection from '@/components/SaveHereSection';
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Target, Heart, Handshake, Lightbulb, Globe } from "lucide-react";
 
@@ -163,6 +163,7 @@ const About = () => {
         </div>
       </section>
 
+      <SaveHereSection />
       <Footer />
     </div>
   );

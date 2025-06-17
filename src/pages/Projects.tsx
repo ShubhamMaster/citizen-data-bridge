@@ -2,6 +2,7 @@
 import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SaveHereSection from "@/components/SaveHereSection";
 import { Link } from "react-router-dom";
 
 const projects = [
@@ -37,6 +38,7 @@ export default function ProjectsPage() {
           ))}
         </ul>
       </main>
+      <SaveHereSection />
       <Footer />
     </div>
   );

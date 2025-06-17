@@ -1,6 +1,7 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SaveHereSection from "@/components/SaveHereSection";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 
 const leadershipTeam = [
@@ -68,6 +69,8 @@ export default function Leadership() {
           ))}
         </section>
       </main>
+      
+      <SaveHereSection />
       <Footer />
     </div>
   );
