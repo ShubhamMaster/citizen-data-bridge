@@ -2,21 +2,21 @@
 import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, Heart, Users } from "lucide-react";
+import { ArrowRight, Shield, Heart, Users, Sparkles } from "lucide-react";
 
 const TrustBadges = () => (
-  <div className="flex items-center justify-center gap-6 flex-wrap mt-8">
-    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
-      <Shield className="w-4 h-4 text-success" />
-      <span className="text-sm font-medium text-muted-foreground">Government Trusted</span>
+  <div className="flex items-center justify-center gap-6 flex-wrap mt-12">
+    <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/20">
+      <Shield className="w-5 h-5 text-accent" />
+      <span className="text-sm font-medium text-white">Government Trusted</span>
     </div>
-    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
-      <Heart className="w-4 h-4 text-coral" />
-      <span className="text-sm font-medium text-muted-foreground">Healthcare Focus</span>
+    <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/20">
+      <Heart className="w-5 h-5 text-neon-pink" />
+      <span className="text-sm font-medium text-white">Healthcare Focus</span>
     </div>
-    <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft">
-      <Users className="w-4 h-4 text-primary" />
-      <span className="text-sm font-medium text-muted-foreground">Community Impact</span>
+    <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/20">
+      <Users className="w-5 h-5 text-neon-blue" />
+      <span className="text-sm font-medium text-white">Community Impact</span>
     </div>
   </div>
 );
@@ -42,61 +42,78 @@ const HeroSection: React.FC = () => {
   );
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-accent/10 overflow-hidden">
-      {/* Background Elements */}
+    <section className="relative hero-gradient text-white min-h-[100vh] flex items-center justify-center overflow-hidden">
+      {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl animate-float"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent/10 blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-purple/5 blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-accent/30 to-neon-blue/30 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tl from-neon-purple/30 to-accent/30 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-neon-pink/20 to-neon-blue/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <div 
+          className="w-full h-full"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        ></div>
       </div>
 
       <div className="relative z-10 container-custom text-center">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
+          {/* Animated Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-3 mb-8 border border-white/20 animate-fade-in">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span className="text-sm font-medium text-white">Next-Generation Civic Technology</span>
+          </div>
+
           {/* Main Heading */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
-            <span className="gradient-text">Smart. Simple.</span>
-            <br />
-            <span className="text-foreground">Civic.</span>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <span className="block">Smart.</span>
+            <span className="block text-transparent bg-gradient-to-r from-accent via-neon-blue to-neon-purple bg-clip-text">
+              Simple.
+            </span>
+            <span className="block">Civic.</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            Innovative technology solutions for thriving communities and modern healthcare systems.
+          <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            Empowering communities through innovative technology solutions for modern governance, 
+            healthcare delivery, and citizen engagement.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <Button
               asChild
-              size="lg"
-              className="btn-primary group text-lg px-8 py-4 h-auto"
+              className="btn-accent group text-lg px-10 py-5 h-auto"
             >
-              <a href="#services" className="flex items-center gap-2">
+              <a href="#services" className="flex items-center gap-3">
                 Discover Solutions
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
               </a>
             </Button>
             
             <Button
-              size="lg"
-              className="btn-secondary text-lg px-8 py-4 h-auto hover:shadow-glow"
+              className="btn-secondary text-lg px-10 py-5 h-auto"
               onClick={handleGetInTouch}
             >
-              Get in Touch
+              Get Started Today
             </Button>
           </div>
 
           {/* Trust Badges */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <TrustBadges />
           </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce-gentle">
-        <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-muted-foreground/50 rounded-full mt-2 animate-float"></div>
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-float">
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-float"></div>
         </div>
       </div>
     </section>

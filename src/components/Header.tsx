@@ -1,12 +1,11 @@
-
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NAVIGATION, NavMainItem, NavSubGroup } from "@/constants/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, close: () => void) => {
-  React.useEffect(() => {
+  useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) close();
     }
@@ -21,19 +20,19 @@ const SubMenuDesktop: React.FC<{
 }> = ({ subGroups, close }) => (
   <div
     role="menu"
-    className="bg-white rounded-xl shadow-soft-lg border border-border w-max px-2 py-4 flex flex-col gap-6 animate-slide-down z-50"
+    className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-glow border border-gray-100 w-max px-6 py-6 flex flex-col gap-6 animate-slide-up z-50 min-w-[280px]"
     tabIndex={-1}
     onKeyDown={e => { (e.key === "Escape") && close(); }}
   >
     {subGroups.map((group) => (
-      <div key={group.label} className="min-w-[180px]">
-        <span className="text-xs font-semibold text-primary uppercase tracking-wide pl-3 mb-2 block">{group.label}</span>
-        <ul className="space-y-1" role="group" aria-label={group.label}>
+      <div key={group.label}>
+        <span className="text-xs font-bold text-accent uppercase tracking-wide mb-3 block">{group.label}</span>
+        <ul className="space-y-2" role="group" aria-label={group.label}>
           {group.items.map((item) => (
             <li key={item.label}>
               <NavLinkItem 
                 to={item.href} 
-                className="block text-foreground px-3 py-2.5 rounded-lg hover:bg-primary/5 hover:text-primary font-medium text-sm transition-all duration-200" 
+                className="block text-foreground px-4 py-3 rounded-xl hover:bg-accent/10 hover:text-accent font-medium text-sm transition-all duration-200" 
                 onClick={close}
               >
                 {item.label}
@@ -57,7 +56,7 @@ const SubMenuMobile: React.FC<{
       {subGroups.map(group => (
         <div key={group.label}>
           <button
-            className="w-full text-left py-3 px-3 rounded-lg flex justify-between items-center font-semibold text-sm text-primary hover:bg-primary/5 transition-colors duration-200"
+            className="w-full text-left py-3 px-4 rounded-xl flex justify-between items-center font-semibold text-sm text-accent hover:bg-accent/10 transition-colors duration-200"
             onClick={() => setOpenGroup(openGroup === group.label ? null : group.label)}
             aria-expanded={openGroup === group.label}
             aria-controls={`mobile-group-${group.label}`}
@@ -68,7 +67,7 @@ const SubMenuMobile: React.FC<{
           </button>
           <div
             id={`mobile-group-${group.label}`}
-            className="overflow-hidden transition-all duration-300 border-l-2 border-primary/20 ml-3"
+            className="overflow-hidden transition-all duration-300 border-l-2 border-accent/20 ml-3"
             style={{
               maxHeight: openGroup === group.label ? 400 : 0,
             }}
@@ -79,7 +78,7 @@ const SubMenuMobile: React.FC<{
                 <li key={item.label}>
                   <NavLinkItem
                     to={item.href}
-                    className="block px-6 py-2.5 text-muted-foreground rounded-lg hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                    className="block px-6 py-3 text-muted-foreground rounded-xl hover:bg-accent/10 hover:text-accent transition-all duration-200"
                     onClick={closeMenu}
                   >
                     {item.label}
@@ -101,16 +100,20 @@ const NavLinkItem: React.FC<React.PropsWithChildren<{ to: string; className?: st
   onClick,
 }) => {
   const location = useLocation();
-  const active =
-    to !== "/" && location.pathname.startsWith(to)
-      ? true
-      : location.pathname === to;
-  const base = "transition-all duration-200 focus-ring";
-  const activeStyle = active
-    ? "text-primary font-semibold bg-primary/10"
-    : "";
+  
+  // Check if current path matches the link (for main nav items)
+  const isActive = location.pathname === to;
+  
+  // Check if we're in a sub-page of this main section
+  const isInSection = to !== "/" && location.pathname.startsWith(to);
+  
+  const active = isActive || isInSection;
+  
+  const baseStyle = "transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent rounded-xl";
+  const activeStyle = active ? "text-accent font-bold bg-accent/10" : "";
+  
   return (
-    <Link to={to} className={`${base} ${activeStyle} ${className ?? ""}`} onClick={onClick}>
+    <Link to={to} className={`${baseStyle} ${activeStyle} ${className ?? ""}`} onClick={onClick}>
       {children}
     </Link>
   );
@@ -129,7 +132,7 @@ export const Header: React.FC = () => {
 
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDesktopDropdownOpen(null);
@@ -141,37 +144,49 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMobileOpen(false);
     setMobileDropdownOpen(null);
     setDesktopDropdownOpen(null);
   }, [location.pathname]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mobileOpen) {
       setMobileDropdownOpen(null);
       setMobileOpenGroup({});
     }
   }, [mobileOpen]);
 
+  // Check if current location matches any dropdown item to keep parent highlighted
+  const isInDropdownSection = (main: NavMainItem) => {
+    if (!main.subGroups) return false;
+    
+    return main.subGroups.some(group => 
+      group.items.some(item => {
+        if (item.href === "/") return location.pathname === "/";
+        return location.pathname.startsWith(item.href);
+      })
+    );
+  };
+
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-border shadow-soft">
+    <header className="sticky top-0 z-50 navbar-glass">
       <div className="container-custom flex items-center justify-between py-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 focus-ring rounded-lg" tabIndex={0}>
+        <Link to="/" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-accent rounded-xl p-2" tabIndex={0}>
           <img 
             src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
             alt="Civora Nexus Logo" 
             className="w-10 h-10 object-contain" 
           />
           <div>
-            <span className="text-xl font-bold text-foreground font-heading">Civora Nexus</span>
-            <span className="block text-xs text-primary font-semibold uppercase tracking-wide">Pvt Ltd</span>
+            <span className="text-xl font-bold text-primary font-heading">Civora Nexus</span>
+            <span className="block text-xs text-accent font-semibold uppercase tracking-wide">Pvt Ltd</span>
           </div>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex gap-1 items-center ml-10" role="navigation" aria-label="Main menu">
+        <nav className="hidden lg:flex gap-2 items-center ml-10" role="navigation" aria-label="Main menu">
           {NAVIGATION.map((main) =>
             main.subGroups ? (
               <div
@@ -182,7 +197,7 @@ export const Header: React.FC = () => {
                   setDesktopDropdownOpen(main.label);
                 }}
                 onMouseLeave={() => {
-                  dropdownTimeout.current = setTimeout(() => setDesktopDropdownOpen(null), 150);
+                  dropdownTimeout.current = setTimeout(() => setDesktopDropdownOpen(null), 200);
                 }}
                 onFocus={() => setDesktopDropdownOpen(main.label)}
                 onBlur={(e) => {
@@ -195,10 +210,10 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setDesktopDropdownOpen(desktopDropdownOpen === main.label ? null : main.label)}
-                  className={`px-4 py-3 text-sm font-semibold rounded-lg flex items-center gap-2 transition-all duration-200 focus-ring
-                    ${desktopDropdownOpen === main.label 
-                      ? "text-primary bg-primary/10" 
-                      : "text-foreground hover:bg-muted hover:text-primary"}`}
+                  className={`px-6 py-3 text-sm font-semibold rounded-xl flex items-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent
+                    ${(desktopDropdownOpen === main.label || isInDropdownSection(main))
+                      ? "text-accent bg-accent/10 font-bold" 
+                      : "text-foreground hover:bg-muted hover:text-accent"}`}
                   aria-haspopup="menu"
                   aria-expanded={desktopDropdownOpen === main.label ? true : undefined}
                   aria-controls={`dropdown-${main.label}`}
@@ -210,7 +225,7 @@ export const Header: React.FC = () => {
                   <div
                     id={`dropdown-${main.label}`}
                     ref={dropdownRef}
-                    className="absolute left-0 mt-2 z-50"
+                    className="relative z-50"
                   >
                     <SubMenuDesktop subGroups={main.subGroups} close={() => setDesktopDropdownOpen(null)} />
                   </div>
@@ -220,7 +235,7 @@ export const Header: React.FC = () => {
               <NavLinkItem 
                 to={main.href ?? "#"} 
                 key={main.label} 
-                className="px-4 py-3 text-sm font-semibold rounded-lg text-foreground hover:bg-muted hover:text-primary"
+                className="px-6 py-3 text-sm font-semibold rounded-xl text-foreground hover:bg-muted hover:text-accent"
               >
                 {main.label}
               </NavLinkItem>
@@ -229,7 +244,7 @@ export const Header: React.FC = () => {
           
           {/* Login Button */}
           <Link to="/login" className="ml-6">
-            <Button className="btn-primary">
+            <Button className="btn-primary text-sm px-6 py-3">
               Login
             </Button>
           </Link>
@@ -237,7 +252,7 @@ export const Header: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="lg:hidden p-2 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-colors duration-200 focus-ring"
+          className="lg:hidden p-3 rounded-xl text-foreground hover:bg-muted hover:text-accent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
           aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-controls="mobile-menu"
           aria-expanded={mobileOpen}
@@ -250,7 +265,7 @@ export const Header: React.FC = () => {
       {/* Mobile Menu */}
       <nav
         id="mobile-menu"
-        className={`lg:hidden transition-all duration-300 bg-white border-t border-border ${
+        className={`lg:hidden transition-all duration-300 bg-white border-t border-gray-100 ${
           mobileOpen ? "max-h-[80vh] py-6 px-4" : "max-h-0 overflow-hidden"
         }`}
         aria-hidden={!mobileOpen}
@@ -262,7 +277,7 @@ export const Header: React.FC = () => {
               <li key={main.label}>
                 <button
                   type="button"
-                  className="w-full flex justify-between items-center px-4 py-3 rounded-lg font-semibold transition-colors duration-200 focus-ring text-foreground hover:bg-muted"
+                  className="w-full flex justify-between items-center px-4 py-3 rounded-xl font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent text-foreground hover:bg-muted"
                   onClick={() => {
                     setMobileDropdownOpen(mobileDropdownOpen === main.label ? null : main.label);
                   }}
@@ -297,7 +312,7 @@ export const Header: React.FC = () => {
               <li key={main.label}>
                 <NavLinkItem
                   to={main.href ?? "#"}
-                  className="block px-4 py-3 font-semibold text-foreground rounded-lg hover:bg-muted hover:text-primary"
+                  className="block px-4 py-3 font-semibold text-foreground rounded-xl hover:bg-muted hover:text-accent"
                   onClick={() => setMobileOpen(false)}
                 >
                   {main.label}
