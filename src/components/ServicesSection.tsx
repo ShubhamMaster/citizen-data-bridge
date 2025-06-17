@@ -44,7 +44,7 @@ const ServicesSection: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="section-padding bg-muted/30">
+      <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="flex items-center justify-center min-h-[320px]">
             <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
@@ -60,7 +60,7 @@ const ServicesSection: React.FC = () => {
     : fallbackServices;
 
   return (
-    <section id="services" className="section-padding bg-background">
+    <section id="services" className="section-padding bg-white">
       <div className="container-custom">
         {/* Section Header */}
         <div className="text-center mb-20 max-w-4xl mx-auto">
@@ -83,13 +83,13 @@ const ServicesSection: React.FC = () => {
             return (
               <div 
                 key={idx}
-                className="group card-modern p-8 text-center animate-fade-in hover:scale-105 transition-all duration-300"
+                className="group bg-white border border-gray-100 rounded-2xl p-8 text-center animate-fade-in hover:shadow-glow hover:border-accent/20 transition-all duration-300"
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
                 {/* Icon */}
                 {IconComponent && (
                   <div className="relative mb-8 mx-auto w-20 h-20 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-neon-blue/20 to-neon-purple/20 rounded-2xl group-hover:scale-110 transition-transform duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-blue-500/10 to-purple-500/10 rounded-2xl group-hover:scale-110 transition-transform duration-300"></div>
                     <IconComponent className="relative w-10 h-10 text-accent group-hover:scale-110 transition-transform duration-300" strokeWidth={1.5} />
                   </div>
                 )}
@@ -104,7 +104,7 @@ const ServicesSection: React.FC = () => {
 
                 {/* Hover Effect */}
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-12 h-1 bg-gradient-to-r from-accent to-neon-blue mx-auto rounded-full"></div>
+                  <div className="w-12 h-1 bg-gradient-to-r from-accent to-blue-500 mx-auto rounded-full"></div>
                 </div>
               </div>
             );
@@ -113,7 +113,7 @@ const ServicesSection: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="card-glass p-10 max-w-3xl mx-auto">
+          <div className="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-2xl p-10 max-w-3xl mx-auto border border-gray-100">
             <h3 className="text-3xl font-bold text-primary mb-4">
               Ready to Transform Your Community?
             </h3>
@@ -121,11 +121,11 @@ const ServicesSection: React.FC = () => {
               Let's discuss how our innovative solutions can help your organization achieve its digital transformation goals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="btn-primary flex items-center gap-3">
+              <button className="btn-primary flex items-center gap-3 justify-center">
                 Schedule a Consultation
                 <ArrowRight className="w-5 h-5" />
               </button>
-              <button className="btn-secondary">
+              <button className="btn-secondary justify-center">
                 View Case Studies
               </button>
             </div>
