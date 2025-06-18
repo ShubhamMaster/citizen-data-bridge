@@ -1,20 +1,17 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 const Privacy = () => {
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Header />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-civora-navy to-civora-navy/90 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-3xl lg:text-5xl font-bold mb-4">Privacy Policy</h1>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+            <h1 className="text-3xl lg:text-5xl font-bold mb-4 text-gray-950">Privacy Policy</h1>
+            <p className="text-xl max-w-3xl mx-auto text-gray-600">
               Your privacy is important to us. Learn how we protect your information.
             </p>
           </div>
@@ -113,8 +110,6 @@ const Privacy = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Privacy;
