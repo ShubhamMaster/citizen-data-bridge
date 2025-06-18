@@ -115,17 +115,7 @@ const Terms = () => {
           </div>
 
           {/* Footer CTA */}
-          <div className="mt-16 text-center p-8 bg-gradient-to-r from-civora-navy/5 to-civora-teal/5 rounded-2xl border border-civora-teal/20">
-            <h3 className="text-2xl font-bold text-civora-navy mb-4">Questions about our Terms?</h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We're here to help clarify any questions you may have about our terms of service. 
-              Don't hesitate to reach out to our legal team.
-            </p>
-            <a href="mailto:civoranexus@gmail.com" className="inline-flex items-center gap-2 bg-gradient-to-r from-civora-teal to-cyan-500 hover:from-civora-teal/90 hover:to-cyan-500/90 text-white px-8 py-3 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-              <Mail className="w-5 h-5" />
-              Contact Legal Team
-            </a>
-          </div>
+          
         </div>
       </section>
 
