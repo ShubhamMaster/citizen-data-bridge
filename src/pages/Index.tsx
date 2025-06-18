@@ -1,130 +1,155 @@
 
 import React, { Suspense } from 'react';
-import ModernHeader from '@/components/ModernHeader';
-import ModernHeroSection from '@/components/ModernHeroSection';
-import Footer from '@/components/Footer';
-import SaveHereSection from '@/components/SaveHereSection';
+import ProfessionalHeader from '@/components/ProfessionalHeader';
+import ProfessionalHeroSection from '@/components/ProfessionalHeroSection';
+import ProfessionalFooter from '@/components/ProfessionalFooter';
 import { PageSkeleton } from '@/components/SkeletonLoader';
-import { ArrowRight, Briefcase, Users, Rocket, Heart, Code, Lightbulb } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowRight, Code, Users, Rocket, Brain, Shield, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const ServiceCard = ({ icon: Icon, title, description, href, color }: {
+const ServiceCard = ({ icon: Icon, title, description, href, tags }: {
   icon: any;
   title: string;
   description: string;
   href: string;
-  color: string;
+  tags: string[];
 }) => (
   <Link to={href} className="group">
-    <div className="card-modern hover:shadow-large transition-all duration-300 group-hover:-translate-y-2">
-      <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-        <Icon className="w-7 h-7 text-white" />
+    <div className="card-professional group-hover:shadow-large transition-all duration-300">
+      <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+        <Icon className="w-6 h-6 text-blue-600" />
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-accent transition-colors">
+      <h3 className="text-lg font-semibold text-neutral-800 mb-3 group-hover:text-blue-600 transition-colors">
         {title}
       </h3>
-      <p className="text-gray-600 leading-relaxed mb-6">
+      <p className="text-neutral-600 mb-4 text-sm leading-relaxed">
         {description}
       </p>
-      <div className="flex items-center text-accent font-semibold group-hover:gap-3 transition-all duration-200">
+      <div className="flex flex-wrap gap-2 mb-4">
+        {tags.map((tag) => (
+          <span key={tag} className="tag text-xs">
+            {tag}
+          </span>
+        ))}
+      </div>
+      <div className="flex items-center text-blue-600 font-medium text-sm group-hover:gap-2 transition-all duration-200">
         Learn More
-        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
       </div>
     </div>
   </Link>
 );
 
-const FeatureCard = ({ icon: Icon, title, description }: {
-  icon: any;
+const OpportunityCard = ({ title, description, href, tags }: {
   title: string;
   description: string;
+  href: string;
+  tags: string[];
 }) => (
-  <div className="text-center">
-    <div className="w-16 h-16 bg-gradient-to-br from-accent/10 to-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-      <Icon className="w-8 h-8 text-accent" />
+  <Link to={href} className="group">
+    <div className="card-professional group-hover:shadow-large transition-all duration-300 text-center">
+      <h3 className="text-lg font-semibold text-neutral-800 mb-3 group-hover:text-blue-600 transition-colors">
+        {title}
+      </h3>
+      <p className="text-neutral-600 mb-4 text-sm">
+        {description}
+      </p>
+      <div className="flex flex-wrap gap-2 justify-center mb-4">
+        {tags.map((tag) => (
+          <span key={tag} className="tag text-xs">
+            {tag}
+          </span>
+        ))}
+      </div>
+      <div className="inline-flex items-center text-blue-600 font-medium text-sm group-hover:gap-2 transition-all duration-200">
+        Explore
+        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
+      </div>
     </div>
-    <h3 className="text-xl font-semibold text-gray-900 mb-4">{title}</h3>
-    <p className="text-gray-600 leading-relaxed">{description}</p>
-  </div>
+  </Link>
 );
 
 const Index = () => {
   const services = [
     {
-      icon: Code,
+      icon: Brain,
       title: "AI Solutions",
-      description: "Cutting-edge artificial intelligence solutions that transform business processes and enhance decision-making capabilities.",
-      href: "/services/ai-solutions",
-      color: "bg-gradient-to-br from-blue-500 to-indigo-600"
+      description: "Intelligent systems that transform business processes and enhance decision-making capabilities through advanced artificial intelligence.",
+      href: "/services",
+      tags: ["AI", "Machine Learning", "Automation"]
     },
     {
-      icon: Rocket,
-      title: "SaaS Development",
-      description: "Scalable software-as-a-service platforms built with modern technologies and best practices.",
-      href: "/services/saas-development",
-      color: "bg-gradient-to-br from-purple-500 to-pink-600"
+      icon: Code,
+      title: "Web Development",
+      description: "Modern, responsive web applications built with cutting-edge technologies and best practices for optimal performance.",
+      href: "/services",
+      tags: ["React", "Full-Stack", "Responsive"]
     },
     {
-      icon: Lightbulb,
-      title: "Innovation Lab",
-      description: "Research and development initiatives that push the boundaries of technology and create tomorrow's solutions.",
-      href: "/innovation-lab",
-      color: "bg-gradient-to-br from-amber-500 to-orange-600"
+      icon: Shield,
+      title: "Civic Technology",
+      description: "Digital solutions for government and public sector organizations to improve citizen engagement and service delivery.",
+      href: "/services",
+      tags: ["e-Governance", "Public Sector", "Digital Services"]
     }
   ];
 
-  const features = [
+  const opportunities = [
     {
-      icon: Users,
-      title: "Expert Team",
-      description: "Work with experienced professionals who are passionate about delivering exceptional results."
+      title: "Internships",
+      description: "Start your career journey with hands-on experience in cutting-edge technology projects.",
+      href: "/internships",
+      tags: ["Remote", "Paid", "3-6 Months"]
     },
     {
-      icon: Heart,
-      title: "Client-Focused",
-      description: "We prioritize your success and build long-lasting partnerships based on trust and excellence."
+      title: "Projects",
+      description: "Explore our innovative solutions and contribute to impactful technology initiatives.",
+      href: "/projects",
+      tags: ["Open Source", "Innovation", "Collaboration"]
     },
     {
-      icon: Briefcase,
-      title: "Proven Results",
-      description: "Track record of successful projects and satisfied clients across various industries."
+      title: "Careers",
+      description: "Join our team of passionate professionals building the future of technology.",
+      href: "/careers",
+      tags: ["Full-Time", "Remote", "Growth"]
     }
   ];
 
   return (
     <Suspense fallback={<PageSkeleton />}>
       <div className="min-h-screen bg-background">
-        <ModernHeader />
+        <ProfessionalHeader />
         
         <main>
           {/* Hero Section */}
-          <ModernHeroSection
+          <ProfessionalHeroSection
             title="Empowering Your Digital Vision"
             subtitle="Transform Ideas Into Reality"
             description="We deliver cutting-edge digital solutions that modernize businesses, enhance user experiences, and drive innovation across industries."
-            primaryCTA={{ text: "Get Started", href: "/contact" }}
-            secondaryCTA={{ text: "View Our Work", href: "/projects" }}
+            primaryCTA={{ text: "Explore Services", href: "/services" }}
+            secondaryCTA={{ text: "Get In Touch", href: "/contact" }}
+            showStats={true}
+            tags={["Innovation", "Technology", "Professional"]}
           />
           
           {/* Services Section */}
-          <section className="section-padding bg-white">
-            <div className="container-modern">
-              <div className="text-center mb-16 animate-fade-in">
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                  Our <span className="text-gradient">Services</span>
+          <section className="section-professional bg-white">
+            <div className="container-professional">
+              <div className="text-center mb-12 animate-fade-in">
+                <h2 className="text-neutral-800 mb-4">
+                  Our <span className="text-blue-600">Services</span>
                 </h2>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
                   Comprehensive digital solutions designed to accelerate your business growth and technological advancement.
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {services.map((service, index) => (
                   <div
                     key={service.title}
                     className="animate-fade-in"
-                    style={{ animationDelay: `${index * 0.2}s` }}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <ServiceCard {...service} />
                   </div>
@@ -133,26 +158,26 @@ const Index = () => {
             </div>
           </section>
 
-          {/* Features Section */}
-          <section className="section-padding bg-gray-50">
-            <div className="container-modern">
-              <div className="text-center mb-16 animate-fade-in">
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                  Why Choose <span className="text-gradient">Civora Nexus</span>
+          {/* Opportunities Section */}
+          <section className="section-professional bg-neutral-50">
+            <div className="container-professional">
+              <div className="text-center mb-12 animate-fade-in">
+                <h2 className="text-neutral-800 mb-4">
+                  <span className="text-blue-600">Opportunities</span> Await
                 </h2>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  We combine technical expertise with strategic thinking to deliver solutions that drive real business value.
+                <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
+                  Discover ways to grow your career, contribute to innovative projects, and be part of our mission.
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                {features.map((feature, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {opportunities.map((opportunity, index) => (
                   <div
-                    key={feature.title}
+                    key={opportunity.title}
                     className="animate-fade-in"
-                    style={{ animationDelay: `${index * 0.2}s` }}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <FeatureCard {...feature} />
+                    <OpportunityCard {...opportunity} />
                   </div>
                 ))}
               </div>
@@ -160,34 +185,36 @@ const Index = () => {
           </section>
 
           {/* CTA Section */}
-          <section className="section-padding bg-white">
-            <div className="container-modern">
-              <div className="card-gradient gradient-primary text-center animate-fade-in">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                  Ready to Transform Your Business?
-                </h2>
-                <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
-                  Join the companies that trust Civora Nexus to deliver innovative solutions that drive growth and success.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/contact">
-                    <Button className="bg-white text-accent hover:bg-gray-100 px-8 py-3 rounded-2xl font-semibold">
-                      Start Your Project
-                    </Button>
-                  </Link>
-                  <Link to="/careers">
-                    <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8 py-3 rounded-2xl font-semibold">
-                      Join Our Team
-                    </Button>
-                  </Link>
+          <section className="section-professional bg-gradient-to-br from-blue-50 to-teal-50">
+            <div className="container-professional">
+              <div className="card-professional max-w-4xl mx-auto text-center bg-white/80 backdrop-blur-sm">
+                <div className="animate-fade-in">
+                  <h2 className="text-neutral-800 mb-4">
+                    Ready to Transform Your Business?
+                  </h2>
+                  <p className="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
+                    Join the companies that trust Civora Nexus to deliver innovative solutions that drive growth and success.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link to="/contact">
+                      <button className="btn-primary">
+                        Start Your Project
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </button>
+                    </Link>
+                    <Link to="/careers">
+                      <button className="btn-secondary">
+                        Join Our Team
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </section>
         </main>
         
-        <SaveHereSection />
-        <Footer />
+        <ProfessionalFooter />
       </div>
     </Suspense>
   );
