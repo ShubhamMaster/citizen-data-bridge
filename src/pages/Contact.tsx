@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import ScheduleCallDialog from "@/components/ScheduleCallDialog";
-
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -21,26 +20,24 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
 
   // Fetch contact info from Supabase
-  const { content } = useWebsiteContent("contact");
+  const {
+    content
+  } = useWebsiteContent("contact");
   const email = content?.email || "civoranexus@gmail.com";
   const phone = content?.phone || "+91 XXX XXX XXXX";
   const address = content?.address || "India";
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     // Insert contact message into Supabase
-    const { error } = await supabase
-      .from("contact_messages")
-      .insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-        }
-      ]);
-
+    const {
+      error
+    } = await supabase.from("contact_messages").insert([{
+      name: formData.name,
+      email: formData.email,
+      message: formData.message
+    }]);
     if (error) {
       toast({
         title: "Error",
@@ -50,30 +47,31 @@ const Contact = () => {
     } else {
       toast({
         title: "Message sent!",
-        description: "Thank you for contacting us. We'll be in touch soon.",
+        description: "Thank you for contacting us. We'll be in touch soon."
       });
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({
+        name: '',
+        email: '',
+        message: ''
+      });
     }
     setLoading(false);
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Header />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-civora-navy to-civora-navy/90 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">Contact Us</h1>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+            <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-gray-950">Contact Us</h1>
+            <p className="text-xl max-w-3xl mx-auto text-gray-800">
               Ready to transform your community with innovative technology solutions?
             </p>
           </div>
@@ -93,43 +91,17 @@ const Contact = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="mt-1"
-                      disabled={loading}
-                    />
+                    <Input id="name" name="name" value={formData.name} onChange={handleChange} required className="mt-1" disabled={loading} />
                   </div>
                   
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="mt-1"
-                      disabled={loading}
-                    />
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required className="mt-1" disabled={loading} />
                   </div>
                   
                   <div>
                     <Label htmlFor="message">Message</Label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={6}
-                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-civora-teal focus:border-transparent"
-                      disabled={loading}
-                    />
+                    <textarea id="message" name="message" value={formData.message} onChange={handleChange} required rows={6} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-civora-teal focus:border-transparent" disabled={loading} />
                   </div>
                   
                   <Button type="submit" className="w-full bg-civora-teal hover:bg-civora-teal/90" disabled={loading}>
@@ -198,8 +170,6 @@ const Contact = () => {
 
       <SaveHereSection />
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Contact;
