@@ -1,18 +1,15 @@
-
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
 export default function Partners() {
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Header />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-civora-navy to-civora-navy/90 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-3xl lg:text-5xl font-bold mb-4">Our Partners</h1>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+            <h1 className="text-3xl lg:text-5xl font-bold mb-4 text-gray-950">Our Partners</h1>
+            <p className="text-xl max-w-3xl mx-auto text-gray-600">
               Building strong partnerships to create meaningful impact in communities and healthcare sectors.
             </p>
           </div>
@@ -33,6 +30,5 @@ export default function Partners() {
         </div>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 }
