@@ -154,8 +154,8 @@ const Contact = () => {
 
               <Card className="bg-civora-navy text-white p-6">
                 <CardContent>
-                  <h3 className="text-xl font-semibold mb-3">Ready to Start?</h3>
-                  <p className="mb-4">
+                  <h3 className="text-xl font-semibold mb-3 text-gray-950">Ready to Start?</h3>
+                  <p className="mb-4 font-normal text-gray-600">
                     Let's discuss how we can help transform your organization with innovative technology solutions.
                   </p>
                   <div className="w-full sm:w-auto">
