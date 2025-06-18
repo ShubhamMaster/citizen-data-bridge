@@ -1,15 +1,12 @@
-
 import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-
 const LifeAtCivora = () => {
-  return (
-    <div className="min-h-screen bg-white flex flex-col">
+  return <div className="min-h-screen bg-white flex flex-col">
       <Header />
       <main className="flex-1 max-w-3xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-civora-navy mb-8 text-center">
+        <h1 className="font-bold text-civora-navy mb-8 text-center text-6xl">
           Life at Civora
         </h1>
         <Card>
@@ -32,7 +29,6 @@ const LifeAtCivora = () => {
         </Card>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
 export default LifeAtCivora;
