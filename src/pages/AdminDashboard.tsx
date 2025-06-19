@@ -11,6 +11,8 @@ import JobManagement from "@/components/JobManagement";
 import AdminProfilePage from "@/components/AdminProfilePage";
 import SalaryInquiriesTab from "@/components/admin/SalaryInquiriesTab";
 import TechnicalSupportTab from "@/components/admin/TechnicalSupportTab";
+import ContactMessagesTab from "@/components/admin/ContactMessagesTab";
+import ScheduledCallsTab from "@/components/admin/ScheduledCallsTab";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -22,7 +24,8 @@ import {
   DollarSign,
   Headphones,
   BarChart3,
-  Activity
+  Activity,
+  Database
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -32,6 +35,8 @@ const AdminDashboard = () => {
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
+    // Update the URL path as well for deep linking
+    navigate(`/admin/${value}`);
   };
 
   // Fetch dashboard stats
@@ -137,7 +142,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-none lg:flex lg:flex-wrap gap-1">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8 lg:w-auto lg:flex lg:flex-wrap gap-1">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -161,6 +166,14 @@ const AdminDashboard = () => {
             <TabsTrigger value="support" className="flex items-center gap-2">
               <Headphones className="h-4 w-4" />
               <span className="hidden sm:inline">Support</span>
+            </TabsTrigger>
+            <TabsTrigger value="scheduled-calls" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Scheduled</span>
+            </TabsTrigger>
+            <TabsTrigger value="contact-messages" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Contact</span>
             </TabsTrigger>
           </TabsList>
 
@@ -291,6 +304,14 @@ const AdminDashboard = () => {
 
           <TabsContent value="support">
             <TechnicalSupportTab />
+          </TabsContent>
+
+          <TabsContent value="scheduled-calls">
+            <ScheduledCallsTab />
+          </TabsContent>
+
+          <TabsContent value="contact-messages">
+            <ContactMessagesTab />
           </TabsContent>
         </Tabs>
       </div>
