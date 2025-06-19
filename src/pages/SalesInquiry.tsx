@@ -1,127 +1,126 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import UniformHeroSection from "@/components/UniformHeroSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Users, Zap, Shield, Clock, CheckCircle, ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useCreateSalaryInquiry } from "@/hooks/useSalaryInquiries";
+import { 
+  Users, 
+  DollarSign, 
+  Phone, 
+  Mail,
+  Building,
+  Clock,
+  CheckCircle,
+  MessageCircle
+} from "lucide-react";
 
 const SalesInquiry = () => {
+  const navigate = useNavigate();
+  const createInquiry = useCreateSalaryInquiry();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    company: '',
     phone: '',
-    role: '',
-    companySize: '',
-    budget: '',
-    timeline: '',
-    services: [],
-    message: ''
+    job_title: '',
+    department: '',
+    experience_years: '',
+    current_salary: '',
+    expected_salary: '',
+    additional_info: ''
   });
-  const [loading, setLoading] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
 
-    const { error } = await supabase.from("contact_messages").insert([{
-      name: formData.name,
-      email: formData.email,
-      message: `SALES INQUIRY
-Company: ${formData.company}
-Role: ${formData.role}
-Phone: ${formData.phone}
-Company Size: ${formData.companySize}
-Budget Range: ${formData.budget}
-Timeline: ${formData.timeline}
-Services of Interest: ${formData.services.join(', ')}
-
-Message: ${formData.message}`
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "We couldn't send your inquiry. Please try again.",
-        variant: "destructive"
+    try {
+      await createInquiry.mutateAsync({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        job_title: formData.job_title || null,
+        department: formData.department,
+        experience_years: formData.experience_years ? parseInt(formData.experience_years) : null,
+        current_salary: formData.current_salary || null,
+        expected_salary: formData.expected_salary || null,
+        additional_info: formData.additional_info || null,
       });
-    } else {
-      toast({
-        title: "Inquiry sent!",
-        description: "Thank you for your interest. Our sales team will contact you within 4 hours during business hours."
-      });
+
+      // Reset form
       setFormData({
         name: '',
         email: '',
-        company: '',
         phone: '',
-        role: '',
-        companySize: '',
-        budget: '',
-        timeline: '',
-        services: [],
-        message: ''
+        job_title: '',
+        department: '',
+        experience_years: '',
+        current_salary: '',
+        expected_salary: '',
+        additional_info: ''
       });
+
+      // Navigate to thank you page or show success
+      setTimeout(() => {
+        navigate('/careers');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting inquiry:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setLoading(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const departments = [
+    "Engineering",
+    "Product Management", 
+    "Design",
+    "Marketing",
+    "Sales",
+    "Operations",
+    "Data Science",
+    "DevOps",
+    "Quality Assurance",
+    "Business Development",
+    "Human Resources",
+    "Finance"
+  ];
 
-  const handleServiceChange = (service: string) => {
-    const updatedServices = formData.services.includes(service)
-      ? formData.services.filter(s => s !== service)
-      : [...formData.services, service];
-    
-    setFormData({
-      ...formData,
-      services: updatedServices
-    });
-  };
+  const experienceRanges = [
+    "0-1", "1-2", "2-3", "3-5", "5-7", "7-10", "10+"
+  ];
 
-  const benefits = [
+  const features = [
     {
-      icon: <Zap className="h-6 w-6 text-accent" />,
-      title: "Fast Response",
-      description: "Get a personalized response within 4 hours during business hours"
+      icon: <Clock className="h-6 w-6 text-accent" />,
+      title: "Quick Response",
+      description: "We respond to all inquiries within 24-48 hours"
     },
     {
       icon: <Users className="h-6 w-6 text-accent" />,
-      title: "Expert Consultation",
-      description: "Speak directly with our solution architects and technical experts"
+      title: "Expert Team",
+      description: "Connect directly with our hiring managers and team leads"
     },
     {
-      icon: <Shield className="h-6 w-6 text-accent" />,
-      title: "Tailored Solutions",
-      description: "Custom proposals designed specifically for your business needs"
-    },
-    {
-      icon: <Clock className="h-6 w-6 text-accent" />,
-      title: "No Commitment",
-      description: "Free consultation with no obligation to purchase"
+      icon: <CheckCircle className="h-6 w-6 text-accent" />,
+      title: "Transparent Process",
+      description: "Clear communication throughout the entire process"
     }
-  ];
-
-  const services = [
-    "AI Solutions",
-    "SaaS Development", 
-    "Cloud Hosting",
-    "Automation",
-    "Custom Integrations",
-    "Data Analytics",
-    "Mobile App Development",
-    "Digital Transformation Consulting"
   ];
 
   return (
@@ -130,288 +129,241 @@ Message: ${formData.message}`
       
       <UniformHeroSection
         title="Talk to Our Sales Team"
-        subtitle="Ready to transform your business with innovative technology solutions? Let's discuss how we can help you achieve your goals with our cutting-edge services."
-        breadcrumb="Contact / Sales"
+        subtitle="Interested in working with us? Submit your details and salary expectations. We'll get back to you with opportunities that match your profile."
+        breadcrumb="Contact / Sales Inquiry"
       />
 
-      {/* Benefits Section */}
+      {/* Features Section */}
       <section className="section-padding-sm bg-muted/30">
         <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-2xl flex items-center justify-center">
-                  {benefit.icon}
-                </div>
-                <h3 className="font-semibold text-primary mb-2">{benefit.title}</h3>
-                <p className="text-sm text-muted-foreground">{benefit.description}</p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="card-modern text-center">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    {feature.icon}
+                  </div>
+                  <h3 className="font-semibold text-primary mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Sales Form */}
+      {/* Form Section */}
       <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Form */}
-            <div className="lg:col-span-2">
-              <Card className="card-modern shadow-glow">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-primary">Tell Us About Your Project</CardTitle>
-                  <p className="text-muted-foreground">
-                    Provide details about your business and requirements so we can prepare a tailored proposal.
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Personal Information */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary mb-4">Contact Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="name">Full Name *</Label>
-                          <Input 
-                            id="name" 
-                            name="name" 
-                            value={formData.name} 
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="email">Business Email *</Label>
-                          <Input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <Label htmlFor="phone">Phone Number</Label>
-                          <Input 
-                            id="phone" 
-                            name="phone" 
-                            type="tel" 
-                            value={formData.phone} 
-                            onChange={handleChange} 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="role">Your Role *</Label>
-                          <select 
-                            id="role" 
-                            name="role" 
-                            value={formData.role} 
-                            onChange={handleChange}
-                            required
-                            className="mt-1 w-full input-modern"
-                            disabled={loading}
-                          >
-                            <option value="">Select your role</option>
-                            <option value="ceo">CEO/President</option>
-                            <option value="cto">CTO/Technical Lead</option>
-                            <option value="manager">Manager/Director</option>
-                            <option value="developer">Developer/Engineer</option>
-                            <option value="consultant">Consultant</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Company Information */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary mb-4">Company Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="company">Company Name *</Label>
-                          <Input 
-                            id="company" 
-                            name="company" 
-                            value={formData.company} 
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="companySize">Company Size</Label>
-                          <select 
-                            id="companySize" 
-                            name="companySize" 
-                            value={formData.companySize} 
-                            onChange={handleChange}
-                            className="mt-1 w-full input-modern"
-                            disabled={loading}
-                          >
-                            <option value="">Select company size</option>
-                            <option value="1-10">1-10 employees</option>
-                            <option value="11-50">11-50 employees</option>
-                            <option value="51-200">51-200 employees</option>
-                            <option value="201-1000">201-1000 employees</option>
-                            <option value="1000+">1000+ employees</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Project Details */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary mb-4">Project Details</h3>
-                      <div>
-                        <Label className="text-base font-medium">Services of Interest</Label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                          {services.map((service) => (
-                            <label key={service} className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={formData.services.includes(service)}
-                                onChange={() => handleServiceChange(service)}
-                                className="w-4 h-4 text-accent border-gray-300 rounded focus:ring-accent"
-                                disabled={loading}
-                              />
-                              <span className="text-sm text-muted-foreground">{service}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <Label htmlFor="budget">Budget Range</Label>
-                          <select 
-                            id="budget" 
-                            name="budget" 
-                            value={formData.budget} 
-                            onChange={handleChange}
-                            className="mt-1 w-full input-modern"
-                            disabled={loading}
-                          >
-                            <option value="">Select budget range</option>
-                            <option value="under-25k">Under $25,000</option>
-                            <option value="25k-50k">$25,000 - $50,000</option>
-                            <option value="50k-100k">$50,000 - $100,000</option>
-                            <option value="100k-250k">$100,000 - $250,000</option>
-                            <option value="250k+">$250,000+</option>
-                          </select>
-                        </div>
-                        <div>
-                          <Label htmlFor="timeline">Project Timeline</Label>
-                          <select 
-                            id="timeline" 
-                            name="timeline" 
-                            value={formData.timeline} 
-                            onChange={handleChange}
-                            className="mt-1 w-full input-modern"
-                            disabled={loading}
-                          >
-                            <option value="">Select timeline</option>
-                            <option value="asap">ASAP</option>
-                            <option value="1-3-months">1-3 months</option>
-                            <option value="3-6-months">3-6 months</option>
-                            <option value="6-12-months">6-12 months</option>
-                            <option value="12+-months">12+ months</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="message">Project Description</Label>
-                      <textarea 
-                        id="message" 
-                        name="message" 
-                        value={formData.message} 
-                        onChange={handleChange} 
-                        rows={4} 
-                        className="mt-1 w-full input-modern resize-none" 
-                        disabled={loading}
-                        placeholder="Tell us about your project goals, challenges, and any specific requirements..."
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full btn-primary" disabled={loading}>
-                      {loading ? "Sending..." : (
-                        <>
-                          Send Sales Inquiry
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-primary mb-4">Submit Your Inquiry</h2>
+              <p className="text-muted-foreground">
+                Share your details and career goals. We'll match you with relevant opportunities.
+              </p>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              <Card className="card-modern">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-primary mb-4">What Happens Next?</h3>
+            <Card className="card-modern">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <DollarSign className="h-5 w-5 text-accent mr-2" />
+                  Career & Salary Inquiry Form
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Personal Information */}
                   <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-primary">Immediate Confirmation</p>
-                        <p className="text-sm text-muted-foreground">You'll receive an email confirmation within minutes</p>
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Personal Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name *</Label>
+                        <Input
+                          id="name"
+                          type="text"
+                          placeholder="Your full name"
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          required
+                          className="input-modern"
+                        />
                       </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-primary">Sales Team Review</p>
-                        <p className="text-sm text-muted-foreground">Our team will review your requirements within 4 hours</p>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          required
+                          className="input-modern"
+                        />
                       </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-primary">Discovery Call</p>
-                        <p className="text-sm text-muted-foreground">We'll schedule a call to discuss your project in detail</p>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="+91 98765 43210"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className="input-modern"
+                        />
                       </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-primary">Custom Proposal</p>
-                        <p className="text-sm text-muted-foreground">Receive a tailored proposal within 2-3 business days</p>
+                      <div className="space-y-2">
+                        <Label htmlFor="job_title">Current Job Title</Label>
+                        <Input
+                          id="job_title"
+                          type="text"
+                          placeholder="e.g., Senior Software Engineer"
+                          value={formData.job_title}
+                          onChange={(e) => handleInputChange('job_title', e.target.value)}
+                          className="input-modern"
+                        />
                       </div>
                     </div>
                   </div>
+
+                  {/* Professional Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Professional Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="department">Department of Interest *</Label>
+                        <Select 
+                          value={formData.department} 
+                          onValueChange={(value) => handleInputChange('department', value)}
+                          required
+                        >
+                          <SelectTrigger className="input-modern">
+                            <SelectValue placeholder="Select department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {departments.map((dept) => (
+                              <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="experience_years">Years of Experience</Label>
+                        <Select 
+                          value={formData.experience_years} 
+                          onValueChange={(value) => handleInputChange('experience_years', value)}
+                        >
+                          <SelectTrigger className="input-modern">
+                            <SelectValue placeholder="Select experience" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {experienceRanges.map((range) => (
+                              <SelectItem key={range} value={range}>{range} years</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Salary Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Salary Information (Optional)
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="current_salary">Current Salary</Label>
+                        <Input
+                          id="current_salary"
+                          type="text"
+                          placeholder="e.g., ₹12,00,000 per annum"
+                          value={formData.current_salary}
+                          onChange={(e) => handleInputChange('current_salary', e.target.value)}
+                          className="input-modern"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="expected_salary">Expected Salary</Label>
+                        <Input
+                          id="expected_salary"
+                          type="text"
+                          placeholder="e.g., ₹15,00,000 per annum"
+                          value={formData.expected_salary}
+                          onChange={(e) => handleInputChange('expected_salary', e.target.value)}
+                          className="input-modern"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Additional Information
+                    </h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="additional_info">Tell us more about your career goals</Label>
+                      <Textarea
+                        id="additional_info"
+                        placeholder="Share your career aspirations, preferred work style, or any specific requirements..."
+                        rows={4}
+                        value={formData.additional_info}
+                        onChange={(e) => handleInputChange('additional_info', e.target.value)}
+                        className="input-modern"
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full btn-primary"
+                    disabled={isSubmitting || !formData.name || !formData.email || !formData.department}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Inquiry"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Information */}
+      <section className="section-padding-sm bg-muted/30">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="card-modern text-center">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-accent" />
+                  </div>
+                  <h3 className="font-semibold text-primary mb-2">Email Us</h3>
+                  <p className="text-muted-foreground text-sm">careers@civora.com</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-accent/5 to-primary/5 border-0">
+              <Card className="card-modern text-center">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-primary mb-3">Need Immediate Help?</h3>
-                  <p className="text-muted-foreground mb-4 text-sm">
-                    For urgent inquiries or immediate assistance, contact us directly.
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <p className="text-muted-foreground">
-                      <strong>Email:</strong> sales@civoranexus.com
-                    </p>
-                    <p className="text-muted-foreground">
-                      <strong>Phone:</strong> +91-9146 2687 10
-                    </p>
-                    <p className="text-muted-foreground">
-                      <strong>Hours:</strong> Mon-Fri, 9 AM - 6 PM IST
-                    </p>
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    <Phone className="h-6 w-6 text-accent" />
                   </div>
+                  <h3 className="font-semibold text-primary mb-2">Call Us</h3>
+                  <p className="text-muted-foreground text-sm">+91 98765 43210</p>
+                </CardContent>
+              </Card>
+
+              <Card className="card-modern text-center">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    <MessageCircle className="h-6 w-6 text-accent" />
+                  </div>
+                  <h3 className="font-semibold text-primary mb-2">Live Chat</h3>
+                  <p className="text-muted-foreground text-sm">Available 9 AM - 6 PM IST</p>
                 </CardContent>
               </Card>
             </div>

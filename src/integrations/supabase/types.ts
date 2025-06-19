@@ -110,6 +110,54 @@ export type Database = {
         }
         Relationships: []
       }
+      salary_inquiries: {
+        Row: {
+          additional_info: string | null
+          created_at: string
+          current_salary: string | null
+          department: string
+          email: string
+          expected_salary: string | null
+          experience_years: number | null
+          id: string
+          job_title: string | null
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          additional_info?: string | null
+          created_at?: string
+          current_salary?: string | null
+          department: string
+          email: string
+          expected_salary?: string | null
+          experience_years?: number | null
+          id?: string
+          job_title?: string | null
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          additional_info?: string | null
+          created_at?: string
+          current_salary?: string | null
+          department?: string
+          email?: string
+          expected_salary?: string | null
+          experience_years?: number | null
+          id?: string
+          job_title?: string | null
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       scheduled_calls: {
         Row: {
           created_at: string
@@ -140,6 +188,57 @@ export type Database = {
           name?: string
           reason?: string
           time?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          company: string | null
+          created_at: string
+          description: string
+          email: string
+          error_details: string | null
+          id: string
+          issue_type: string
+          name: string
+          phone: string | null
+          priority: string
+          status: string
+          subject: string
+          system_info: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          description: string
+          email: string
+          error_details?: string | null
+          id?: string
+          issue_type: string
+          name: string
+          phone?: string | null
+          priority?: string
+          status?: string
+          subject: string
+          system_info?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          description?: string
+          email?: string
+          error_details?: string | null
+          id?: string
+          issue_type?: string
+          name?: string
+          phone?: string | null
+          priority?: string
+          status?: string
+          subject?: string
+          system_info?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

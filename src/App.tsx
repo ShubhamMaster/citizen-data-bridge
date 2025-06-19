@@ -118,6 +118,13 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            {/* Admin Dashboard with tab routing */}
+            <Route path="/admin/overview" element={<AdminDashboard />} />
+            <Route path="/admin/calls" element={<AdminDashboard />} />
+            <Route path="/admin/messages" element={<AdminDashboard />} />
+            <Route path="/admin/jobs" element={<AdminDashboard />} />
+            <Route path="/admin/salary" element={<AdminDashboard />} />
+            <Route path="/admin/support" element={<AdminDashboard />} />
             {/* Legal */}
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />

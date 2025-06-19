@@ -1,192 +1,129 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import UniformHeroSection from "@/components/UniformHeroSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useCreateSupportTicket } from "@/hooks/useSupportTickets";
 import { 
   Headphones, 
   Clock, 
-  AlertTriangle, 
-  CheckCircle, 
-  Zap, 
-  Shield,
-  Users,
-  MessageCircle,
+  Shield, 
+  Phone, 
   Mail,
-  Phone,
-  FileText
+  MessageCircle,
+  AlertTriangle,
+  CheckCircle,
+  Bug
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 
 const TechnicalSupport = () => {
+  const navigate = useNavigate();
+  const createTicket = useCreateSupportTicket();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    company: '',
     phone: '',
+    company: '',
+    issue_type: '',
     priority: 'medium',
-    category: '',
     subject: '',
     description: '',
-    systemInfo: '',
-    errorMessage: ''
+    system_info: '',
+    error_details: ''
   });
-  const [loading, setLoading] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
 
-    const { error } = await supabase.from("contact_messages").insert([{
-      name: formData.name,
-      email: formData.email,
-      message: `TECHNICAL SUPPORT REQUEST
-Company: ${formData.company}
-Phone: ${formData.phone}
-Priority: ${formData.priority}
-Category: ${formData.category}
-Subject: ${formData.subject}
-
-Description:
-${formData.description}
-
-System Information:
-${formData.systemInfo}
-
-Error Message:
-${formData.errorMessage}`
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "We couldn't submit your support request. Please try again.",
-        variant: "destructive"
+    try {
+      await createTicket.mutateAsync({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        company: formData.company || null,
+        issue_type: formData.issue_type,
+        priority: formData.priority,
+        subject: formData.subject,
+        description: formData.description,
+        system_info: formData.system_info || null,
+        error_details: formData.error_details || null,
       });
-    } else {
-      toast({
-        title: "Support request submitted!",
-        description: "Our technical team will review your request and respond according to your priority level."
-      });
+
+      // Reset form
       setFormData({
         name: '',
         email: '',
-        company: '',
         phone: '',
+        company: '',
+        issue_type: '',
         priority: 'medium',
-        category: '',
         subject: '',
         description: '',
-        systemInfo: '',
-        errorMessage: ''
+        system_info: '',
+        error_details: ''
       });
+
+      setTimeout(() => {
+        navigate('/help-center');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting support ticket:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setLoading(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const priorityLevels = [
-    {
-      value: 'critical',
-      label: 'Critical',
-      description: 'Service completely down or major security issue',
-      responseTime: '1 hour',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50 border-red-200'
-    },
-    {
-      value: 'high',
-      label: 'High',
-      description: 'Significant functionality impacted',
-      responseTime: '4 hours',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50 border-orange-200'
-    },
-    {
-      value: 'medium',
-      label: 'Medium',
-      description: 'Minor functionality issues or questions',
-      responseTime: '24 hours',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50 border-blue-200'
-    },
-    {
-      value: 'low',
-      label: 'Low',
-      description: 'General questions or feature requests',
-      responseTime: '48 hours',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50 border-green-200'
-    }
+  const issueTypes = [
+    "Bug Report",
+    "Feature Request", 
+    "Performance Issue",
+    "Security Concern",
+    "Integration Problem",
+    "Account Access",
+    "Billing Question",
+    "Technical Documentation",
+    "API Issues",
+    "Other"
   ];
 
-  const categories = [
-    "API Integration",
-    "Authentication & Security",
-    "Performance Issues",
-    "Data Synchronization",
-    "User Interface/UX",
-    "Mobile Application",
-    "Third-party Integrations",
-    "Billing & Account",
-    "Other"
+  const priorityLevels = [
+    { value: "low", label: "Low - General inquiry", color: "text-gray-600" },
+    { value: "medium", label: "Medium - Standard issue", color: "text-yellow-600" },
+    { value: "high", label: "High - Important issue", color: "text-orange-600" },
+    { value: "urgent", label: "Urgent - Critical issue", color: "text-red-600" }
   ];
 
   const supportFeatures = [
     {
       icon: <Clock className="h-6 w-6 text-accent" />,
-      title: "24/7 Monitoring",
-      description: "Our systems are monitored around the clock to prevent issues before they occur"
-    },
-    {
-      icon: <Users className="h-6 w-6 text-accent" />,
-      title: "Expert Team",
-      description: "Dedicated technical support engineers with deep product knowledge"
+      title: "24 Hour Response",
+      description: "We respond to all tickets within 24 hours"
     },
     {
       icon: <Shield className="h-6 w-6 text-accent" />,
-      title: "Secure Support",
-      description: "All support interactions are encrypted and comply with security standards"
+      title: "Expert Support",
+      description: "Direct access to our technical team"
     },
     {
-      icon: <Zap className="h-6 w-6 text-accent" />,
-      title: "Fast Resolution",
-      description: "Tiered response times based on priority to ensure quick issue resolution"
-    }
-  ];
-
-  const contactMethods = [
-    {
-      icon: <MessageCircle className="h-5 w-5" />,
-      title: "Live Chat",
-      description: "Instant chat with support team",
-      availability: "9 AM - 6 PM IST",
-      action: "Start Chat"
-    },
-    {
-      icon: <Phone className="h-5 w-5" />,
-      title: "Phone Support",
-      description: "Direct phone support for urgent issues",
-      availability: "Mon-Fri, 9 AM - 6 PM IST",
-      action: "Call +91-9146 2687 10"
-    },
-    {
-      icon: <Mail className="h-5 w-5" />,
-      title: "Email Support",
-      description: "Detailed support via email",
-      availability: "24/7 submission",
-      action: "support@civoranexus.com"
+      icon: <CheckCircle className="h-6 w-6 text-accent" />,
+      title: "Issue Tracking",
+      description: "Real-time updates on your ticket status"
     }
   ];
 
@@ -196,52 +133,22 @@ ${formData.errorMessage}`
       
       <UniformHeroSection
         title="Need Technical Assistance?"
-        subtitle="Our expert technical support team is here to help you resolve issues quickly and efficiently. Submit a support request or contact us directly."
+        subtitle="Experiencing technical issues? Submit a support ticket and our expert team will help resolve your problems quickly and efficiently."
         breadcrumb="Support / Technical Support"
       />
 
-      {/* Support Features */}
+      {/* Features Section */}
       <section className="section-padding-sm bg-muted/30">
         <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {supportFeatures.map((feature, index) => (
-              <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-2xl flex items-center justify-center">
-                  {feature.icon}
-                </div>
-                <h3 className="font-semibold text-primary mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Priority Levels */}
-      <section className="section-padding-sm bg-background">
-        <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-primary mb-4">Support Priority Levels</h2>
-            <p className="text-muted-foreground">
-              Choose the appropriate priority level to ensure your request receives the right attention.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {priorityLevels.map((priority, index) => (
-              <Card key={index} className={`border-2 ${priority.bgColor} hover:scale-105 transition-all duration-300`}>
-                <CardContent className="p-6 text-center">
-                  <div className="flex items-center justify-center mb-4">
-                    {priority.value === 'critical' && <AlertTriangle className={`h-8 w-8 ${priority.color}`} />}
-                    {priority.value === 'high' && <Zap className={`h-8 w-8 ${priority.color}`} />}
-                    {priority.value === 'medium' && <Headphones className={`h-8 w-8 ${priority.color}`} />}
-                    {priority.value === 'low' && <CheckCircle className={`h-8 w-8 ${priority.color}`} />}
+              <Card key={index} className="card-modern text-center">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    {feature.icon}
                   </div>
-                  <h3 className={`font-bold text-lg mb-2 ${priority.color}`}>{priority.label}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{priority.description}</p>
-                  <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${priority.color} bg-white/80`}>
-                    Response: {priority.responseTime}
-                  </div>
+                  <h3 className="font-semibold text-primary mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -249,254 +156,254 @@ ${formData.errorMessage}`
         </div>
       </section>
 
-      {/* Support Request Form */}
-      <section className="section-padding bg-muted/30">
+      {/* Form Section */}
+      <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Form */}
-            <div className="lg:col-span-2">
-              <Card className="card-modern shadow-glow">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-primary flex items-center">
-                    <FileText className="h-6 w-6 mr-2" />
-                    Submit Support Request
-                  </CardTitle>
-                  <p className="text-muted-foreground">
-                    Provide detailed information about your issue to help us assist you more effectively.
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Contact Information */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary mb-4">Contact Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="name">Full Name *</Label>
-                          <Input 
-                            id="name" 
-                            name="name" 
-                            value={formData.name} 
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="email">Email Address *</Label>
-                          <Input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            required 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <Label htmlFor="company">Company</Label>
-                          <Input 
-                            id="company" 
-                            name="company" 
-                            value={formData.company} 
-                            onChange={handleChange} 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="phone">Phone Number</Label>
-                          <Input 
-                            id="phone" 
-                            name="phone" 
-                            type="tel" 
-                            value={formData.phone} 
-                            onChange={handleChange} 
-                            className="mt-1 input-modern" 
-                            disabled={loading} 
-                          />
-                        </div>
-                      </div>
-                    </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-primary mb-4">Submit Support Ticket</h2>
+              <p className="text-muted-foreground">
+                Provide detailed information about your issue so we can assist you effectively.
+              </p>
+            </div>
 
-                    {/* Issue Details */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary mb-4">Issue Details</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="priority">Priority Level *</Label>
-                          <select 
-                            id="priority" 
-                            name="priority" 
-                            value={formData.priority} 
-                            onChange={handleChange}
-                            required
-                            className="mt-1 w-full input-modern"
-                            disabled={loading}
-                          >
-                            {priorityLevels.map((priority) => (
-                              <option key={priority.value} value={priority.value}>
-                                {priority.label} - {priority.description}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <Label htmlFor="category">Category *</Label>
-                          <select 
-                            id="category" 
-                            name="category" 
-                            value={formData.category} 
-                            onChange={handleChange}
-                            required
-                            className="mt-1 w-full input-modern"
-                            disabled={loading}
-                          >
-                            <option value="">Select a category</option>
-                            {categories.map((category) => (
-                              <option key={category} value={category}>
-                                {category}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+            <Card className="card-modern">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Headphones className="h-5 w-5 text-accent mr-2" />
+                  Technical Support Request
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Contact Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Contact Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name *</Label>
+                        <Input
+                          id="name"
+                          type="text"
+                          placeholder="Your full name"
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          required
+                          className="input-modern"
+                        />
                       </div>
-                      
-                      <div className="mt-4">
-                        <Label htmlFor="subject">Subject *</Label>
-                        <Input 
-                          id="subject" 
-                          name="subject" 
-                          value={formData.subject} 
-                          onChange={handleChange} 
-                          required 
-                          className="mt-1 input-modern" 
-                          disabled={loading}
-                          placeholder="Brief description of the issue"
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your.email@example.com"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          required
+                          className="input-modern"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="+91 98765 43210"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          className="input-modern"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company">Company/Organization</Label>
+                        <Input
+                          id="company"
+                          type="text"
+                          placeholder="Your company name"
+                          value={formData.company}
+                          onChange={(e) => handleInputChange('company', e.target.value)}
+                          className="input-modern"
                         />
                       </div>
                     </div>
+                  </div>
 
-                    {/* Detailed Information */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-primary mb-4">Detailed Information</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="description">Problem Description *</Label>
-                          <textarea 
-                            id="description" 
-                            name="description" 
-                            value={formData.description} 
-                            onChange={handleChange} 
-                            required 
-                            rows={4} 
-                            className="mt-1 w-full input-modern resize-none" 
-                            disabled={loading}
-                            placeholder="Describe the issue in detail, including steps to reproduce if applicable..."
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="systemInfo">System Information</Label>
-                          <textarea 
-                            id="systemInfo" 
-                            name="systemInfo" 
-                            value={formData.systemInfo} 
-                            onChange={handleChange} 
-                            rows={3} 
-                            className="mt-1 w-full input-modern resize-none" 
-                            disabled={loading}
-                            placeholder="Operating system, browser version, device information, etc."
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="errorMessage">Error Messages</Label>
-                          <textarea 
-                            id="errorMessage" 
-                            name="errorMessage" 
-                            value={formData.errorMessage} 
-                            onChange={handleChange} 
-                            rows={3} 
-                            className="mt-1 w-full input-modern resize-none" 
-                            disabled={loading}
-                            placeholder="Copy and paste any error messages you received"
-                          />
-                        </div>
+                  {/* Issue Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Issue Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="issue_type">Issue Type *</Label>
+                        <Select 
+                          value={formData.issue_type} 
+                          onValueChange={(value) => handleInputChange('issue_type', value)}
+                          required
+                        >
+                          <SelectTrigger className="input-modern">
+                            <SelectValue placeholder="Select issue type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {issueTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="priority">Priority Level *</Label>
+                        <Select 
+                          value={formData.priority} 
+                          onValueChange={(value) => handleInputChange('priority', value)}
+                          required
+                        >
+                          <SelectTrigger className="input-modern">
+                            <SelectValue placeholder="Select priority" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {priorityLevels.map((priority) => (
+                              <SelectItem key={priority.value} value={priority.value}>
+                                <span className={priority.color}>{priority.label}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     
-                    <Button type="submit" className="w-full btn-primary" disabled={loading}>
-                      {loading ? "Submitting..." : "Submit Support Request"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject *</Label>
+                      <Input
+                        id="subject"
+                        type="text"
+                        placeholder="Brief description of the issue"
+                        value={formData.subject}
+                        onChange={(e) => handleInputChange('subject', e.target.value)}
+                        required
+                        className="input-modern"
+                      />
+                    </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Contact Methods */}
-              <Card className="card-modern">
-                <CardHeader>
-                  <CardTitle className="text-lg">Alternative Contact Methods</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {contactMethods.map((method, index) => (
-                    <div key={index} className="border-b border-muted last:border-b-0 pb-4 last:pb-0">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          {method.icon}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-primary text-sm">{method.title}</h4>
-                          <p className="text-sm text-muted-foreground mb-1">{method.description}</p>
-                          <p className="text-xs text-muted-foreground mb-2">{method.availability}</p>
-                          <Button size="sm" variant="outline" className="text-xs">
-                            {method.action}
-                          </Button>
-                        </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Problem Description *</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Please describe the issue in detail. Include steps to reproduce the problem, what you expected to happen, and what actually happened."
+                        rows={5}
+                        value={formData.description}
+                        onChange={(e) => handleInputChange('description', e.target.value)}
+                        required
+                        className="input-modern"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Technical Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-primary border-b pb-2">
+                      Technical Information (Optional)
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="system_info">System Information</Label>
+                        <Textarea
+                          id="system_info"
+                          placeholder="Operating System, Browser version, Device type, etc."
+                          rows={3}
+                          value={formData.system_info}
+                          onChange={(e) => handleInputChange('system_info', e.target.value)}
+                          className="input-modern"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="error_details">Error Messages/Logs</Label>
+                        <Textarea
+                          id="error_details"
+                          placeholder="Copy and paste any error messages or relevant log entries here"
+                          rows={4}
+                          value={formData.error_details}
+                          onChange={(e) => handleInputChange('error_details', e.target.value)}
+                          className="input-modern font-mono text-sm"
+                        />
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+                      <div className="text-sm text-blue-800">
+                        <p className="font-medium mb-1">Before submitting:</p>
+                        <ul className="space-y-1 text-sm">
+                          <li>• Check our Help Center for common solutions</li>
+                          <li>• Include as much detail as possible for faster resolution</li>
+                          <li>• For urgent issues, consider calling our support line</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full btn-primary"
+                    disabled={isSubmitting || !formData.name || !formData.email || !formData.issue_type || !formData.subject || !formData.description}
+                  >
+                    {isSubmitting ? "Submitting Ticket..." : "Submit Support Ticket"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Alternative Contact Methods */}
+      <section className="section-padding-sm bg-muted/30">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-primary mb-4">Need Immediate Help?</h2>
+              <p className="text-muted-foreground">
+                For urgent issues, reach out to us directly through these channels.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="card-modern text-center">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    <Phone className="h-6 w-6 text-accent" />
+                  </div>
+                  <h3 className="font-semibold text-primary mb-2">Emergency Support</h3>
+                  <p className="text-muted-foreground text-sm mb-2">+91 98765 43210</p>
+                  <p className="text-xs text-muted-foreground">24/7 for critical issues</p>
                 </CardContent>
               </Card>
 
-              {/* SLA Information */}
-              <Card className="bg-gradient-to-br from-accent/5 to-primary/5 border-0">
+              <Card className="card-modern text-center">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-primary mb-3 flex items-center">
-                    <Clock className="h-5 w-5 mr-2" />
-                    Our Service Level Agreement
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Critical Issues:</span>
-                      <span className="font-medium text-primary">1 hour response</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">High Priority:</span>
-                      <span className="font-medium text-primary">4 hours response</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Medium Priority:</span>
-                      <span className="font-medium text-primary">24 hours response</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Low Priority:</span>
-                      <span className="font-medium text-primary">48 hours response</span>
-                    </div>
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    <MessageCircle className="h-6 w-6 text-accent" />
                   </div>
-                  <div className="mt-4 p-3 bg-white/50 rounded-lg">
-                    <p className="text-xs text-muted-foreground">
-                      Response times are calculated during business hours (9 AM - 6 PM IST, Monday - Friday)
-                    </p>
+                  <h3 className="font-semibold text-primary mb-2">Live Chat</h3>
+                  <p className="text-muted-foreground text-sm mb-2">Start instant chat</p>
+                  <p className="text-xs text-muted-foreground">Mon-Fri, 9 AM - 6 PM IST</p>
+                </CardContent>
+              </Card>
+
+              <Card className="card-modern text-center">
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-xl flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-accent" />
                   </div>
+                  <h3 className="font-semibold text-primary mb-2">Email Support</h3>
+                  <p className="text-muted-foreground text-sm mb-2">support@civora.com</p>
+                  <p className="text-xs text-muted-foreground">Response within 24 hours</p>
                 </CardContent>
               </Card>
             </div>
