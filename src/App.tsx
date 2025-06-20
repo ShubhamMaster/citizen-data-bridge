@@ -129,6 +129,7 @@ const App = () => {
             <Route path="/admin/support" element={<AdminDashboard />} />
             <Route path="/admin/scheduled-calls" element={<AdminDashboard />} />
             <Route path="/admin/contact-messages" element={<AdminDashboard />} />
+            <Route path="/admin/profile" element={<AdminDashboard />} />
             
             {/* Intern Verification */}
             <Route path="/verify/:token" element={<InternVerification />} />

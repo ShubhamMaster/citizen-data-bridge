@@ -44,11 +44,14 @@ export const useCreateIntern = () => {
       mentor_assigned?: string;
       notes?: string;
     }) => {
-      // Generate intern ID
+      // Generate intern ID using the database function
       const { data: internId, error: idError } = await supabase
         .rpc('generate_intern_id', { year: internData.internship_year });
       
-      if (idError) throw idError;
+      if (idError) {
+        console.error('Error generating intern ID:', idError);
+        throw new Error('Failed to generate intern ID');
+      }
 
       const { data, error } = await supabase
         .from('interns')
@@ -79,6 +82,7 @@ export const useCreateIntern = () => {
       });
     },
     onError: (error) => {
+      console.error('Create intern error:', error);
       toast({
         title: "Error",
         description: `Failed to create intern: ${error.message}`,

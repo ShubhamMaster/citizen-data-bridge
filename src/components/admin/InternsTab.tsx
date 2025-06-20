@@ -124,31 +124,83 @@ const InternsTab = () => {
   };
 
   const exportToExcel = () => {
-    const exportData = filteredInterns.map(intern => ({
+    const exportData = filteredInterns.map((intern, index) => ({
+      'S.No.': index + 1,
       'Intern ID': intern.intern_id,
-      'Name': intern.name,
-      'Email': intern.email,
-      'Phone': intern.phone || '',
+      'Full Name': intern.name,
+      'Email Address': intern.email,
+      'Phone Number': intern.phone || 'Not Provided',
       'Department': intern.department,
-      'Year': intern.internship_year,
-      'Start Date': intern.start_date || '',
-      'End Date': intern.end_date || '',
-      'Location': intern.location || '',
-      'Status': intern.status,
-      'Mentor': intern.mentor_assigned || '',
-      'Resume URL': intern.resume_url || '',
-      'LinkedIn URL': intern.linkedin_url || '',
-      'Portfolio URL': intern.portfolio_url || '',
+      'Internship Year': intern.internship_year,
+      'Start Date': intern.start_date ? new Date(intern.start_date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit'
+      }) : 'Not Set',
+      'End Date': intern.end_date ? new Date(intern.end_date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit'
+      }) : 'Not Set',
+      'Work Location': intern.location || 'Remote',
+      'Current Status': intern.status.charAt(0).toUpperCase() + intern.status.slice(1),
+      'Assigned Mentor': intern.mentor_assigned || 'Not Assigned',
+      'Resume/CV Link': intern.resume_url || 'Not Provided',
+      'LinkedIn Profile': intern.linkedin_url || 'Not Provided',
+      'Portfolio Website': intern.portfolio_url || 'Not Provided',
       'Verification Link': `${window.location.origin}/verify/${intern.verification_token}`,
-      'Created Date': new Date(intern.created_at).toLocaleDateString(),
-      'Verified Date': intern.verified_at ? new Date(intern.verified_at).toLocaleDateString() : 'Not verified',
-      'Notes': intern.notes || ''
+      'Record Created': new Date(intern.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      'Verification Date': intern.verified_at ? new Date(intern.verified_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'Not Verified',
+      'Additional Notes': intern.notes || 'None'
     }));
 
+    // Create workbook with proper formatting
     const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths
+    const colWidths = [
+      { wch: 6 },   // S.No
+      { wch: 15 },  // Intern ID
+      { wch: 25 },  // Full Name
+      { wch: 30 },  // Email
+      { wch: 15 },  // Phone
+      { wch: 15 },  // Department
+      { wch: 12 },  // Year
+      { wch: 12 },  // Start Date
+      { wch: 12 },  // End Date
+      { wch: 12 },  // Location
+      { wch: 12 },  // Status
+      { wch: 20 },  // Mentor
+      { wch: 35 },  // Resume
+      { wch: 35 },  // LinkedIn
+      { wch: 35 },  // Portfolio
+      { wch: 50 },  // Verification
+      { wch: 18 },  // Created
+      { wch: 18 },  // Verified
+      { wch: 30 }   // Notes
+    ];
+    ws['!cols'] = colWidths;
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `Interns_${selectedYear}`);
-    XLSX.writeFile(wb, `Interns_${selectedYear}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, `Interns ${selectedYear}`);
+    
+    // Add metadata
+    const timestamp = new Date().toISOString().split('T')[0];
+    const fileName = `Civora_Nexus_Interns_${selectedYear}_${timestamp}.xlsx`;
+    
+    XLSX.writeFile(wb, fileName);
   };
 
   const getStatusBadge = (status: string) => {

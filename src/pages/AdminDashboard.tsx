@@ -1,11 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import JobManagement from "@/components/JobManagement";
-import AdminProfilePage from "@/components/AdminProfilePage";
+import AdminProfile from "@/pages/AdminProfile";
 import SalaryInquiriesTab from "@/components/admin/SalaryInquiriesTab";
 import TechnicalSupportTab from "@/components/admin/TechnicalSupportTab";
 import ContactMessagesTab from "@/components/admin/ContactMessagesTab";
@@ -24,13 +24,30 @@ import {
   Activity,
   GraduationCap,
   LogOut,
-  User
+  User,
+  Clock
 } from "lucide-react";
 
 const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [sessionTimeLeft, setSessionTimeLeft] = useState(7200); // 2 hours in seconds
+
+  // Session timer countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionTimeLeft(prev => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
 
   // Determine active tab from URL
   const getActiveTabFromPath = () => {
@@ -315,7 +332,7 @@ const AdminDashboard = () => {
       case 'support':
         return <TechnicalSupportTab />;
       case 'profile':
-        return <AdminProfilePage />;
+        return <AdminProfile />;
       default:
         return <div>Tab not found</div>;
     }
@@ -339,6 +356,12 @@ const AdminDashboard = () => {
           </div>
           
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-lg">
+              <Clock className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-medium text-orange-800">
+                {formatTime(sessionTimeLeft)}
+              </span>
+            </div>
             <Button 
               variant="outline" 
               size="sm" 
