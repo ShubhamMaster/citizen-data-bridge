@@ -50,6 +50,7 @@ import Accessibility from "./pages/Accessibility";
 import SalesInquiry from "./pages/SalesInquiry";
 import HelpCenter from "./pages/HelpCenter";
 import TechnicalSupport from "./pages/TechnicalSupport";
+import InternVerification from "./pages/InternVerification";
 
 const queryClient = new QueryClient();
 
@@ -116,10 +117,11 @@ const App = () => {
             {/* Auth */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            {/* Admin Dashboard with enhanced tab routing */}
+            
+            {/* Admin Dashboard with enhanced routing */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/overview" element={<AdminDashboard />} />
+            <Route path="/admin/interns" element={<AdminDashboard />} />
             <Route path="/admin/calls" element={<AdminDashboard />} />
             <Route path="/admin/messages" element={<AdminDashboard />} />
             <Route path="/admin/jobs" element={<AdminDashboard />} />
@@ -127,6 +129,10 @@ const App = () => {
             <Route path="/admin/support" element={<AdminDashboard />} />
             <Route path="/admin/scheduled-calls" element={<AdminDashboard />} />
             <Route path="/admin/contact-messages" element={<AdminDashboard />} />
+            
+            {/* Intern Verification */}
+            <Route path="/verify/:token" element={<InternVerification />} />
+            
             {/* Legal */}
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />

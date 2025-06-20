@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          name: string
+          password_hash: string
+          session_expires_at: string | null
+          session_token: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_login?: string | null
+          name: string
+          password_hash: string
+          session_expires_at?: string | null
+          session_token?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          name?: string
+          password_hash?: string
+          session_expires_at?: string | null
+          session_token?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           application_data: Json | null
@@ -68,6 +104,48 @@ export type Database = {
           id?: number
           message?: string
           name?: string
+        }
+        Relationships: []
+      }
+      interns: {
+        Row: {
+          created_at: string
+          department: string
+          email: string
+          id: string
+          intern_id: string
+          internship_year: number
+          name: string
+          status: string
+          updated_at: string
+          verification_token: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          email: string
+          id?: string
+          intern_id: string
+          internship_year: number
+          name: string
+          status?: string
+          updated_at?: string
+          verification_token?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          email?: string
+          id?: string
+          intern_id?: string
+          internship_year?: number
+          name?: string
+          status?: string
+          updated_at?: string
+          verification_token?: string | null
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -316,7 +394,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_intern_id: {
+        Args: { year: number }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

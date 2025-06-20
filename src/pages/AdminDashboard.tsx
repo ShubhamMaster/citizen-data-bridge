@@ -1,10 +1,9 @@
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JobManagement from "@/components/JobManagement";
@@ -13,31 +12,40 @@ import SalaryInquiriesTab from "@/components/admin/SalaryInquiriesTab";
 import TechnicalSupportTab from "@/components/admin/TechnicalSupportTab";
 import ContactMessagesTab from "@/components/admin/ContactMessagesTab";
 import ScheduledCallsTab from "@/components/admin/ScheduledCallsTab";
+import InternsTab from "@/components/admin/InternsTab";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Users, 
   Calendar, 
   MessageSquare, 
-  Briefcase, 
-  Settings,
+  Briefcase,
   DollarSign,
   Headphones,
-  BarChart3,
   Activity,
-  Database
+  GraduationCap
 } from "lucide-react";
 
 const AdminDashboard = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const activeTab = searchParams.get('tab') || 'overview';
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value });
-    // Update the URL path as well for deep linking
-    navigate(`/admin/${value}`);
+  // Determine active tab from URL
+  const getActiveTabFromPath = () => {
+    const path = location.pathname;
+    if (path === '/admin' || path === '/admin/overview') return 'overview';
+    if (path === '/admin/interns') return 'interns';
+    if (path === '/admin/scheduled-calls') return 'calls';
+    if (path === '/admin/contact-messages') return 'messages';
+    if (path === '/admin/jobs') return 'jobs';
+    if (path === '/admin/salary') return 'salary';
+    if (path === '/admin/support') return 'support';
+    return 'overview';
   };
+
+  const activeTab = getActiveTabFromPath();
 
   // Fetch dashboard stats
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -49,15 +57,19 @@ const AdminDashboard = () => {
         jobsRes,
         salaryInquiriesRes,
         supportTicketsRes,
-        websiteVisitsRes
+        websiteVisitsRes,
+        internsRes
       ] = await Promise.all([
         supabase.from('scheduled_calls').select('id, is_done'),
         supabase.from('contact_messages').select('id'),
         supabase.from('jobs').select('id, is_active'),
         supabase.from('salary_inquiries').select('id, status'),
         supabase.from('support_tickets').select('id, status'),
-        supabase.from('website_visits').select('id').gte('visited_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        supabase.from('website_visits').select('id').gte('visited_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+        supabase.from('interns').select('id, status, internship_year')
       ]);
+
+      const currentYear = new Date().getFullYear();
 
       return {
         scheduledCalls: {
@@ -81,12 +93,25 @@ const AdminDashboard = () => {
         },
         websiteVisits: {
           thisWeek: websiteVisitsRes.data?.length || 0
+        },
+        interns: {
+          total: internsRes.data?.length || 0,
+          thisYear: internsRes.data?.filter(intern => intern.internship_year === currentYear).length || 0,
+          pending: internsRes.data?.filter(intern => intern.status === 'pending').length || 0
         }
       };
     },
   });
 
   const dashboardCards = [
+    {
+      title: "Interns",
+      total: stats?.interns.total || 0,
+      pending: stats?.interns.pending || 0,
+      icon: <GraduationCap className="h-6 w-6 text-accent" />,
+      color: "from-purple-500/10 to-purple-600/10",
+      subtitle: `${stats?.interns.thisYear || 0} this year`
+    },
     {
       title: "Scheduled Calls",
       total: stats?.scheduledCalls.total || 0,
@@ -106,7 +131,7 @@ const AdminDashboard = () => {
       total: stats?.jobs.total || 0,
       pending: stats?.jobs.active || 0,
       icon: <Briefcase className="h-6 w-6 text-accent" />,
-      color: "from-purple-500/10 to-purple-600/10"
+      color: "from-indigo-500/10 to-indigo-600/10"
     },
     {
       title: "Salary Inquiries",
@@ -127,58 +152,22 @@ const AdminDashboard = () => {
       total: stats?.websiteVisits.thisWeek || 0,
       pending: 0,
       icon: <Activity className="h-6 w-6 text-accent" />,
-      color: "from-teal-500/10 to-teal-600/10"
+      color: "from-teal-500/10 to-teal-600/10",
+      subtitle: "This week"
     }
   ];
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container-custom py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your business operations and track performance</p>
-        </div>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">Dashboard Overview</h1>
+              <p className="text-muted-foreground">Monitor and manage your business operations</p>
+            </div>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8 lg:w-auto lg:flex lg:flex-wrap gap-1">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="calls" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Calls</span>
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Messages</span>
-            </TabsTrigger>
-            <TabsTrigger value="jobs" className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Jobs</span>
-            </TabsTrigger>
-            <TabsTrigger value="salary" className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline">Salary</span>
-            </TabsTrigger>
-            <TabsTrigger value="support" className="flex items-center gap-2">
-              <Headphones className="h-4 w-4" />
-              <span className="hidden sm:inline">Support</span>
-            </TabsTrigger>
-            <TabsTrigger value="scheduled-calls" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Scheduled</span>
-            </TabsTrigger>
-            <TabsTrigger value="contact-messages" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Contact</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {dashboardCards.map((card, index) => (
                 <Card key={index} className="card-modern">
                   <CardContent className="p-6">
@@ -195,6 +184,9 @@ const AdminDashboard = () => {
                           </Badge>
                         )}
                       </div>
+                      {card.subtitle && (
+                        <p className="text-sm text-muted-foreground">{card.subtitle}</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -208,7 +200,21 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button 
-                    onClick={() => handleTabChange('salary')} 
+                    onClick={() => navigate('/admin/interns')} 
+                    className="w-full justify-start" 
+                    variant="outline"
+                  >
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Manage Interns
+                    {stats?.interns.pending > 0 && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {stats.interns.pending}
+                      </Badge>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/admin/salary')} 
                     className="w-full justify-start" 
                     variant="outline"
                   >
@@ -222,7 +228,7 @@ const AdminDashboard = () => {
                   </Button>
                   
                   <Button 
-                    onClick={() => handleTabChange('support')} 
+                    onClick={() => navigate('/admin/support')} 
                     className="w-full justify-start" 
                     variant="outline"
                   >
@@ -236,7 +242,7 @@ const AdminDashboard = () => {
                   </Button>
                   
                   <Button 
-                    onClick={() => handleTabChange('calls')} 
+                    onClick={() => navigate('/admin/scheduled-calls')} 
                     className="w-full justify-start" 
                     variant="outline"
                   >
@@ -250,7 +256,7 @@ const AdminDashboard = () => {
                   </Button>
                   
                   <Button 
-                    onClick={() => handleTabChange('jobs')} 
+                    onClick={() => navigate('/admin/jobs')} 
                     className="w-full justify-start" 
                     variant="outline"
                   >
@@ -281,39 +287,51 @@ const AdminDashboard = () => {
                     <span className="text-sm text-muted-foreground">Storage Used</span>
                     <span className="text-sm">2.4 GB / 10 GB</span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Active Sessions</span>
+                    <span className="text-sm">1 admin</span>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
+        );
+      case 'interns':
+        return <InternsTab />;
+      case 'calls':
+        return <AdminProfilePage />;
+      case 'messages':
+        return <AdminProfilePage />;
+      case 'jobs':
+        return <JobManagement />;
+      case 'salary':
+        return <SalaryInquiriesTab />;
+      case 'support':
+        return <TechnicalSupportTab />;
+      case 'scheduled-calls':
+        return <ScheduledCallsTab />;
+      case 'contact-messages':
+        return <ContactMessagesTab />;
+      default:
+        return <div>Tab not found</div>;
+    }
+  };
 
-          <TabsContent value="calls">
-            <AdminProfilePage />
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <AdminProfilePage />
-          </TabsContent>
-
-          <TabsContent value="jobs">
-            <JobManagement />
-          </TabsContent>
-
-          <TabsContent value="salary">
-            <SalaryInquiriesTab />
-          </TabsContent>
-
-          <TabsContent value="support">
-            <TechnicalSupportTab />
-          </TabsContent>
-
-          <TabsContent value="scheduled-calls">
-            <ScheduledCallsTab />
-          </TabsContent>
-
-          <TabsContent value="contact-messages">
-            <ContactMessagesTab />
-          </TabsContent>
-        </Tabs>
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <div className="flex h-[calc(100vh-80px)]">
+        <AdminSidebar 
+          isCollapsed={isSidebarCollapsed} 
+          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+        />
+        
+        <main className="flex-1 overflow-auto">
+          <div className="container-custom py-8">
+            {renderTabContent()}
+          </div>
+        </main>
       </div>
 
       <Footer />
