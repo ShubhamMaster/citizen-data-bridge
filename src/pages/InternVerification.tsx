@@ -82,7 +82,6 @@ const InternVerification = () => {
         <UniformHeroSection
           title="Verification Error"
           subtitle="The verification link you used is invalid or has expired."
-          showCta={false}
         />
         <Footer />
       </div>
@@ -96,7 +95,6 @@ const InternVerification = () => {
       <UniformHeroSection
         title="Intern Verification"
         subtitle="Official Internship Credential Verification"
-        showCta={false}
       />
 
       <div className="container-custom py-16">
