@@ -14,7 +14,8 @@ import {
   BarChart3,
   GraduationCap,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  User
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -75,6 +76,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, onToggle }) =>
       icon: Headphones, 
       path: '/admin/support',
       description: 'Manage support tickets'
+    },
+    { 
+      key: 'profile', 
+      label: 'Profile', 
+      icon: User, 
+      path: '/admin/profile',
+      description: 'Admin profile settings'
     }
   ];
 

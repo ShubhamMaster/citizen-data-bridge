@@ -32,8 +32,17 @@ export const useCreateIntern = () => {
     mutationFn: async (internData: {
       name: string;
       email: string;
+      phone?: string;
       department: string;
       internship_year: number;
+      start_date?: string;
+      end_date?: string;
+      location?: string;
+      resume_url?: string;
+      linkedin_url?: string;
+      portfolio_url?: string;
+      mentor_assigned?: string;
+      notes?: string;
     }) => {
       // Generate intern ID
       const { data: internId, error: idError } = await supabase
@@ -45,7 +54,16 @@ export const useCreateIntern = () => {
         .from('interns')
         .insert({
           ...internData,
-          intern_id: internId
+          intern_id: internId,
+          // Convert empty strings to null for optional fields
+          phone: internData.phone || null,
+          start_date: internData.start_date || null,
+          end_date: internData.end_date || null,
+          resume_url: internData.resume_url || null,
+          linkedin_url: internData.linkedin_url || null,
+          portfolio_url: internData.portfolio_url || null,
+          mentor_assigned: internData.mentor_assigned || null,
+          notes: internData.notes || null,
         })
         .select()
         .single();
@@ -76,9 +94,22 @@ export const useUpdateIntern = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
+      // Convert empty strings to null for optional fields
+      const cleanedUpdates = {
+        ...updates,
+        phone: updates.phone || null,
+        start_date: updates.start_date || null,
+        end_date: updates.end_date || null,
+        resume_url: updates.resume_url || null,
+        linkedin_url: updates.linkedin_url || null,
+        portfolio_url: updates.portfolio_url || null,
+        mentor_assigned: updates.mentor_assigned || null,
+        notes: updates.notes || null,
+      };
+
       const { data, error } = await supabase
         .from('interns')
-        .update(updates)
+        .update(cleanedUpdates)
         .eq('id', id)
         .select()
         .single();

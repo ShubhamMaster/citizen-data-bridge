@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useInterns, useCreateIntern, useUpdateIntern, useDeleteIntern } from '@/hooks/useInterns';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 import { Eye, Edit, Trash2, Plus, Download, Search, ExternalLink } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import * as XLSX from 'xlsx';
@@ -29,8 +29,17 @@ const InternsTab = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     department: '',
-    internship_year: selectedYear
+    internship_year: selectedYear,
+    start_date: '',
+    end_date: '',
+    location: 'Remote',
+    resume_url: '',
+    linkedin_url: '',
+    portfolio_url: '',
+    mentor_assigned: '',
+    notes: ''
   });
 
   const filteredInterns = interns?.filter(intern =>
@@ -54,13 +63,28 @@ const InternsTab = () => {
     'HR', 'Finance', 'Operations', 'Research', 'Data Science'
   ];
 
+  const locationOptions = ['Onsite', 'Remote', 'Hybrid'];
   const statusOptions = ['pending', 'verified', 'completed', 'terminated'];
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createIntern.mutateAsync(formData);
     setIsCreateModalOpen(false);
-    setFormData({ name: '', email: '', department: '', internship_year: selectedYear });
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      department: '',
+      internship_year: selectedYear,
+      start_date: '',
+      end_date: '',
+      location: 'Remote',
+      resume_url: '',
+      linkedin_url: '',
+      portfolio_url: '',
+      mentor_assigned: '',
+      notes: ''
+    });
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -78,10 +102,19 @@ const InternsTab = () => {
   const handleEdit = (intern: any) => {
     setSelectedIntern(intern);
     setFormData({
-      name: intern.name,
-      email: intern.email,
-      department: intern.department,
-      internship_year: intern.internship_year
+      name: intern.name || '',
+      email: intern.email || '',
+      phone: intern.phone || '',
+      department: intern.department || '',
+      internship_year: intern.internship_year || selectedYear,
+      start_date: intern.start_date || '',
+      end_date: intern.end_date || '',
+      location: intern.location || 'Remote',
+      resume_url: intern.resume_url || '',
+      linkedin_url: intern.linkedin_url || '',
+      portfolio_url: intern.portfolio_url || '',
+      mentor_assigned: intern.mentor_assigned || '',
+      notes: intern.notes || ''
     });
     setIsEditModalOpen(true);
   };
@@ -95,12 +128,21 @@ const InternsTab = () => {
       'Intern ID': intern.intern_id,
       'Name': intern.name,
       'Email': intern.email,
+      'Phone': intern.phone || '',
       'Department': intern.department,
       'Year': intern.internship_year,
+      'Start Date': intern.start_date || '',
+      'End Date': intern.end_date || '',
+      'Location': intern.location || '',
       'Status': intern.status,
+      'Mentor': intern.mentor_assigned || '',
+      'Resume URL': intern.resume_url || '',
+      'LinkedIn URL': intern.linkedin_url || '',
+      'Portfolio URL': intern.portfolio_url || '',
       'Verification Link': `${window.location.origin}/verify/${intern.verification_token}`,
       'Created Date': new Date(intern.created_at).toLocaleDateString(),
-      'Verified Date': intern.verified_at ? new Date(intern.verified_at).toLocaleDateString() : 'Not verified'
+      'Verified Date': intern.verified_at ? new Date(intern.verified_at).toLocaleDateString() : 'Not verified',
+      'Notes': intern.notes || ''
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -122,6 +164,24 @@ const InternsTab = () => {
         {status}
       </Badge>
     );
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      department: '',
+      internship_year: selectedYear,
+      start_date: '',
+      end_date: '',
+      location: 'Remote',
+      resume_url: '',
+      linkedin_url: '',
+      portfolio_url: '',
+      mentor_assigned: '',
+      notes: ''
+    });
   };
 
   if (isLoading) {
@@ -148,61 +208,164 @@ const InternsTab = () => {
           </Button>
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2" onClick={resetForm}>
                 <Plus className="w-4 h-4" />
                 Add Intern
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Intern</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name">Full Name *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="department">Department *</Label>
+                    <Select value={formData.department} onValueChange={(value) => setFormData({...formData, department: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map(dept => (
+                          <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="department">Department</Label>
-                  <Select value={formData.department} onValueChange={(value) => setFormData({...formData, department: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map(dept => (
-                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="year">Internship Year *</Label>
+                    <Select value={formData.internship_year.toString()} onValueChange={(value) => setFormData({...formData, internship_year: parseInt(value)})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {years.map(year => (
+                          <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="start_date">Start Date</Label>
+                    <Input
+                      id="start_date"
+                      type="date"
+                      value={formData.start_date}
+                      onChange={(e) => setFormData({...formData, start_date: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="end_date">End Date</Label>
+                    <Input
+                      id="end_date"
+                      type="date"
+                      value={formData.end_date}
+                      onChange={(e) => setFormData({...formData, end_date: e.target.value})}
+                    />
+                  </div>
                 </div>
+
                 <div>
-                  <Label htmlFor="year">Internship Year</Label>
-                  <Select value={formData.internship_year.toString()} onValueChange={(value) => setFormData({...formData, internship_year: parseInt(value)})}>
+                  <Label htmlFor="location">Location</Label>
+                  <Select value={formData.location} onValueChange={(value) => setFormData({...formData, location: value})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {years.map(year => (
-                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                      {locationOptions.map(location => (
+                        <SelectItem key={location} value={location}>{location}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="resume_url">Resume URL</Label>
+                    <Input
+                      id="resume_url"
+                      type="url"
+                      value={formData.resume_url}
+                      onChange={(e) => setFormData({...formData, resume_url: e.target.value})}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="linkedin_url">LinkedIn URL</Label>
+                    <Input
+                      id="linkedin_url"
+                      type="url"
+                      value={formData.linkedin_url}
+                      onChange={(e) => setFormData({...formData, linkedin_url: e.target.value})}
+                      placeholder="https://linkedin.com/in/..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="portfolio_url">Portfolio URL</Label>
+                    <Input
+                      id="portfolio_url"
+                      type="url"
+                      value={formData.portfolio_url}
+                      onChange={(e) => setFormData({...formData, portfolio_url: e.target.value})}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="mentor_assigned">Mentor Assigned</Label>
+                    <Input
+                      id="mentor_assigned"
+                      value={formData.mentor_assigned}
+                      onChange={(e) => setFormData({...formData, mentor_assigned: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    rows={3}
+                  />
+                </div>
+
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                     Cancel
@@ -247,7 +410,7 @@ const InternsTab = () => {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Department</TableHead>
-              <TableHead>Year</TableHead>
+              <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Verification Link</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -260,7 +423,7 @@ const InternsTab = () => {
                 <TableCell>{intern.name}</TableCell>
                 <TableCell>{intern.email}</TableCell>
                 <TableCell>{intern.department}</TableCell>
-                <TableCell>{intern.internship_year}</TableCell>
+                <TableCell>{intern.location || 'Remote'}</TableCell>
                 <TableCell>{getStatusBadge(intern.status)}</TableCell>
                 <TableCell>
                   <Button
@@ -281,43 +444,97 @@ const InternsTab = () => {
                           <Eye className="w-4 h-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
+                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Intern Details</DialogTitle>
                         </DialogHeader>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Intern ID</Label>
-                            <p className="font-mono">{intern.intern_id}</p>
+                        <div className="grid grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Intern ID</Label>
+                              <p className="font-mono">{intern.intern_id}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Name</Label>
+                              <p>{intern.name}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Email</Label>
+                              <p>{intern.email}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
+                              <p>{intern.phone || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Department</Label>
+                              <p>{intern.department}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Year</Label>
+                              <p>{intern.internship_year}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Location</Label>
+                              <p>{intern.location || 'Remote'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Status</Label>
+                              <div className="mt-1">{getStatusBadge(intern.status)}</div>
+                            </div>
                           </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                            <p>{intern.name}</p>
+                          <div className="space-y-4">
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Start Date</Label>
+                              <p>{intern.start_date ? new Date(intern.start_date).toLocaleDateString() : 'Not set'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">End Date</Label>
+                              <p>{intern.end_date ? new Date(intern.end_date).toLocaleDateString() : 'Not set'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Mentor</Label>
+                              <p>{intern.mentor_assigned || 'Not assigned'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Resume</Label>
+                              <p>{intern.resume_url ? (
+                                <a href={intern.resume_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                                  View Resume
+                                </a>
+                              ) : 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">LinkedIn</Label>
+                              <p>{intern.linkedin_url ? (
+                                <a href={intern.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                                  View Profile
+                                </a>
+                              ) : 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Portfolio</Label>
+                              <p>{intern.portfolio_url ? (
+                                <a href={intern.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                                  View Portfolio
+                                </a>
+                              ) : 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Created At</Label>
+                              <p>{new Date(intern.created_at).toLocaleString()}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Verified At</Label>
+                              <p>{intern.verified_at ? new Date(intern.verified_at).toLocaleString() : 'Not verified'}</p>
+                            </div>
                           </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Email</Label>
-                            <p>{intern.email}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Department</Label>
-                            <p>{intern.department}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Year</Label>
-                            <p>{intern.internship_year}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                            <div className="mt-1">{getStatusBadge(intern.status)}</div>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Created At</Label>
-                            <p>{new Date(intern.created_at).toLocaleString()}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-medium text-muted-foreground">Verified At</Label>
-                            <p>{intern.verified_at ? new Date(intern.verified_at).toLocaleString() : 'Not verified'}</p>
-                          </div>
+                          {intern.notes && (
+                            <div className="col-span-2">
+                              <Label className="text-sm font-medium text-muted-foreground">Notes</Label>
+                              <p className="whitespace-pre-wrap">{intern.notes}</p>
+                            </div>
+                          )}
                           <div className="col-span-2">
                             <Label className="text-sm font-medium text-muted-foreground">Verification Link</Label>
                             <p className="break-all text-sm text-blue-600">{`${window.location.origin}/verify/${intern.verification_token}`}</p>
@@ -389,56 +606,159 @@ const InternsTab = () => {
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Intern</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name">Name</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-name">Full Name *</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-email">Email *</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                required
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-phone">Phone Number</Label>
+                <Input
+                  id="edit-phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-department">Department *</Label>
+                <Select value={formData.department} onValueChange={(value) => setFormData({...formData, department: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map(dept => (
+                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="edit-department">Department</Label>
-              <Select value={formData.department} onValueChange={(value) => setFormData({...formData, department: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map(dept => (
-                    <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit-year">Internship Year *</Label>
+                <Select value={formData.internship_year.toString()} onValueChange={(value) => setFormData({...formData, internship_year: parseInt(value)})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-start_date">Start Date</Label>
+                <Input
+                  id="edit-start_date"
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({...formData, start_date: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-end_date">End Date</Label>
+                <Input
+                  id="edit-end_date"
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) => setFormData({...formData, end_date: e.target.value})}
+                />
+              </div>
             </div>
+
             <div>
-              <Label htmlFor="edit-year">Internship Year</Label>
-              <Select value={formData.internship_year.toString()} onValueChange={(value) => setFormData({...formData, internship_year: parseInt(value)})}>
+              <Label htmlFor="edit-location">Location</Label>
+              <Select value={formData.location} onValueChange={(value) => setFormData({...formData, location: value})}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {years.map(year => (
-                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  {locationOptions.map(location => (
+                    <SelectItem key={location} value={location}>{location}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-resume_url">Resume URL</Label>
+                <Input
+                  id="edit-resume_url"
+                  type="url"
+                  value={formData.resume_url}
+                  onChange={(e) => setFormData({...formData, resume_url: e.target.value})}
+                  placeholder="https://..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-linkedin_url">LinkedIn URL</Label>
+                <Input
+                  id="edit-linkedin_url"
+                  type="url"
+                  value={formData.linkedin_url}
+                  onChange={(e) => setFormData({...formData, linkedin_url: e.target.value})}
+                  placeholder="https://linkedin.com/in/..."
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-portfolio_url">Portfolio URL</Label>
+                <Input
+                  id="edit-portfolio_url"
+                  type="url"
+                  value={formData.portfolio_url}
+                  onChange={(e) => setFormData({...formData, portfolio_url: e.target.value})}
+                  placeholder="https://..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-mentor_assigned">Mentor Assigned</Label>
+                <Input
+                  id="edit-mentor_assigned"
+                  value={formData.mentor_assigned}
+                  onChange={(e) => setFormData({...formData, mentor_assigned: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-notes">Notes</Label>
+              <Textarea
+                id="edit-notes"
+                value={formData.notes}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                rows={3}
+              />
+            </div>
+
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
                 Cancel

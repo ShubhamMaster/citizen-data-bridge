@@ -1,11 +1,9 @@
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import JobManagement from "@/components/JobManagement";
 import AdminProfilePage from "@/components/AdminProfilePage";
 import SalaryInquiriesTab from "@/components/admin/SalaryInquiriesTab";
@@ -24,7 +22,9 @@ import {
   DollarSign,
   Headphones,
   Activity,
-  GraduationCap
+  GraduationCap,
+  LogOut,
+  User
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -37,11 +37,12 @@ const AdminDashboard = () => {
     const path = location.pathname;
     if (path === '/admin' || path === '/admin/overview') return 'overview';
     if (path === '/admin/interns') return 'interns';
-    if (path === '/admin/scheduled-calls') return 'calls';
-    if (path === '/admin/contact-messages') return 'messages';
+    if (path === '/admin/scheduled-calls') return 'scheduled-calls';
+    if (path === '/admin/contact-messages') return 'contact-messages';
     if (path === '/admin/jobs') return 'jobs';
     if (path === '/admin/salary') return 'salary';
     if (path === '/admin/support') return 'support';
+    if (path === '/admin/profile') return 'profile';
     return 'overview';
   };
 
@@ -156,6 +157,11 @@ const AdminDashboard = () => {
       subtitle: "This week"
     }
   ];
+
+  const handleLogout = () => {
+    // Clear session and redirect to login
+    navigate('/login');
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -298,30 +304,65 @@ const AdminDashboard = () => {
         );
       case 'interns':
         return <InternsTab />;
-      case 'calls':
-        return <AdminProfilePage />;
-      case 'messages':
-        return <AdminProfilePage />;
+      case 'scheduled-calls':
+        return <ScheduledCallsTab />;
+      case 'contact-messages':
+        return <ContactMessagesTab />;
       case 'jobs':
         return <JobManagement />;
       case 'salary':
         return <SalaryInquiriesTab />;
       case 'support':
         return <TechnicalSupportTab />;
-      case 'scheduled-calls':
-        return <ScheduledCallsTab />;
-      case 'contact-messages':
-        return <ContactMessagesTab />;
+      case 'profile':
+        return <AdminProfilePage />;
       default:
         return <div>Tab not found</div>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="flex h-[calc(100vh-80px)]">
+    <div className="min-h-screen bg-background flex w-full">
+      {/* Admin Header */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-border">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
+              alt="Civora Nexus Logo" 
+              className="w-8 h-8 object-contain" 
+            />
+            <div>
+              <span className="text-lg font-bold text-primary">Admin Dashboard</span>
+              <span className="block text-xs text-secondary">Civora Nexus</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate('/admin/profile')}
+              className="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-red-600 hover:text-red-700"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sidebar and Main Content */}
+      <div className="flex w-full pt-20">
         <AdminSidebar 
           isCollapsed={isSidebarCollapsed} 
           onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
@@ -333,8 +374,6 @@ const AdminDashboard = () => {
           </div>
         </main>
       </div>
-
-      <Footer />
     </div>
   );
 };

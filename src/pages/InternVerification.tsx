@@ -82,7 +82,6 @@ const InternVerification = () => {
         <UniformHeroSection
           title="Verification Error"
           subtitle="The verification link you used is invalid or has expired."
-          description="Please contact our HR department if you believe this is an error."
           showCta={false}
         />
         <Footer />
@@ -97,7 +96,6 @@ const InternVerification = () => {
       <UniformHeroSection
         title="Intern Verification"
         subtitle="Official Internship Credential Verification"
-        description="This page verifies the authenticity of internship credentials issued by Civora Nexus."
         showCta={false}
       />
 
@@ -128,6 +126,12 @@ const InternVerification = () => {
                         <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                         <p>{intern.email}</p>
                       </div>
+                      {intern.phone && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                          <p>{intern.phone}</p>
+                        </div>
+                      )}
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">Intern ID</label>
                         <p className="font-mono text-primary font-semibold">{intern.intern_id}</p>
@@ -148,6 +152,18 @@ const InternVerification = () => {
                         <label className="text-sm font-medium text-muted-foreground">Internship Year</label>
                         <p>{intern.internship_year}</p>
                       </div>
+                      {intern.location && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Location</label>
+                          <p>{intern.location}</p>
+                        </div>
+                      )}
+                      {intern.start_date && intern.end_date && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Duration</label>
+                          <p>{new Date(intern.start_date).toLocaleDateString()} - {new Date(intern.end_date).toLocaleDateString()}</p>
+                        </div>
+                      )}
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">Current Status</label>
                         <div className="mt-1">
