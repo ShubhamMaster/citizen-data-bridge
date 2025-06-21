@@ -1,8 +1,12 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import AuthPage from "@/components/auth/AuthPage";
 import Index from "./pages/Index";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
@@ -67,99 +71,97 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <LogVisitEffect />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            {/* About section */}
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/about-us/leadership" element={<Leadership />} />
-            <Route path="/leadership" element={<Leadership />} />
-            <Route path="/about-us/board-of-directors" element={<BoardOfDirectors />} />
-            <Route path="/about-us/partners" element={<Partners />} />
-            <Route path="/partners" element={<Partners />} />
-            <Route path="/about-us/investors" element={<Investors />} />
-            <Route path="/investors" element={<Investors />} />
-            <Route path="/about-us/csr-esg" element={<CSRESG />} />
-            <Route path="/about-us/csr-esg/sustainability" element={<Sustainability />} />
-            <Route path="/about-us/csr-esg/corporate-responsibility" element={<CorporateResponsibility />} />
-            <Route path="/about-us/csr-esg/social-impact" element={<SocialImpact />} />
-            {/* Services section */}
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/ai-solutions" element={<AISolutions />} />
-            <Route path="/ai-solutions" element={<AISolutions />} />
-            <Route path="/services/saas-development" element={<SaaSDevelopment />} />
-            <Route path="/saas-development" element={<SaaSDevelopment />} />
-            <Route path="/services/cloud-hosting" element={<CloudHosting />} />
-            <Route path="/cloud-hosting" element={<CloudHosting />} />
-            <Route path="/services/automation" element={<Automation />} />
-            <Route path="/automation" element={<Automation />} />
-            <Route path="/services/custom-integrations" element={<CustomIntegrations />} />
-            <Route path="/custom-integrations" element={<CustomIntegrations />} />
-            {/* Contact & Support */}
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/contact/sales" element={<SalesInquiry />} />
-            <Route path="/sales-inquiry" element={<SalesInquiry />} />
-            <Route path="/support/help-center" element={<HelpCenter />} />
-            <Route path="/help-center" element={<HelpCenter />} />
-            <Route path="/support/technical-support" element={<TechnicalSupport />} />
-            <Route path="/technical-support" element={<TechnicalSupport />} />
-            {/* Careers */}
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/careers/jobs" element={<CareersJobs />} />
-            <Route path="/careers/life" element={<LifeAtCivora />} />
-            <Route path="/careers/internships" element={<Internships />} />
-            {/* Innovation */}
-            <Route path="/innovation-lab" element={<InnovationLab />} />
-            <Route path="/innovation-lab/rnd" element={<Rnd />} />
-            <Route path="/innovation-lab/ai-research" element={<AIResearch />} />
-            <Route path="/innovation-lab/patents" element={<Patents />} />
-            {/* Auth */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            
-            {/* Admin Dashboard with enhanced routing */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/overview" element={<AdminDashboard />} />
-            <Route path="/admin/interns" element={<AdminDashboard />} />
-            <Route path="/admin/calls" element={<AdminDashboard />} />
-            <Route path="/admin/messages" element={<AdminDashboard />} />
-            <Route path="/admin/jobs" element={<AdminDashboard />} />
-            <Route path="/admin/salary" element={<AdminDashboard />} />
-            <Route path="/admin/support" element={<AdminDashboard />} />
-            <Route path="/admin/scheduled-calls" element={<AdminDashboard />} />
-            <Route path="/admin/contact-messages" element={<AdminDashboard />} />
-            <Route path="/admin/profile" element={<AdminDashboard />} />
-            
-            {/* Intern Verification */}
-            <Route path="/verify/:token" element={<InternVerification />} />
-            
-            {/* Legal */}
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/accessibility" element={<Accessibility />} />
-            {/* Projects */}
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/projects/case-studies" element={<CaseStudies />} />
-            <Route path="/case-studies" element={<CaseStudies />} />
-            <Route path="/projects/client-success-stories" element={<ClientSuccessStories />} />
-            <Route path="/client-success-stories" element={<ClientSuccessStories />} />
-            {/* Legacy project routes */}
-            <Route path="/projects/smart-village" element={<SmartVillage />} />
-            <Route path="/projects/civic-one" element={<CivicOne />} />
-            <Route path="/projects/health-bridge" element={<HealthBridge />} />
-            <Route path="/projects/urban-data" element={<UrbanData />} />
-            <Route path="/projects/impact-tracker" element={<ImpactTracker />} />
-            {/* Legal & Compliance additional subpages */}
-            <Route path="/compliance/gdpr" element={<GDPRCCPA />} />
-            <Route path="/gdpr" element={<GDPRCCPA />} />
-            <Route path="/compliance/ccpa" element={<GDPRCCPA />} />
-            <Route path="/compliance/iso" element={<ISO />} />
-            <Route path="/iso" element={<ISO />} />
-            <Route path="/compliance/security" element={<DataSecurity />} />
-            <Route path="/data-security" element={<DataSecurity />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <LogVisitEffect />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              {/* Auth routes */}
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              
+              {/* Protected Admin Dashboard */}
+              <Route path="/admin/*" element={
+                <ProtectedRoute requiredRole="super_admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              
+              {/* About section */}
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/about-us/leadership" element={<Leadership />} />
+              <Route path="/leadership" element={<Leadership />} />
+              <Route path="/about-us/board-of-directors" element={<BoardOfDirectors />} />
+              <Route path="/about-us/partners" element={<Partners />} />
+              <Route path="/partners" element={<Partners />} />
+              <Route path="/about-us/investors" element={<Investors />} />
+              <Route path="/investors" element={<Investors />} />
+              <Route path="/about-us/csr-esg" element={<CSRESG />} />
+              <Route path="/about-us/csr-esg/sustainability" element={<Sustainability />} />
+              <Route path="/about-us/csr-esg/corporate-responsibility" element={<CorporateResponsibility />} />
+              <Route path="/about-us/csr-esg/social-impact" element={<SocialImpact />} />
+              {/* Services section */}
+              <Route path="/services" element={<Services />} />
+              <Route path="/services/ai-solutions" element={<AISolutions />} />
+              <Route path="/ai-solutions" element={<AISolutions />} />
+              <Route path="/services/saas-development" element={<SaaSDevelopment />} />
+              <Route path="/saas-development" element={<SaaSDevelopment />} />
+              <Route path="/services/cloud-hosting" element={<CloudHosting />} />
+              <Route path="/cloud-hosting" element={<CloudHosting />} />
+              <Route path="/services/automation" element={<Automation />} />
+              <Route path="/automation" element={<Automation />} />
+              <Route path="/services/custom-integrations" element={<CustomIntegrations />} />
+              <Route path="/custom-integrations" element={<CustomIntegrations />} />
+              {/* Contact & Support */}
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/contact/sales" element={<SalesInquiry />} />
+              <Route path="/sales-inquiry" element={<SalesInquiry />} />
+              <Route path="/support/help-center" element={<HelpCenter />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/support/technical-support" element={<TechnicalSupport />} />
+              <Route path="/technical-support" element={<TechnicalSupport />} />
+              {/* Careers */}
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/careers/jobs" element={<CareersJobs />} />
+              <Route path="/careers/life" element={<LifeAtCivora />} />
+              <Route path="/careers/internships" element={<Internships />} />
+              {/* Innovation */}
+              <Route path="/innovation-lab" element={<InnovationLab />} />
+              <Route path="/innovation-lab/rnd" element={<Rnd />} />
+              <Route path="/innovation-lab/ai-research" element={<AIResearch />} />
+              <Route path="/innovation-lab/patents" element={<Patents />} />
+              
+              {/* Intern Verification */}
+              <Route path="/verify/:token" element={<InternVerification />} />
+              
+              {/* Legal */}
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/accessibility" element={<Accessibility />} />
+              {/* Projects */}
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/case-studies" element={<CaseStudies />} />
+              <Route path="/case-studies" element={<CaseStudies />} />
+              <Route path="/projects/client-success-stories" element={<ClientSuccessStories />} />
+              <Route path="/client-success-stories" element={<ClientSuccessStories />} />
+              {/* Legacy project routes */}
+              <Route path="/projects/smart-village" element={<SmartVillage />} />
+              <Route path="/projects/civic-one" element={<CivicOne />} />
+              <Route path="/projects/health-bridge" element={<HealthBridge />} />
+              <Route path="/projects/urban-data" element={<UrbanData />} />
+              <Route path="/projects/impact-tracker" element={<ImpactTracker />} />
+              {/* Legal & Compliance additional subpages */}
+              <Route path="/compliance/gdpr" element={<GDPRCCPA />} />
+              <Route path="/gdpr" element={<GDPRCCPA />} />
+              <Route path="/compliance/ccpa" element={<GDPRCCPA />} />
+              <Route path="/compliance/iso" element={<ISO />} />
+              <Route path="/iso" element={<ISO />} />
+              <Route path="/compliance/security" element={<DataSecurity />} />
+              <Route path="/data-security" element={<DataSecurity />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

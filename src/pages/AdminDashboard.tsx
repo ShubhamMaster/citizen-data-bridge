@@ -4,16 +4,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import JobManagement from "@/components/JobManagement";
-import AdminProfile from "@/pages/AdminProfile";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSessionTimer } from "@/hooks/useSessionTimer";
+import AdminHeader from "@/components/admin/AdminHeader";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminProfileTab from "@/components/admin/AdminProfileTab";
+import InternsTab from "@/components/admin/InternsTab";
+import ScheduledCallsTab from "@/components/admin/ScheduledCallsTab";
+import ContactMessagesTab from "@/components/admin/ContactMessagesTab";
 import SalaryInquiriesTab from "@/components/admin/SalaryInquiriesTab";
 import TechnicalSupportTab from "@/components/admin/TechnicalSupportTab";
-import ContactMessagesTab from "@/components/admin/ContactMessagesTab";
-import ScheduledCallsTab from "@/components/admin/ScheduledCallsTab";
-import InternsTab from "@/components/admin/InternsTab";
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import RecycleBinTab from "@/components/admin/RecycleBinTab";
+import ManageAdminsTab from "@/components/admin/ManageAdminsTab";
+import JobManagement from "@/components/JobManagement";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { 
   Users, 
   Calendar, 
@@ -23,31 +28,19 @@ import {
   Headphones,
   Activity,
   GraduationCap,
-  LogOut,
-  User,
-  Clock
+  Clock,
+  Trash2,
+  Shield,
+  AlertTriangle
 } from "lucide-react";
 
 const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, userRole, signOut } = useAuth();
+  const { timeLeft, showWarning, extendSession, formatTime, setShowWarning } = useSessionTimer();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [sessionTimeLeft, setSessionTimeLeft] = useState(7200); // 2 hours in seconds
-
-  // Session timer countdown
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSessionTimeLeft(prev => Math.max(0, prev - 1));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  };
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
 
   // Determine active tab from URL
   const getActiveTabFromPath = () => {
@@ -59,67 +52,20 @@ const AdminDashboard = () => {
     if (path === '/admin/jobs') return 'jobs';
     if (path === '/admin/salary') return 'salary';
     if (path === '/admin/support') return 'support';
+    if (path === '/admin/recycle-bin') return 'recycle-bin';
+    if (path === '/admin/manage-admins') return 'manage-admins';
     if (path === '/admin/profile') return 'profile';
     return 'overview';
   };
 
   const activeTab = getActiveTabFromPath();
 
-  // Fetch dashboard stats
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin-stats'],
-    queryFn: async () => {
-      const [
-        scheduledCallsRes,
-        contactMessagesRes,
-        jobsRes,
-        salaryInquiriesRes,
-        supportTicketsRes,
-        websiteVisitsRes,
-        internsRes
-      ] = await Promise.all([
-        supabase.from('scheduled_calls').select('id, is_done'),
-        supabase.from('contact_messages').select('id'),
-        supabase.from('jobs').select('id, is_active'),
-        supabase.from('salary_inquiries').select('id, status'),
-        supabase.from('support_tickets').select('id, status'),
-        supabase.from('website_visits').select('id').gte('visited_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
-        supabase.from('interns').select('id, status, internship_year')
-      ]);
-
-      const currentYear = new Date().getFullYear();
-
-      return {
-        scheduledCalls: {
-          total: scheduledCallsRes.data?.length || 0,
-          pending: scheduledCallsRes.data?.filter(call => !call.is_done).length || 0
-        },
-        contactMessages: {
-          total: contactMessagesRes.data?.length || 0
-        },
-        jobs: {
-          total: jobsRes.data?.length || 0,
-          active: jobsRes.data?.filter(job => job.is_active).length || 0
-        },
-        salaryInquiries: {
-          total: salaryInquiriesRes.data?.length || 0,
-          pending: salaryInquiriesRes.data?.filter(inquiry => inquiry.status === 'pending').length || 0
-        },
-        supportTickets: {
-          total: supportTicketsRes.data?.length || 0,
-          pending: supportTicketsRes.data?.filter(ticket => ticket.status === 'pending').length || 0
-        },
-        websiteVisits: {
-          thisWeek: websiteVisitsRes.data?.length || 0
-        },
-        interns: {
-          total: internsRes.data?.length || 0,
-          thisYear: internsRes.data?.filter(intern => intern.internship_year === currentYear).length || 0,
-          pending: internsRes.data?.filter(intern => intern.status === 'pending').length || 0
-        }
-      };
-    },
-  });
+  // Redirect non-super-admin users
+  useEffect(() => {
+    if (userRole && userRole !== 'super_admin') {
+      navigate('/');
+    }
+  }, [userRole, navigate]);
 
   const dashboardCards = [
     {
@@ -175,11 +121,6 @@ const AdminDashboard = () => {
     }
   ];
 
-  const handleLogout = () => {
-    // Clear session and redirect to login
-    navigate('/login');
-  };
-
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -190,9 +131,37 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">Monitor and manage your business operations</p>
             </div>
 
+            {/* Session Warning Alert */}
+            {showWarning && (
+              <Alert className="border-orange-200 bg-orange-50">
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span className="text-orange-800">
+                    Your session will expire in {formatTime(timeLeft)}. 
+                  </span>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      onClick={extendSession}
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
+                      Extend Session
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => setShowWarning(false)}
+                    >
+                      Dismiss
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {dashboardCards.map((card, index) => (
-                <Card key={index} className="card-modern">
+                <Card key={index} className="card-modern hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4`}>
                       {card.icon}
@@ -265,26 +234,21 @@ const AdminDashboard = () => {
                   </Button>
                   
                   <Button 
-                    onClick={() => navigate('/admin/scheduled-calls')} 
+                    onClick={() => navigate('/admin/manage-admins')} 
                     className="w-full justify-start" 
                     variant="outline"
                   >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Manage Scheduled Calls
-                    {stats?.scheduledCalls.pending > 0 && (
-                      <Badge variant="secondary" className="ml-auto">
-                        {stats.scheduledCalls.pending}
-                      </Badge>
-                    )}
+                    <Shield className="h-4 w-4 mr-2" />
+                    Manage Admins
                   </Button>
                   
                   <Button 
-                    onClick={() => navigate('/admin/jobs')} 
+                    onClick={() => navigate('/admin/recycle-bin')} 
                     className="w-full justify-start" 
                     variant="outline"
                   >
-                    <Briefcase className="h-4 w-4 mr-2" />
-                    Manage Job Listings
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Recycle Bin
                   </Button>
                 </CardContent>
               </Card>
@@ -303,17 +267,27 @@ const AdminDashboard = () => {
                     <Badge variant="default" className="bg-green-100 text-green-800">Operational</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Last Backup</span>
-                    <span className="text-sm">2 hours ago</span>
+                    <span className="text-sm text-muted-foreground">Session Time</span>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-orange-600" />
+                      <span className="text-sm font-medium">{formatTime(timeLeft)}</span>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Storage Used</span>
-                    <span className="text-sm">2.4 GB / 10 GB</span>
+                    <span className="text-sm text-muted-foreground">User Role</span>
+                    <Badge className="bg-purple-100 text-purple-800">
+                      <Shield className="w-3 h-3 mr-1" />
+                      {userRole}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Active Sessions</span>
-                    <span className="text-sm">1 admin</span>
-                  </div>
+                  <Button 
+                    onClick={extendSession} 
+                    variant="outline" 
+                    className="w-full text-orange-600 border-orange-200 hover:bg-orange-50"
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    Extend Session
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -331,64 +305,42 @@ const AdminDashboard = () => {
         return <SalaryInquiriesTab />;
       case 'support':
         return <TechnicalSupportTab />;
+      case 'recycle-bin':
+        return <RecycleBinTab />;
+      case 'manage-admins':
+        return <ManageAdminsTab />;
       case 'profile':
-        return <AdminProfile />;
+        return <AdminProfileTab />;
       default:
         return <div>Tab not found</div>;
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background flex w-full">
-      {/* Admin Header */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-border">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
-              alt="Civora Nexus Logo" 
-              className="w-8 h-8 object-contain" 
-            />
-            <div>
-              <span className="text-lg font-bold text-primary">Admin Dashboard</span>
-              <span className="block text-xs text-secondary">Civora Nexus</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-lg">
-              <Clock className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-800">
-                {formatTime(sessionTimeLeft)}
-              </span>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigate('/admin/profile')}
-              className="flex items-center gap-2"
-            >
-              <User className="h-4 w-4" />
-              Profile
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
-          </div>
+  if (statsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex w-full">
+        <div className="flex items-center justify-center w-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       </div>
+    );
+  }
 
-      {/* Sidebar and Main Content */}
+  return (
+    <div className="min-h-screen bg-background flex w-full">
+      <AdminHeader 
+        user={user}
+        timeLeft={timeLeft}
+        formatTime={formatTime}
+        extendSession={extendSession}
+        signOut={signOut}
+      />
+
       <div className="flex w-full pt-20">
         <AdminSidebar 
           isCollapsed={isSidebarCollapsed} 
-          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          activeTab={activeTab}
         />
         
         <main className="flex-1 overflow-auto">

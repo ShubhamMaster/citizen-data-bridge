@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          session_token: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          session_token?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          session_token?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -110,12 +137,23 @@ export type Database = {
       interns: {
         Row: {
           created_at: string
+          deleted_at: string | null
           department: string
           email: string
+          end_date: string | null
           id: string
           intern_id: string
           internship_year: number
+          is_deleted: boolean | null
+          linkedin_url: string | null
+          location: string | null
+          mentor_assigned: string | null
           name: string
+          notes: string | null
+          phone: string | null
+          portfolio_url: string | null
+          resume_url: string | null
+          start_date: string | null
           status: string
           updated_at: string
           verification_token: string | null
@@ -123,12 +161,23 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           department: string
           email: string
+          end_date?: string | null
           id?: string
           intern_id: string
           internship_year: number
+          is_deleted?: boolean | null
+          linkedin_url?: string | null
+          location?: string | null
+          mentor_assigned?: string | null
           name: string
+          notes?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          resume_url?: string | null
+          start_date?: string | null
           status?: string
           updated_at?: string
           verification_token?: string | null
@@ -136,12 +185,23 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           department?: string
           email?: string
+          end_date?: string | null
           id?: string
           intern_id?: string
           internship_year?: number
+          is_deleted?: boolean | null
+          linkedin_url?: string | null
+          location?: string | null
+          mentor_assigned?: string | null
           name?: string
+          notes?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          resume_url?: string | null
+          start_date?: string | null
           status?: string
           updated_at?: string
           verification_token?: string | null
@@ -188,16 +248,87 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          last_login: string | null
+          last_login_date: string | null
+          login_count: number | null
+          role: Database["public"]["Enums"]["user_role"]
+          today_login_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          last_login?: string | null
+          last_login_date?: string | null
+          login_count?: number | null
+          role?: Database["public"]["Enums"]["user_role"]
+          today_login_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          last_login?: string | null
+          last_login_date?: string | null
+          login_count?: number | null
+          role?: Database["public"]["Enums"]["user_role"]
+          today_login_count?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recycle_bin: {
+        Row: {
+          can_restore: boolean | null
+          data: Json
+          deleted_at: string
+          deleted_by: string | null
+          id: string
+          original_id: string
+          original_table: string
+        }
+        Insert: {
+          can_restore?: boolean | null
+          data: Json
+          deleted_at?: string
+          deleted_by?: string | null
+          id?: string
+          original_id: string
+          original_table: string
+        }
+        Update: {
+          can_restore?: boolean | null
+          data?: Json
+          deleted_at?: string
+          deleted_by?: string | null
+          id?: string
+          original_id?: string
+          original_table?: string
+        }
+        Relationships: []
+      }
       salary_inquiries: {
         Row: {
           additional_info: string | null
           created_at: string
           current_salary: string | null
+          deleted_at: string | null
           department: string
           email: string
           expected_salary: string | null
           experience_years: number | null
           id: string
+          is_deleted: boolean | null
           job_title: string | null
           name: string
           phone: string | null
@@ -208,11 +339,13 @@ export type Database = {
           additional_info?: string | null
           created_at?: string
           current_salary?: string | null
+          deleted_at?: string | null
           department: string
           email: string
           expected_salary?: string | null
           experience_years?: number | null
           id?: string
+          is_deleted?: boolean | null
           job_title?: string | null
           name: string
           phone?: string | null
@@ -223,11 +356,13 @@ export type Database = {
           additional_info?: string | null
           created_at?: string
           current_salary?: string | null
+          deleted_at?: string | null
           department?: string
           email?: string
           expected_salary?: string | null
           experience_years?: number | null
           id?: string
+          is_deleted?: boolean | null
           job_title?: string | null
           name?: string
           phone?: string | null
@@ -240,7 +375,9 @@ export type Database = {
         Row: {
           created_at: string
           date: string
+          deleted_at: string | null
           id: number
+          is_deleted: boolean | null
           is_done: boolean
           mobile: string | null
           name: string
@@ -250,7 +387,9 @@ export type Database = {
         Insert: {
           created_at?: string
           date: string
+          deleted_at?: string | null
           id?: number
+          is_deleted?: boolean | null
           is_done?: boolean
           mobile?: string | null
           name: string
@@ -260,7 +399,9 @@ export type Database = {
         Update: {
           created_at?: string
           date?: string
+          deleted_at?: string | null
           id?: number
+          is_deleted?: boolean | null
           is_done?: boolean
           mobile?: string | null
           name?: string
@@ -273,10 +414,12 @@ export type Database = {
         Row: {
           company: string | null
           created_at: string
+          deleted_at: string | null
           description: string
           email: string
           error_details: string | null
           id: string
+          is_deleted: boolean | null
           issue_type: string
           name: string
           phone: string | null
@@ -289,10 +432,12 @@ export type Database = {
         Insert: {
           company?: string | null
           created_at?: string
+          deleted_at?: string | null
           description: string
           email: string
           error_details?: string | null
           id?: string
+          is_deleted?: boolean | null
           issue_type: string
           name: string
           phone?: string | null
@@ -305,10 +450,12 @@ export type Database = {
         Update: {
           company?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string
           email?: string
           error_details?: string | null
           id?: string
+          is_deleted?: boolean | null
           issue_type?: string
           name?: string
           phone?: string | null
@@ -398,9 +545,28 @@ export type Database = {
         Args: { year: number }
         Returns: string
       }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_role: {
+        Args: {
+          user_id: string
+          required_role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
+      soft_delete_record: {
+        Args: { table_name: string; record_id: string; user_id: string }
+        Returns: undefined
+      }
+      update_login_stats: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "super_admin" | "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -515,6 +681,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["super_admin", "admin", "user"],
+    },
   },
 } as const
