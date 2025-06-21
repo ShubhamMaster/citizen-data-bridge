@@ -1,6 +1,8 @@
 
 import React from 'react';
-import { useScheduledCalls, useUpdateScheduledCall } from '@/hooks/useScheduledCalls';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,8 +10,42 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Download, Phone, Calendar, Clock, User } from 'lucide-react';
 
 const ScheduledCallsTab = () => {
-  const { data: calls, isLoading } = useScheduledCalls();
-  const updateCall = useUpdateScheduledCall();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: calls, isLoading } = useQuery({
+    queryKey: ['scheduled-calls'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('scheduled_calls')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const updateCall = useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: any }) => {
+      const { data, error } = await supabase
+        .from('scheduled_calls')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['scheduled-calls'] });
+      toast({
+        title: "Updated",
+        description: "Call status updated successfully.",
+      });
+    },
+  });
 
   const handleStatusUpdate = (id: number, newStatus: string) => {
     updateCall.mutate({

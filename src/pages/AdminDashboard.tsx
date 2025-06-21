@@ -1,147 +1,402 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
-import AdminSidebar from '@/components/admin/AdminSidebar';
-import InternsTab from '@/components/admin/InternsTab';
-import ScheduledCallsTab from '@/components/admin/ScheduledCallsTab';
-import ContactMessagesTab from '@/components/admin/ContactMessagesTab';
-import TechnicalSupportTab from '@/components/admin/TechnicalSupportTab';
-import SalaryInquiriesTab from '@/components/admin/SalaryInquiriesTab';
-import { Users, Phone, MessageSquare, HeadphonesIcon, DollarSign, Eye, Activity } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import JobManagement from "@/components/JobManagement";
+import AdminProfile from "@/pages/AdminProfile";
+import SalaryInquiriesTab from "@/components/admin/SalaryInquiriesTab";
+import TechnicalSupportTab from "@/components/admin/TechnicalSupportTab";
+import ContactMessagesTab from "@/components/admin/ContactMessagesTab";
+import ScheduledCallsTab from "@/components/admin/ScheduledCallsTab";
+import InternsTab from "@/components/admin/InternsTab";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Users, 
+  Calendar, 
+  MessageSquare, 
+  Briefcase,
+  DollarSign,
+  Headphones,
+  Activity,
+  GraduationCap,
+  LogOut,
+  User,
+  Clock
+} from "lucide-react";
 
 const AdminDashboard = () => {
-  const [selectedTab, setSelectedTab] = useState('overview');
-  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [sessionTimeLeft, setSessionTimeLeft] = useState(7200); // 2 hours in seconds
 
-  const StatCard = ({ title, value, icon: Icon, subtitle, trend }: {
-    title: string;
-    value: number | string;
-    icon: any;
-    subtitle?: string;
-    trend?: 'up' | 'down' | 'neutral';
-  }) => (
-    <Card className="card-modern">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">
-          {statsLoading ? (
-            <div className="h-8 w-16 bg-muted animate-pulse rounded" />
-          ) : (
-            value
-          )}
-        </div>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <Activity className="w-3 h-3" />
-            {subtitle}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
+  // Session timer countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionTimeLeft(prev => Math.max(0, prev - 1));
+    }, 1000);
 
-  return (
-    <div className="flex h-screen bg-background">
-      <AdminSidebar selectedTab={selectedTab} onTabChange={setSelectedTab} />
-      
-      <main className="flex-1 overflow-auto p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex justify-between items-center">
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  // Determine active tab from URL
+  const getActiveTabFromPath = () => {
+    const path = location.pathname;
+    if (path === '/admin' || path === '/admin/overview') return 'overview';
+    if (path === '/admin/interns') return 'interns';
+    if (path === '/admin/scheduled-calls') return 'scheduled-calls';
+    if (path === '/admin/contact-messages') return 'contact-messages';
+    if (path === '/admin/jobs') return 'jobs';
+    if (path === '/admin/salary') return 'salary';
+    if (path === '/admin/support') return 'support';
+    if (path === '/admin/profile') return 'profile';
+    return 'overview';
+  };
+
+  const activeTab = getActiveTabFromPath();
+
+  // Fetch dashboard stats
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const [
+        scheduledCallsRes,
+        contactMessagesRes,
+        jobsRes,
+        salaryInquiriesRes,
+        supportTicketsRes,
+        websiteVisitsRes,
+        internsRes
+      ] = await Promise.all([
+        supabase.from('scheduled_calls').select('id, is_done'),
+        supabase.from('contact_messages').select('id'),
+        supabase.from('jobs').select('id, is_active'),
+        supabase.from('salary_inquiries').select('id, status'),
+        supabase.from('support_tickets').select('id, status'),
+        supabase.from('website_visits').select('id').gte('visited_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+        supabase.from('interns').select('id, status, internship_year')
+      ]);
+
+      const currentYear = new Date().getFullYear();
+
+      return {
+        scheduledCalls: {
+          total: scheduledCallsRes.data?.length || 0,
+          pending: scheduledCallsRes.data?.filter(call => !call.is_done).length || 0
+        },
+        contactMessages: {
+          total: contactMessagesRes.data?.length || 0
+        },
+        jobs: {
+          total: jobsRes.data?.length || 0,
+          active: jobsRes.data?.filter(job => job.is_active).length || 0
+        },
+        salaryInquiries: {
+          total: salaryInquiriesRes.data?.length || 0,
+          pending: salaryInquiriesRes.data?.filter(inquiry => inquiry.status === 'pending').length || 0
+        },
+        supportTickets: {
+          total: supportTicketsRes.data?.length || 0,
+          pending: supportTicketsRes.data?.filter(ticket => ticket.status === 'pending').length || 0
+        },
+        websiteVisits: {
+          thisWeek: websiteVisitsRes.data?.length || 0
+        },
+        interns: {
+          total: internsRes.data?.length || 0,
+          thisYear: internsRes.data?.filter(intern => intern.internship_year === currentYear).length || 0,
+          pending: internsRes.data?.filter(intern => intern.status === 'pending').length || 0
+        }
+      };
+    },
+  });
+
+  const dashboardCards = [
+    {
+      title: "Interns",
+      total: stats?.interns.total || 0,
+      pending: stats?.interns.pending || 0,
+      icon: <GraduationCap className="h-6 w-6 text-accent" />,
+      color: "from-purple-500/10 to-purple-600/10",
+      subtitle: `${stats?.interns.thisYear || 0} this year`
+    },
+    {
+      title: "Scheduled Calls",
+      total: stats?.scheduledCalls.total || 0,
+      pending: stats?.scheduledCalls.pending || 0,
+      icon: <Calendar className="h-6 w-6 text-accent" />,
+      color: "from-blue-500/10 to-blue-600/10"
+    },
+    {
+      title: "Contact Messages",
+      total: stats?.contactMessages.total || 0,
+      pending: 0,
+      icon: <MessageSquare className="h-6 w-6 text-accent" />,
+      color: "from-green-500/10 to-green-600/10"
+    },
+    {
+      title: "Job Listings",
+      total: stats?.jobs.total || 0,
+      pending: stats?.jobs.active || 0,
+      icon: <Briefcase className="h-6 w-6 text-accent" />,
+      color: "from-indigo-500/10 to-indigo-600/10"
+    },
+    {
+      title: "Salary Inquiries",
+      total: stats?.salaryInquiries.total || 0,
+      pending: stats?.salaryInquiries.pending || 0,
+      icon: <DollarSign className="h-6 w-6 text-accent" />,
+      color: "from-orange-500/10 to-orange-600/10"
+    },
+    {
+      title: "Support Tickets",
+      total: stats?.supportTickets.total || 0,
+      pending: stats?.supportTickets.pending || 0,
+      icon: <Headphones className="h-6 w-6 text-accent" />,
+      color: "from-red-500/10 to-red-600/10"
+    },
+    {
+      title: "Website Visits",
+      total: stats?.websiteVisits.thisWeek || 0,
+      pending: 0,
+      icon: <Activity className="h-6 w-6 text-accent" />,
+      color: "from-teal-500/10 to-teal-600/10",
+      subtitle: "This week"
+    }
+  ];
+
+  const handleLogout = () => {
+    // Clear session and redirect to login
+    navigate('/login');
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-primary">Admin Dashboard</h1>
-              <p className="text-muted-foreground">
-                Real-time overview of your system
-                {!statsLoading && (
-                  <span className="ml-2 inline-flex items-center gap-1 text-green-600">
-                    <Activity className="w-3 h-3" />
-                    Live
-                  </span>
-                )}
-              </p>
+              <h1 className="text-3xl font-bold text-primary mb-2">Dashboard Overview</h1>
+              <p className="text-muted-foreground">Monitor and manage your business operations</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {dashboardCards.map((card, index) => (
+                <Card key={index} className="card-modern">
+                  <CardContent className="p-6">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4`}>
+                      {card.icon}
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-primary">{card.title}</h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-bold">{card.total}</span>
+                        {card.pending > 0 && (
+                          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                            {card.pending} pending
+                          </Badge>
+                        )}
+                      </div>
+                      {card.subtitle && (
+                        <p className="text-sm text-muted-foreground">{card.subtitle}</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button 
+                    onClick={() => navigate('/admin/interns')} 
+                    className="w-full justify-start" 
+                    variant="outline"
+                  >
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Manage Interns
+                    {stats?.interns.pending > 0 && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {stats.interns.pending}
+                      </Badge>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/admin/salary')} 
+                    className="w-full justify-start" 
+                    variant="outline"
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Review Salary Inquiries
+                    {stats?.salaryInquiries.pending > 0 && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {stats.salaryInquiries.pending}
+                      </Badge>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/admin/support')} 
+                    className="w-full justify-start" 
+                    variant="outline"
+                  >
+                    <Headphones className="h-4 w-4 mr-2" />
+                    Handle Support Tickets
+                    {stats?.supportTickets.pending > 0 && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {stats.supportTickets.pending}
+                      </Badge>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/admin/scheduled-calls')} 
+                    className="w-full justify-start" 
+                    variant="outline"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Manage Scheduled Calls
+                    {stats?.scheduledCalls.pending > 0 && (
+                      <Badge variant="secondary" className="ml-auto">
+                        {stats.scheduledCalls.pending}
+                      </Badge>
+                    )}
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => navigate('/admin/jobs')} 
+                    className="w-full justify-start" 
+                    variant="outline"
+                  >
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Manage Job Listings
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle>System Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Database Status</span>
+                    <Badge variant="default" className="bg-green-100 text-green-800">Connected</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">API Status</span>
+                    <Badge variant="default" className="bg-green-100 text-green-800">Operational</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Last Backup</span>
+                    <span className="text-sm">2 hours ago</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Storage Used</span>
+                    <span className="text-sm">2.4 GB / 10 GB</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Active Sessions</span>
+                    <span className="text-sm">1 admin</span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
+        );
+      case 'interns':
+        return <InternsTab />;
+      case 'scheduled-calls':
+        return <ScheduledCallsTab />;
+      case 'contact-messages':
+        return <ContactMessagesTab />;
+      case 'jobs':
+        return <JobManagement />;
+      case 'salary':
+        return <SalaryInquiriesTab />;
+      case 'support':
+        return <TechnicalSupportTab />;
+      case 'profile':
+        return <AdminProfile />;
+      default:
+        return <div>Tab not found</div>;
+    }
+  };
 
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="interns">Interns</TabsTrigger>
-              <TabsTrigger value="calls">Scheduled Calls</TabsTrigger>
-              <TabsTrigger value="contacts">Contact Messages</TabsTrigger>
-              <TabsTrigger value="support">Technical Support</TabsTrigger>
-              <TabsTrigger value="salary">Salary Inquiries</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                  title="Total Interns"
-                  value={stats?.totalInterns || 0}
-                  icon={Users}
-                  subtitle={`${stats?.verifiedInterns || 0} verified`}
-                />
-                <StatCard
-                  title="Scheduled Calls"
-                  value={stats?.totalCalls || 0}
-                  icon={Phone}
-                  subtitle={`${stats?.completedCalls || 0} completed`}
-                />
-                <StatCard
-                  title="Contact Messages"
-                  value={stats?.totalContacts || 0}
-                  icon={MessageSquare}
-                  subtitle="Total received"
-                />
-                <StatCard
-                  title="Website Visits"
-                  value={stats?.totalVisits || 0}
-                  icon={Eye}
-                  subtitle="Total visits tracked"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <StatCard
-                  title="Support Tickets"
-                  value={stats?.totalSupportTickets || 0}
-                  icon={HeadphonesIcon}
-                  subtitle={`${stats?.pendingSupportTickets || 0} pending`}
-                />
-                <StatCard
-                  title="Salary Inquiries"
-                  value={stats?.totalSalaryInquiries || 0}
-                  icon={DollarSign}
-                  subtitle={`${stats?.pendingSalaryInquiries || 0} pending`}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="interns">
-              <InternsTab />
-            </TabsContent>
-
-            <TabsContent value="calls">
-              <ScheduledCallsTab />
-            </TabsContent>
-
-            <TabsContent value="contacts">
-              <ContactMessagesTab />
-            </TabsContent>
-
-            <TabsContent value="support">
-              <TechnicalSupportTab />
-            </TabsContent>
-
-            <TabsContent value="salary">
-              <SalaryInquiriesTab />
-            </TabsContent>
-          </Tabs>
+  return (
+    <div className="min-h-screen bg-background flex w-full">
+      {/* Admin Header */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-border">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
+              alt="Civora Nexus Logo" 
+              className="w-8 h-8 object-contain" 
+            />
+            <div>
+              <span className="text-lg font-bold text-primary">Admin Dashboard</span>
+              <span className="block text-xs text-secondary">Civora Nexus</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-lg">
+              <Clock className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-medium text-orange-800">
+                {formatTime(sessionTimeLeft)}
+              </span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate('/admin/profile')}
+              className="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-red-600 hover:text-red-700"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
-      </main>
+      </div>
+
+      {/* Sidebar and Main Content */}
+      <div className="flex w-full pt-20">
+        <AdminSidebar 
+          isCollapsed={isSidebarCollapsed} 
+          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+        />
+        
+        <main className="flex-1 overflow-auto">
+          <div className="container-custom py-8">
+            {renderTabContent()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
