@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -24,39 +22,53 @@ const Login = () => {
   // Session state for logged-in user
   useEffect(() => {
     const fetchSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (session) navigate("/admin");
     };
     fetchSession();
   }, [navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const { email, password } = formData;
+    const {
+      email,
+      password
+    } = formData;
     // Attempt login
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const {
+      error
+    } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
     setIsLoading(false);
     if (error) {
-      toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive"
+      });
       return;
     }
     // Delay to let session settle before redirect (prevents flickering)
     setTimeout(() => {
-      toast({ title: "Signed in!" });
+      toast({
+        title: "Signed in!"
+      });
       navigate("/admin");
     }, 100);
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
-  return (
-    <>
+  return <>
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <main className="flex-1 flex items-center justify-center p-4">
@@ -70,36 +82,14 @@ const Login = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter your email"
-                    className="mt-1"
-                  />
+                  <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="Enter your email" className="mt-1" />
                 </div>
                 
                 <div>
                   <Label htmlFor="password">Password</Label>
                   <div className="relative mt-1">
-                    <Input
-                      id="password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      placeholder="Enter your password"
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    >
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange} required placeholder="Enter your password" className="pr-10" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
@@ -107,11 +97,7 @@ const Login = () => {
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <input
-                      id="remember"
-                      type="checkbox"
-                      className="h-4 w-4 text-civora-teal focus:ring-civora-teal border-gray-300 rounded"
-                    />
+                    <input id="remember" type="checkbox" className="h-4 w-4 text-civora-teal focus:ring-civora-teal border-gray-300 rounded" />
                     <Label htmlFor="remember" className="ml-2 text-sm">
                       Remember me
                     </Label>
@@ -121,11 +107,7 @@ const Login = () => {
                   </Link>
                 </div>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-civora-teal hover:bg-civora-teal/90"
-                  disabled={isLoading}
-                >
+                <Button type="submit" disabled={isLoading} className="w-full bg-civora-teal hover:bg-civora-teal/90 bg-gray-950 hover:bg-gray-800">
                   {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
@@ -145,9 +127,6 @@ const Login = () => {
         <div className="h-24 md:h-40" />
       </div>
       <Footer />
-    </>
-  );
+    </>;
 };
-
 export default Login;
-
