@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -23,43 +21,55 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast({ title: "Passwords do not match", variant: "destructive" });
+      toast({
+        title: "Passwords do not match",
+        variant: "destructive"
+      });
       return;
     }
     setIsLoading(true);
     // Supabase signup with email redirect
-    const { email, password } = formData;
+    const {
+      email,
+      password
+    } = formData;
     const redirectUrl = `${window.location.origin}/login`;
-    const { error } = await supabase.auth.signUp({
+    const {
+      error
+    } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { full_name: formData.name }
+        data: {
+          full_name: formData.name
+        }
       }
     });
     setIsLoading(false);
     if (error) {
-      toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Sign up failed",
+        description: error.message,
+        variant: "destructive"
+      });
       return;
     }
-    toast({ title: "Account created! Check your email to confirm." });
+    toast({
+      title: "Account created! Check your email to confirm."
+    });
     navigate("/login");
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
-  return (
-    <>
+  return <>
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <main className="flex-1 flex items-center justify-center p-4">
@@ -73,50 +83,19 @@ const Signup = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter your full name"
-                    className="mt-1"
-                  />
+                  <Input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required placeholder="Enter your full name" className="mt-1" />
                 </div>
                 
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter your email"
-                    className="mt-1"
-                  />
+                  <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="Enter your email" className="mt-1" />
                 </div>
                 
                 <div>
                   <Label htmlFor="password">Password</Label>
                   <div className="relative mt-1">
-                    <Input
-                      id="password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      placeholder="Create a password"
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    >
+                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange} required placeholder="Create a password" className="pr-10" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
@@ -125,33 +104,15 @@ const Signup = () => {
                 <div>
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative mt-1">
-                    <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                      placeholder="Confirm your password"
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    >
+                    <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className="pr-10" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
                       {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
                 </div>
                 
                 <div className="flex items-center">
-                  <input
-                    id="terms"
-                    type="checkbox"
-                    required
-                    className="h-4 w-4 text-civora-teal focus:ring-civora-teal border-gray-300 rounded"
-                  />
+                  <input id="terms" type="checkbox" required className="h-4 w-4 text-civora-teal focus:ring-civora-teal border-gray-300 rounded" />
                   <Label htmlFor="terms" className="ml-2 text-sm">
                     I agree to the{' '}
                     <Link to="/terms" className="text-civora-teal hover:underline">
@@ -164,11 +125,7 @@ const Signup = () => {
                   </Label>
                 </div>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-civora-teal hover:bg-civora-teal/90"
-                  disabled={isLoading}
-                >
+                <Button type="submit" disabled={isLoading} className="w-full bg-civora-teal hover:bg-civora-teal/90 bg-zinc-950 hover:bg-zinc-800">
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
               </form>
@@ -188,9 +145,6 @@ const Signup = () => {
         <div className="h-24 md:h-40" />
       </div>
       <Footer />
-    </>
-  );
+    </>;
 };
-
 export default Signup;
-
