@@ -1,132 +1,255 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import Loading from "@/components/Loading";
+import TwoFactorLogin from "@/pages/TwoFactorLogin"; // ✅ OTP screen
+import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm"; // ✅ Forgot pass
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
-  // Session state for logged-in user
+// SignIn result type
+type SignInResult = {
+  user?: {
+    id: string;
+    email: string;
+    twoFactorEnabled?: boolean;
+  };
+  requiresOTP?: boolean;   // ✅ optional
+  error?: { message: string };
+};
+
+
+const Login: React.FC = () => {
+  const { signIn, user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // 2FA state
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [pendingUser, setPendingUser] = useState<SignInResult["user"] | null>(null);
+
+  // Forgot password state
+  const [showForgot, setShowForgot] = useState(false);
+
+  // Auto redirect if already logged in
   useEffect(() => {
-    const fetchSession = async () => {
-      const {
-        data: {
-          session
-        }
-      } = await supabase.auth.getSession();
-      if (session) navigate("/admin");
-    };
-    fetchSession();
-  }, [navigate]);
+    if (user) {
+      const redirectPath = (location.state as any)?.from || "/admin/dashboard";
+      navigate(redirectPath, { replace: true });
+    }
+  }, [user, navigate, location.state]);
+
+  // Ensure profile has a role
+  const ensureProfileHasRole = async (uid: string, uemail: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, email, role")
+      .eq("id", uid)
+      .maybeSingle();
+
+    if (!profile) {
+      await supabase.from("profiles").insert({ id: uid, email: uemail, role: "user" });
+    } else if (!profile.role) {
+      await supabase.from("profiles").update({ role: "user" }).eq("id", uid);
+    }
+  };
+
+  // Login handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const {
-      email,
-      password
-    } = formData;
-    // Attempt login
-    const {
-      error
-    } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    setIsLoading(false);
-    if (error) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive"
-      });
-      return;
+
+    try {
+      const result: SignInResult = await signIn(email.trim(), password);
+
+      if (result.error) {
+        toast({ title: "Error", description: result.error.message, variant: "destructive" });
+        return;
+      }
+
+      // If 2FA required
+      if (result.requiresOTP && result.user?.twoFactorEnabled) {
+        setPendingUser(result.user);
+        setShowOTPModal(true);
+        toast({
+          title: "Two-Factor Authentication",
+          description: "Enter the verification code sent to your email.",
+        });
+        return;
+      }
+
+      // Normal login
+      if (result.user?.id && result.user.email) {
+        await ensureProfileHasRole(result.user.id, result.user.email);
+      }
+
+      toast({ title: "Success", description: "Signed in successfully!" });
+      navigate((location.state as any)?.from || "/admin/dashboard", { replace: true });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
     }
-    // Delay to let session settle before redirect (prevents flickering)
-    setTimeout(() => {
-      toast({
-        title: "Signed in!"
-      });
-      navigate("/admin");
-    }, 100);
   };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+
+  // OTP success
+  const handleOTPSuccess = async () => {
+    setShowOTPModal(false);
+    if (pendingUser?.id && pendingUser.email) {
+      await ensureProfileHasRole(pendingUser.id, pendingUser.email);
+    }
+    setPendingUser(null);
+    toast({ title: "Success", description: "Two-factor verification completed!" });
+    navigate((location.state as any)?.from || "/admin/dashboard", { replace: true });
   };
-  return <>
-      <div className="flex flex-col min-h-screen bg-gray-50">
+
+  const handleOTPClose = () => {
+    setShowOTPModal(false);
+    setPendingUser(null);
+  };
+
+  // Show OTP entry screen
+  if (showOTPModal && pendingUser) {
+    return (
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center p-4">
+        <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+          <TwoFactorLogin
+            userId={pendingUser.id}
+            email={pendingUser.email!}
+            onSuccess={handleOTPSuccess}
+            onBack={handleOTPClose}
+          />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show Forgot Password screen
+  if (showForgot) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
           <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <div className="text-2xl font-bold text-civora-navy mb-2">Civora Nexus</div>
-              <CardTitle className="text-xl">Welcome Back</CardTitle>
-              <p className="text-gray-600">Sign in to your account</p>
+            <CardHeader>
+              <CardTitle>Reset Password</CardTitle>
+              <CardDescription>Enter your email to receive a reset code</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="Enter your email" className="mt-1" />
-                </div>
-                
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative mt-1">
-                    <Input id="password" name="password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange} required placeholder="Enter your password" className="pr-10" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input id="remember" type="checkbox" className="h-4 w-4 text-civora-teal focus:ring-civora-teal border-gray-300 rounded" />
-                    <Label htmlFor="remember" className="ml-2 text-sm">
-                      Remember me
-                    </Label>
-                  </div>
-                  <Link to="/forgot-password" className="text-sm text-civora-teal hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
-                
-                <Button type="submit" disabled={isLoading} className="w-full bg-civora-teal hover:bg-civora-teal/90 bg-gray-950 hover:bg-gray-800">
-                  {isLoading ? 'Signing in...' : 'Sign In'}
-                </Button>
-              </form>
-              
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Don't have an account?{' '}
-                  <Link to="/signup" className="text-civora-teal hover:underline font-medium">
-                    Sign up
-                  </Link>
-                </p>
-              </div>
+              <ForgotPasswordForm />
+              <Button 
+                variant="link" 
+                className="w-full mt-4" 
+                onClick={() => setShowForgot(false)}
+              >
+                Back to Sign In
+              </Button>
             </CardContent>
           </Card>
         </main>
-        {/* Blank space at bottom before footer, only reveals footer after scroll */}
-        <div className="h-24 md:h-40" />
+        <Footer />
       </div>
-      <Footer />
-    </>;
+    );
+  }
+
+  // Default login screen
+  return (
+    <div className="min-h-screen relative">
+      <Header />
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+        <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+          <CardHeader className="text-center space-y-2 pb-6">
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
+              Sign in to access your admin dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="admin@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  required
+                  className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                    className="h-11 pr-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onClick={() => setShowPassword((s) => !s)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">Toggle password</span>
+                  </Button>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium" 
+                disabled={isLoading}
+              >
+                {isLoading ? <Loading size="sm" className="min-h-0 w-5 h-5" /> : "Sign In"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="link"
+                className="w-full text-blue-600 hover:text-blue-700 font-medium"
+                onClick={() => setShowForgot(true)}
+              >
+                Forgot your password?
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+      
+      {/* Footer that appears after scrolling */}
+      <div className="absolute top-[100vh] w-full">
+        <Footer />
+      </div>
+    </div>
+  );
 };
+
 export default Login;

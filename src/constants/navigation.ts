@@ -49,8 +49,6 @@ export const NAVIGATION: NavMainItem[] = [
           { label: "Services Overview", href: ROUTES.services },
           { label: "AI Solutions", href: ROUTES.aiSolutions },
           { label: "SaaS Development", href: ROUTES.saasDevelopment },
-          { label: "Cloud Hosting", href: ROUTES.cloudHosting },
-          { label: "Automation", href: ROUTES.automation },
           { label: "Custom Integrations", href: ROUTES.customIntegrations },
         ],
       },
@@ -72,7 +70,7 @@ export const NAVIGATION: NavMainItem[] = [
         label: "Careers",
         items: [
           { label: "Careers Overview", href: ROUTES.careers },
-          { label: "Job Openings", href: ROUTES.careersJobs },
+          { label: "Job Openings", href: ROUTES.jobsOpening },
           { label: "Life at Civora", href: ROUTES.lifeAtCivora },
           { label: "Internships", href: ROUTES.internships },
         ],
@@ -95,14 +93,12 @@ export const NAVIGATION: NavMainItem[] = [
         items: [
           { label: "Contact", href: ROUTES.contact },
           { label: "Sales Inquiry", href: ROUTES.salesInquiry },
-          { label: "Help Center", href: ROUTES.helpCenter },
-          { label: "Technical Support", href: ROUTES.technicalSupport },
+          { label: "Help Center", href: ROUTES.help },
         ],
       },
       {
         label: "Compliance",
         items: [
-          { label: "GDPR / CCPA", href: ROUTES.gdpr },
           { label: "ISO Certifications", href: ROUTES.iso },
           { label: "Data Security", href: ROUTES.dataSecurity },
         ],

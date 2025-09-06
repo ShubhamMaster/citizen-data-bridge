@@ -1,12 +1,65 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useEmailConfirmation } from "./useEmailConfirmation";
 
-type SupportTicket = Tables<'support_tickets'>;
-type SupportTicketInsert = TablesInsert<'support_tickets'>;
-type SupportTicketUpdate = TablesUpdate<'support_tickets'>;
+export interface SupportTicketData {
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  issue_type: string;
+  priority?: string;
+  subject: string;
+  description: string;
+  system_info?: string;
+  error_details?: string;
+}
+
+export const useCreateSupportTicket = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { sendConfirmationEmail } = useEmailConfirmation();
+
+  return useMutation({
+    mutationFn: async (data: SupportTicketData) => {
+      const { data: result, error } = await supabase
+        .from('support_tickets')
+        .insert([{
+          ...data,
+          priority: data.priority || 'medium'
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+
+      // Send confirmation email
+      await sendConfirmationEmail({
+        formType: 'technical',
+        ...data
+      });
+
+      return result;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Support Ticket Created!",
+        description: "Your technical support request has been submitted. We'll contact you soon.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
+    },
+    onError: (error) => {
+      console.error('Error creating support ticket:', error);
+      toast({
+        title: "Submission Error",
+        description: "There was an error submitting your support request. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+};
 
 export const useSupportTickets = () => {
   return useQuery({
@@ -15,75 +68,15 @@ export const useSupportTickets = () => {
       const { data, error } = await supabase
         .from('support_tickets')
         .select('*')
+        .eq('is_deleted', false)
         .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as SupportTicket[];
-    },
-  });
-};
 
-export const useCreateSupportTicket = () => {
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: async (ticket: SupportTicketInsert) => {
-      const { data, error } = await supabase
-        .from('support_tickets')
-        .insert(ticket)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Your support ticket has been submitted successfully. We'll respond within 24 hours.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to submit support ticket. Please try again.",
-        variant: "destructive",
-      });
-      console.error('Error creating support ticket:', error);
-    },
-  });
-};
+      if (error) {
+        console.error('Error fetching support tickets:', error);
+        throw error;
+      }
 
-export const useUpdateSupportTicket = () => {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
-  return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: SupportTicketUpdate }) => {
-      const { data, error } = await supabase
-        .from('support_tickets')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
       return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
-      toast({
-        title: "Updated",
-        description: "Support ticket status updated successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update status. Please try again.",
-        variant: "destructive",
-      });
-      console.error('Error updating support ticket:', error);
-    },
+    }
   });
 };

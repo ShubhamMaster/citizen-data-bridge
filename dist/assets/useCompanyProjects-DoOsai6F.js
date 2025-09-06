@@ -1,0 +1,1 @@
+import{u as a}from"./useQuery-08ZbY9E2.js";import{s as o}from"./index-COc_9EsS.js";const c=()=>a({queryKey:["company-projects"],queryFn:async()=>{const{data:e,error:r}=await o.from("company_project").select("*").order("created_at",{ascending:!1});if(r)throw r;return e}});export{c as u};

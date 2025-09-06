@@ -1,191 +1,236 @@
+
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import SaveHereSection from '@/components/SaveHereSection';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Users, Code, Award, Calendar, ArrowRight, Target, Rocket } from "lucide-react";
+import UniformHeroSection from '@/components/UniformHeroSection';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Lightbulb, Users, Rocket, Code, Brain, Target, ArrowRight, Zap, Star, Trophy } from 'lucide-react';
+
 const InnovationLab = () => {
-  const initiatives = [{
-    title: "Civic Hackathons",
-    description: "48-hour hackathons focused on solving local government and community challenges",
-    icon: <Code className="h-8 w-8 text-civora-teal" />,
-    features: ["Open to all developers", "Real problem statements", "Mentorship provided", "Cash prizes"]
-  }, {
-    title: "Student Internships",
-    description: "3-6 month internship programs for students to work on live civic projects",
-    icon: <Users className="h-8 w-8 text-civora-teal" />,
-    features: ["Hands-on experience", "Industry mentorship", "Certificate programs", "Full-time opportunities"]
-  }, {
-    title: "Innovation Challenges",
-    description: "Monthly challenges to ideate and prototype solutions for civic problems",
-    icon: <Lightbulb className="h-8 w-8 text-civora-teal" />,
-    features: ["Monthly themes", "Prototype funding", "Expert evaluation", "Implementation support"]
-  }, {
-    title: "Community Projects",
-    description: "Collaborative projects with local communities to address specific needs",
-    icon: <Award className="h-8 w-8 text-civora-teal" />,
-    features: ["Community partnerships", "Impact measurement", "Sustainable solutions", "Local engagement"]
-  }];
-  const upcomingEvents = [{
-    title: "Smart City Hackathon 2024",
-    date: "March 15-17, 2024",
-    type: "Hackathon",
-    participants: "200+ expected",
-    prize: "₹2 Lakhs total prizes"
-  }, {
-    title: "Healthcare Innovation Challenge",
-    date: "April 10, 2024",
-    type: "Challenge",
-    participants: "Open registration",
-    prize: "₹50K funding"
-  }, {
-    title: "Student Internship Program",
-    date: "May 1, 2024",
-    type: "Internship",
-    participants: "20 positions",
-    prize: "Stipend provided"
-  }];
-  const missionPoints = [{
-    icon: <Target className="w-8 h-8 text-civora-teal" />,
-    title: "Our Mission",
-    description: "To create a collaborative ecosystem where innovation meets civic responsibility, fostering solutions that address real community challenges."
-  }, {
-    icon: <Rocket className="w-8 h-8 text-civora-teal" />,
-    title: "Our Vision",
-    description: "To become the leading platform for civic innovation, connecting passionate developers with meaningful projects that transform communities."
-  }];
-  return <div className="min-h-screen bg-white">
+  const labFocus = [
+    {
+      icon: Brain,
+      title: "Artificial Intelligence",
+      description: "Exploring the frontiers of AI and machine learning",
+      projects: ["Neural Network Optimization", "Computer Vision Research", "NLP Advancements"]
+    },
+    {
+      icon: Code,
+      title: "Emerging Technologies",
+      description: "Experimenting with cutting-edge development frameworks",
+      projects: ["Quantum Computing", "Blockchain Applications", "IoT Innovation"]
+    },
+    {
+      icon: Rocket,
+      title: "Product Innovation",
+      description: "Rapid prototyping and proof-of-concept development",
+      projects: ["MVP Development", "Technology Validation", "Market Testing"]
+    },
+    {
+      icon: Users,
+      title: "Collaborative Research",
+      description: "Cross-functional teams working on breakthrough solutions",
+      projects: ["Open Source Contributions", "Academic Partnerships", "Industry Collaboration"]
+    }
+  ];
+
+  const currentProjects = [
+    {
+      title: "Smart City Analytics Platform",
+      description: "Real-time urban data analysis using IoT sensors and AI",
+      status: "In Development",
+      technologies: ["IoT", "Machine Learning", "Real-time Analytics"]
+    },
+    {
+      title: "Healthcare AI Assistant",
+      description: "AI-powered diagnostic support system for medical professionals",
+      status: "Beta Testing",
+      technologies: ["Natural Language Processing", "Computer Vision", "Medical AI"]
+    },
+    {
+      title: "Sustainable Tech Initiative",
+      description: "Green technology solutions for environmental challenges",
+      status: "Research Phase",
+      technologies: ["Clean Energy", "Environmental Monitoring", "Sustainability"]
+    }
+  ];
+
+  const benefits = [
+    {
+      icon: Lightbulb,
+      title: "Innovation Culture",
+      description: "Foster creativity and experimentation in a collaborative environment"
+    },
+    {
+      icon: Zap,
+      title: "Rapid Prototyping",
+      description: "Quick iteration cycles to validate ideas and concepts"
+    },
+    {
+      icon: Target,
+      title: "Market Validation",
+      description: "Test and refine solutions with real-world feedback"
+    },
+    {
+      icon: Trophy,
+      title: "Industry Recognition",
+      description: "Showcase innovative solutions and gain industry recognition"
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-civora-navy to-civora-navy/90 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold mb-6 text-gray-950 lg:text-6xl">Innovation Lab</h1>
-            <p className="max-w-3xl mx-auto mb-8 text-xl text-gray-600">
-              Fostering innovation through hackathons, internships, and community-driven projects
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-civora-teal hover:bg-civora-teal/90">
-                Join Our Next Event
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-civora-navy">
-                Learn More
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <UniformHeroSection
+        title="Innovation Lab"
+        subtitle="Where brilliant minds collaborate to create the future. Join our community of innovators, researchers, and visionaries."
+        breadcrumb="Innovation Lab"
+      />
 
-      {/* Mission & Vision */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {missionPoints.map((point, index) => <Card key={index} className="p-8 hover:shadow-lg transition-shadow">
-                <CardContent className="text-center">
-                  <div className="flex justify-center mb-6">
-                    {point.icon}
-                  </div>
-                  <h2 className="text-2xl font-bold text-civora-navy mb-4">{point.title}</h2>
-                  <p className="text-gray-600 text-lg leading-relaxed">
-                    {point.description}
-                  </p>
-                </CardContent>
-              </Card>)}
-          </div>
-        </div>
-      </section>
-
-      {/* Innovation Initiatives */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Lab Overview */}
+      <section className="section-padding">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-civora-navy mb-4">Our Innovation Initiatives</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Multiple pathways for developers, students, and innovators to contribute to civic technology
+            <h2 className="text-3xl font-bold text-primary mb-4">What We Do</h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Our Innovation Lab is a creative space where technology meets imagination. We explore emerging technologies, 
+              develop breakthrough solutions, and push the boundaries of what's possible.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {initiatives.map((initiative, index) => <Card key={index} className="hover:shadow-lg transition-shadow">
+            {labFocus.map((focus, index) => (
+              <Card key={index} className="card-modern hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="flex items-center gap-4 mb-4">
-                    {initiative.icon}
-                    <CardTitle className="text-xl text-civora-navy">{initiative.title}</CardTitle>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <focus.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl">{focus.title}</CardTitle>
+                      <CardDescription>{focus.description}</CardDescription>
+                    </div>
                   </div>
-                  <p className="text-gray-600">{initiative.description}</p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {initiative.features.map((feature, idx) => <div key={idx} className="flex items-center gap-2">
-                        <ArrowRight className="h-4 w-4 text-civora-teal" />
-                        <span className="text-sm text-gray-600">{feature}</span>
-                      </div>)}
+                    <h4 className="font-semibold text-sm">Current Focus Areas:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {focus.projects.map((project, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {project}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Upcoming Events */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Current Projects */}
+      <section className="section-padding bg-muted/30">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-civora-navy mb-4">Upcoming Events</h2>
-            <p className="text-xl text-gray-600">Join our next innovation events and challenges</p>
+            <h2 className="text-3xl font-bold text-primary mb-4">Current Projects</h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Take a look at some of the innovative projects currently being developed in our lab.
+            </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {upcomingEvents.map((event, index) => <Card key={index} className="hover:shadow-lg transition-shadow">
+            {currentProjects.map((project, index) => (
+              <Card key={index} className="card-modern hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-5 w-5 text-civora-teal" />
-                    <Badge variant="secondary">{event.type}</Badge>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline">{project.status}</Badge>
+                    <Star className="w-4 h-4 text-accent" />
                   </div>
-                  <CardTitle className="text-xl text-civora-navy">{event.title}</CardTitle>
-                  <p className="text-civora-teal font-semibold">{event.date}</p>
+                  <CardTitle className="text-lg">{project.title}</CardTitle>
+                  <CardDescription>{project.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Participants:</span>
-                    <span className="text-sm font-medium">{event.participants}</span>
+                <CardContent>
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-sm">Technologies:</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {project.technologies.map((tech, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Prize:</span>
-                    <span className="text-sm font-medium">{event.prize}</span>
-                  </div>
-                  <Button className="w-full mt-4 bg-civora-teal hover:bg-civora-teal/90">
-                    Register Now
-                  </Button>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="section-padding">
+        <div className="container-custom">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-primary mb-4">Why Innovation Lab?</h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Our Innovation Lab provides the perfect environment for breakthrough thinking and collaborative development.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {benefits.map((benefit, index) => (
+              <Card key={index} className="card-modern text-center hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                    <benefit.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">{benefit.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>{benefit.description}</CardDescription>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="py-20 bg-civora-navy text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-bold mb-6 text-gray-950 text-4xl">Ready to Innovate?</h2>
-          <p className="text-xl max-w-3xl mx-auto mb-8 text-gray-600">
-            Join our community of innovators working to solve real-world problems through technology
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-civora-teal hover:bg-civora-teal/90 bg-zinc-900 hover:bg-zinc-800">
-              Join Innovation Lab
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-civora-navy">
-              View Opportunities
-            </Button>
+      <section className="section-padding bg-primary/5">
+        <div className="container-custom">
+          <div className="text-center">
+            <Rocket className="w-16 h-16 text-primary mx-auto mb-6" />
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+              Ready to Innovate?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Join our Innovation Lab and be part of creating the next generation of technological breakthroughs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/join-innovation-lab">
+                <Button size="lg" className="btn-primary">
+                  Join Innovation Lab <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button size="lg" variant="outline" className="btn-secondary">
+                  Learn More
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <SaveHereSection />
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default InnovationLab;

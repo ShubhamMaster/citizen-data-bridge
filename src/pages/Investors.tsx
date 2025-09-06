@@ -1,71 +1,68 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import UniformHeroSection from '@/components/UniformHeroSection';
-import SaveHereSection from '@/components/SaveHereSection';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { TrendingUp, Target, Users, Globe, Mail, FileText } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, DollarSign, Users, Target, Award, Lightbulb } from 'lucide-react';
 
 const Investors = () => {
   const investmentHighlights = [
     {
-      icon: <TrendingUp className="w-8 h-8 text-accent" />,
+      title: "Market Leadership",
+      description: "Leading position in AI-driven solutions and SaaS development",
+      icon: TrendingUp,
+      stats: "300% YoY Growth"
+    },
+    {
+      title: "Revenue Growth",
+      description: "Consistent revenue growth with expanding client base",
+      icon: DollarSign,
+      stats: "$50M+ Revenue"
+    },
+    {
+      title: "Team Excellence",
+      description: "World-class team of engineers and researchers",
+      icon: Users,
+      stats: "200+ Experts"
+    },
+    {
       title: "Market Opportunity",
-      description: "Addressing the $50B+ global civic technology market with innovative AI-powered solutions",
-      metrics: ["Growing at 15%+ CAGR", "Underserved market segments", "Government digitization trends"]
-    },
-    {
-      icon: <Target className="w-8 h-8 text-neon-blue" />,
-      title: "Unique Value Proposition",
-      description: "First-mover advantage in AI-driven civic engagement and healthcare integration",
-      metrics: ["Proprietary technology stack", "Strategic partnerships", "Scalable SaaS model"]
-    },
-    {
-      icon: <Users className="w-8 h-8 text-neon-pink" />,
-      title: "Experienced Team",
-      description: "Leadership with proven track record in technology, government, and social impact",
-      metrics: ["Combined 50+ years experience", "Previous successful exits", "Strong advisory board"]
-    },
-    {
-      icon: <Globe className="w-8 h-8 text-accent" />,
-      title: "Social Impact",
-      description: "Creating measurable positive impact while building a sustainable, profitable business",
-      metrics: ["ESG-aligned returns", "Community outcomes", "Government partnerships"]
-    }
-  ];
-
-  const fundingStages = [
-    {
-      stage: "Pre-Seed",
-      status: "Current",
-      description: "Initial funding to validate product-market fit and build core platform",
-      focus: ["MVP development", "Market validation", "Team building", "Strategic partnerships"],
-      timeline: "Q1 2025"
-    },
-    {
-      stage: "Seed Round",
-      status: "Planned",
-      description: "Scale operations, expand product offerings, and accelerate customer acquisition",
-      focus: ["Product scaling", "Market expansion", "Sales team", "Technology development"],
-      timeline: "Q3 2025"
-    },
-    {
-      stage: "Series A",
-      status: "Future",
-      description: "International expansion and comprehensive platform development",
-      focus: ["Global markets", "Enterprise sales", "R&D expansion", "Strategic acquisitions"],
-      timeline: "2026"
+      description: "Targeting the $1.2T global software market",
+      icon: Target,
+      stats: "$1.2T Market"
     }
   ];
 
   const keyMetrics = [
-    { label: "Founded", value: "2024" },
-    { label: "Market Size", value: "$50B+" },
-    { label: "Target Industries", value: "3 Verticals" },
-    { label: "Revenue Model", value: "SaaS + Services" }
+    { label: "Annual Revenue", value: "$50M+", growth: "+300%" },
+    { label: "Active Clients", value: "500+", growth: "+150%" },
+    { label: "Team Members", value: "200+", growth: "+80%" },
+    { label: "Patent Portfolio", value: "25+", growth: "+200%" }
+  ];
+
+  const investmentOpportunities = [
+    {
+      type: "Series A",
+      amount: "$10M - $25M",
+      use: "Product Development & Market Expansion",
+      timeline: "Q2 2024"
+    },
+    {
+      type: "Strategic Partnership",
+      amount: "$5M - $50M",
+      use: "Joint Ventures & Technology Integration",
+      timeline: "Ongoing"
+    },
+    {
+      type: "Growth Capital",
+      amount: "$25M+",
+      use: "International Expansion & Acquisitions",
+      timeline: "Q4 2024"
+    }
   ];
 
   return (
@@ -73,245 +70,179 @@ const Investors = () => {
       <Header />
       
       <UniformHeroSection
-        title="Investment Opportunity"
-        subtitle="Join us in transforming civic engagement through innovative technology solutions that create both social impact and sustainable returns."
-        breadcrumb="Company / Investors"
-      >
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-          <Button asChild className="btn-primary">
-            <Link to="/contact/sales">Investment Inquiry</Link>
-          </Button>
-          <Button asChild variant="outline" className="btn-secondary">
-            <Link to="#pitch-deck">Download Pitch Deck</Link>
-          </Button>
-        </div>
-      </UniformHeroSection>
-
-      {/* Investment Overview */}
-      <section className="section-padding-sm bg-background">
-        <div className="container-custom">
-          <div className="max-w-4xl mx-auto">
-            <Card className="mb-12 border-accent/20 bg-gradient-to-r from-accent/5 to-neon-blue/5">
-              <CardContent className="p-8">
-                <div className="text-center">
-                  <h3 className="text-2xl font-semibold text-primary mb-4">Investment Thesis</h3>
-                  <p className="text-muted-foreground leading-relaxed text-lg mb-6">
-                    Civora Nexus represents a unique opportunity to invest in the digital transformation of civic services, 
-                    combining cutting-edge technology with meaningful social impact to address critical gaps in government-citizen engagement.
-                  </p>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {keyMetrics.map((metric, index) => (
-                      <div key={index} className="text-center">
-                        <div className="text-2xl font-bold text-accent mb-1">{metric.value}</div>
-                        <div className="text-sm text-muted-foreground">{metric.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+        title="Investment Opportunities"
+        subtitle="Partner with Civora Nexus to shape the future of technology. Discover our growth story and investment potential."
+        breadcrumb="About Us / Investors"
+      />
 
       {/* Investment Highlights */}
-      <section className="section-padding-sm bg-muted/30">
+      <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4">Why Invest in Civora Nexus</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Strategic advantages and growth drivers that position us for exceptional returns
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+              Why Invest in Civora Nexus?
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              We're at the forefront of technological innovation, delivering exceptional returns through cutting-edge solutions.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {investmentHighlights.map((highlight, index) => (
-              <div key={index} className="card-modern p-8 animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-accent/10 to-neon-blue/10 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    {highlight.icon}
+              <Card key={index} className="card-modern">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                    <highlight.icon className="w-8 h-8 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-semibold text-primary mb-2">{highlight.title}</h3>
-                    <p className="text-muted-foreground">{highlight.description}</p>
-                  </div>
-                </div>
-                
-                <ul className="space-y-2">
-                  {highlight.metrics.map((metric, metricIndex) => (
-                    <li key={metricIndex} className="flex items-center gap-3 text-muted-foreground">
-                      <div className="w-2 h-2 bg-accent rounded-full flex-shrink-0"></div>
-                      {metric}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                  <CardTitle className="text-lg">{highlight.title}</CardTitle>
+                  <Badge variant="secondary" className="w-fit mx-auto">
+                    {highlight.stats}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-center">
+                    {highlight.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+            {keyMetrics.map((metric, index) => (
+              <Card key={index} className="card-modern text-center">
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold text-primary mb-2">{metric.value}</div>
+                  <div className="text-sm text-muted-foreground mb-2">{metric.label}</div>
+                  <Badge variant="outline" className="text-green-600 border-green-600">
+                    {metric.growth}
+                  </Badge>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Funding Roadmap */}
-      <section className="section-padding-sm bg-background">
+      {/* Investment Opportunities */}
+      <section className="section-padding bg-muted/30">
         <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4">Funding Roadmap</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Strategic funding stages aligned with growth milestones and market opportunities
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+              Current Investment Opportunities
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Multiple pathways to partner with us and participate in our growth journey.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-8">
-              {fundingStages.map((stage, index) => (
-                <div key={index} className="relative animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  {index < fundingStages.length - 1 && (
-                    <div className="absolute left-4 top-20 w-0.5 h-16 bg-accent/30"></div>
-                  )}
-                  
-                  <div className="flex gap-6">
-                    <div className="flex-shrink-0">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        stage.status === 'Current' 
-                          ? 'bg-accent text-white' 
-                          : stage.status === 'Planned'
-                          ? 'bg-accent/20 text-accent border-2 border-accent'
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {index + 1}
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {investmentOpportunities.map((opportunity, index) => (
+              <Card key={index} className="card-modern">
+                <CardHeader>
+                  <CardTitle className="text-xl">{opportunity.type}</CardTitle>
+                  <div className="text-2xl font-bold text-primary">{opportunity.amount}</div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">Use of Funds</h4>
+                      <p className="text-sm">{opportunity.use}</p>
                     </div>
-                    
-                    <Card className="flex-1">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4 flex-wrap gap-4">
-                          <div>
-                            <h3 className="text-xl font-semibold text-primary">{stage.stage}</h3>
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${
-                              stage.status === 'Current' 
-                                ? 'bg-green-100 text-green-800' 
-                                : stage.status === 'Planned'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-gray-100 text-gray-600'
-                            }`}>
-                              {stage.status}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-medium text-accent">{stage.timeline}</div>
-                          </div>
-                        </div>
-                        
-                        <p className="text-muted-foreground mb-4">{stage.description}</p>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {stage.focus.map((item, itemIndex) => (
-                            <div key={itemIndex} className="px-3 py-1 bg-muted rounded text-sm text-center">
-                              {item}
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">Timeline</h4>
+                      <p className="text-sm">{opportunity.timeline}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link to="/investment-inquiry">
+              <Button size="lg" className="btn-primary">
+                Submit Investment Inquiry
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Investment Materials */}
-      <section id="pitch-deck" className="section-padding-sm bg-muted/30">
+      {/* Why Choose Us */}
+      <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4">Investment Materials</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Access comprehensive information about our business model, market opportunity, and growth strategy
-            </p>
-          </div>
-
-          <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-accent/10 to-neon-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <FileText className="w-8 h-8 text-accent" />
-                </div>
-                <h3 className="text-xl font-semibold text-primary mb-4">Investor Pitch Deck</h3>
-                <p className="text-muted-foreground mb-6">
-                  Comprehensive presentation covering our vision, market opportunity, business model, and financial projections.
-                </p>
-                <Button className="w-full" variant="outline">
-                  Request Pitch Deck
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-neon-purple/10 to-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <TrendingUp className="w-8 h-8 text-accent" />
-                </div>
-                <h3 className="text-xl font-semibold text-primary mb-4">Financial Projections</h3>
-                <p className="text-muted-foreground mb-6">
-                  Detailed financial models, market analysis, and growth projections for serious investors.
-                </p>
-                <Button className="w-full" variant="outline">
-                  Request Financial Data
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center mt-12">
-            <Card className="max-w-2xl mx-auto border-accent/20 bg-gradient-to-r from-accent/5 to-neon-blue/5">
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold text-primary mb-4">Investor Relations</h3>
-                <p className="text-muted-foreground mb-6">
-                  For detailed investment information, due diligence materials, or to schedule a meeting with our leadership team.
-                </p>
-                <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
+                Innovation Meets Opportunity
+              </h2>
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Lightbulb className="w-6 h-6 text-primary" />
+                  </div>
                   <div>
-                    <a 
-                      href="mailto:investors@civoranexus.com" 
-                      className="text-accent hover:text-primary transition-colors duration-200 hover:underline text-lg font-medium"
-                    >
-                      investors@civoranexus.com
-                    </a>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    We respond to qualified investor inquiries within 48 hours
+                    <h3 className="font-semibold text-lg mb-2">Proven Innovation Track Record</h3>
+                    <p className="text-muted-foreground">
+                      25+ patents filed, cutting-edge AI research, and breakthrough solutions that drive industry transformation.
+                    </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="section-padding-sm bg-gradient-to-br from-accent/5 to-neon-blue/5">
-        <div className="container-custom text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl font-bold text-primary mb-6">Partner With Us</h2>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Join us in building the future of civic technology. Together, we can create sustainable returns 
-              while making a meaningful impact on communities worldwide.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild className="btn-primary" size="lg">
-                <Link to="/contact/sales">Schedule Investor Meeting</Link>
-              </Button>
-              <Button asChild variant="outline" className="btn-secondary" size="lg">
-                <Link to="/about-us">Learn More About Us</Link>
-              </Button>
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Award className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">Market Leadership</h3>
+                    <p className="text-muted-foreground">
+                      Recognized industry leader with award-winning solutions and a growing portfolio of Fortune 500 clients.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">Scalable Growth Model</h3>
+                    <p className="text-muted-foreground">
+                      Proven business model with recurring revenue streams and expanding market opportunities.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-muted/30 p-8 rounded-lg">
+              <h3 className="text-2xl font-bold text-primary mb-6">Investment Highlights</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>300% year-over-year revenue growth</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>500+ active enterprise clients</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>95% client retention rate</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>25+ patents in AI and automation</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span>Expanding into 15 new markets</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <SaveHereSection />
       <Footer />
     </div>
   );

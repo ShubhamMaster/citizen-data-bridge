@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import SaveHereSection from '@/components/SaveHereSection';
+// import SaveHereSection from '@/components/SaveHereSection';
 import UniformHeroSection from '@/components/UniformHeroSection';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -308,7 +308,7 @@ const Terms = () => {
         </div>
       </section>
 
-      <SaveHereSection />
+      {/* <SaveHereSection /> */}
       <Footer />
     </div>
   );

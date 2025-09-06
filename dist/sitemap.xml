@@ -1,0 +1,137 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.civoranexus.com/</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-home.jpg</image:loc>
+      <image:title>Civora Nexus - Connecting Citizens</image:title>
+      <image:caption>Civic and healthcare technology solutions</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/about-us</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-about.jpg</image:loc>
+      <image:title>About Civora Nexus</image:title>
+      <image:caption>Learn about our mission and vision</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/services</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-services.jpg</image:loc>
+      <image:title>Our Services</image:title>
+      <image:caption>Comprehensive technology solutions</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/services/ai-solutions</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-ai.jpg</image:loc>
+      <image:title>AI Solutions</image:title>
+      <image:caption>Advanced artificial intelligence solutions</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/services/saas-development</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-saas.jpg</image:loc>
+      <image:title>SaaS Development</image:title>
+      <image:caption>Custom software as a service solutions</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/services/custom-integrations</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-integrations.jpg</image:loc>
+      <image:title>Custom Integrations</image:title>
+      <image:caption>Seamless system connections</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/innovation-lab</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-innovation.jpg</image:loc>
+      <image:title>Innovation Lab</image:title>
+      <image:caption>Research and development initiatives</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/careers</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-careers.jpg</image:loc>
+      <image:title>Careers</image:title>
+      <image:caption>Join our team and build the future</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/projects</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-projects.jpg</image:loc>
+      <image:title>Our Projects</image:title>
+      <image:caption>Success stories and case studies</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/contact</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-contact.jpg</image:loc>
+      <image:title>Contact Us</image:title>
+      <image:caption>Get in touch with our team</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/about-us/partners</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://www.civoranexus.com/og-image-partners.jpg</image:loc>
+      <image:title>Partners</image:title>
+      <image:caption>Strategic collaborations</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/privacy</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.civoranexus.com/terms</loc>
+    <lastmod>2024-01-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

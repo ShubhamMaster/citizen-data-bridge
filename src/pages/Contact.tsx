@@ -1,354 +1,511 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import SaveHereSection from '@/components/SaveHereSection';
 import UniformHeroSection from '@/components/UniformHeroSection';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, MapPin, MessageCircle, Headphones, HelpCircle, Clock, Shield, Users } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { useWebsiteContent } from "@/hooks/useWebsiteContent";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { MapPin, Phone, Mail, Clock, MessageSquare } from "lucide-react";
 import ScheduleCallDialog from "@/components/ScheduleCallDialog";
-import { Link } from "react-router-dom";
+
+const CONTACT_ID = 'support_contact_125625';
+const ADDRESS_ID = 'head_office_422605';
+const COMPANY_ID = 'your-company-id';
+const SOCIAL_IDS = ['social_facebok_239746', 'social_github_856152'];
 
 const Contact = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    company: '',
     phone: '',
-    message: '',
-    inquiryType: 'general'
+    company: '',
+    inquiry_type: 'general',
+    message: ''
   });
-  const [loading, setLoading] = useState(false);
 
-  // Fetch contact info from Supabase
-  const { content } = useWebsiteContent("contact");
-  const email = content?.email || "contact@civoranexus.com";
-  const phone = content?.phone || "+91-9146 2687 10";
-  const address = content?.address || "Sangamner, Maharashtra, India";
+  const [contactInfo, setContactInfo] = useState(null);
+  const [addressInfo, setAddressInfo] = useState(null);
+  const [companyInfo, setCompanyInfo] = useState(null);
+  const [socialLinks, setSocialLinks] = useState([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const sendConfirmationEmail = async (formData) => {
+    try {
+      const emailPayload = {
+        to: formData.email,
+        subject: `Thank you for your contact inquiry - Civora Nexus`,
+        html: generateConfirmationEmailHTML(formData),
+        formType: 'contact',
+        formData: formData
+      };
+
+      const { error } = await supabase.functions.invoke('send-noreply-email', {
+        body: emailPayload
+      });
+
+      if (error) {
+        console.error('Error sending confirmation email:', error);
+      } else {
+        console.log('Confirmation email sent successfully');
+      }
+    } catch (error) {
+      console.error('Error calling email function:', error);
+    }
+  };
+
+  const generateConfirmationEmailHTML = (data) => {
+    const currentDate = new Date().toLocaleString();
+    
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.6;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #007bff; padding-bottom: 20px;">
+          <h1 style="color: #007bff; margin: 0; font-size: 28px;">Civora Nexus</h1>
+          <p style="color: #666; margin: 5px 0; font-size: 14px;">Innovation • Technology • Solutions</p>
+        </div>
+        
+        <h2 style="color: #333; margin-bottom: 20px;">Thank you for contacting us!</h2>
+        
+        <p style="margin-bottom: 20px;">Dear ${data.name},</p>
+        
+        <p style="margin-bottom: 20px;">We have received your contact inquiry and appreciate your interest in Civora Nexus. Our team will review your request and get back to you within 24-48 hours.</p>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
+          <h3 style="color: #333; margin-top: 0; margin-bottom: 15px;">Submission Details:</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Name:</td><td style="padding: 8px 0;">${data.name}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Email:</td><td style="padding: 8px 0;">${data.email}</td></tr>
+            ${data.company ? `<tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Company:</td><td style="padding: 8px 0;">${data.company}</td></tr>` : ''}
+            ${data.phone ? `<tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Phone:</td><td style="padding: 8px 0;">${data.phone}</td></tr>` : ''}
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Inquiry Type:</td><td style="padding: 8px 0;">${data.inquiry_type}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Submitted:</td><td style="padding: 8px 0;">${currentDate}</td></tr>
+          </table>
+        </div>
+        
+        <p style="margin: 20px 0;">In the meantime, feel free to explore our services and solutions on our website.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://civoranexus.com" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Visit Our Website</a>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        
+        <div style="color: #666; font-size: 14px;">
+          <p style="margin-bottom: 15px;"><strong>Civora Nexus</strong><br>
+          Email: info@civoranexus.com<br>
+          Website: www.civoranexus.com</p>
+          
+          <p style="font-size: 12px; color: #999; margin: 0;">
+            This is an automated confirmation email. Please do not reply to this message.
+            If you have any questions, please contact us at info@civoranexus.com
+          </p>
+        </div>
+      </div>
+    `;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
 
-    const { error } = await supabase.from("contact_messages").insert([{
-      name: formData.name,
-      email: formData.email,
-      message: `Company: ${formData.company}\nPhone: ${formData.phone}\nInquiry Type: ${formData.inquiryType}\n\nMessage: ${formData.message}`
-    }]);
+    try {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert([formData]);
 
-    if (error) {
+      if (error) throw error;
+
+      await sendConfirmationEmail(formData);
+
       toast({
-        title: "Error",
-        description: "We couldn't send your message. Please try again.",
-        variant: "destructive"
+        title: "Message Sent Successfully!",
+        description: "Thank you for contacting us. We'll get back to you within 24 hours. Please check your email for confirmation.",
       });
-    } else {
-      toast({
-        title: "Message sent!",
-        description: "Thank you for contacting us. We'll be in touch within 24 hours."
-      });
+
       setFormData({
         name: '',
         email: '',
-        company: '',
         phone: '',
-        message: '',
-        inquiryType: 'general'
+        company: '',
+        inquiry_type: 'general',
+        message: ''
       });
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: "Submission Error",
+        description: "There was an error sending your message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setLoading(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  useEffect(() => {
+    const fetchContactData = async () => {
+      const { data: contact } = await supabase
+        .from('civora_nexus_company_contacts')
+        .select('*')
+        .eq('contact_id', CONTACT_ID)
+        .single();
 
-  const contactOptions = [
-    {
-      icon: <Users className="h-6 w-6 text-accent" />,
-      title: "Sales Inquiry",
-      description: "Interested in our solutions? Let's discuss how we can help your business grow.",
-      link: "/contact/sales",
-      bgColor: "bg-gradient-to-br from-accent/10 to-primary/10"
-    },
-    {
-      icon: <Headphones className="h-6 w-6 text-accent" />,
-      title: "Technical Support",
-      description: "Need help with our products? Our technical team is ready to assist you.",
-      link: "/support/technical-support",
-      bgColor: "bg-gradient-to-br from-primary/10 to-accent/10"
-    },
-    {
-      icon: <HelpCircle className="h-6 w-6 text-accent" />,
-      title: "Help Center",
-      description: "Browse our knowledge base, FAQs, and documentation.",
-      link: "/support/help-center",
-      bgColor: "bg-gradient-to-br from-accent/10 to-primary/10"
-    }
-  ];
+      const { data: address } = await supabase
+        .from('civora_nexus_company_addresses')
+        .select('*')
+        .eq('address_id', ADDRESS_ID)
+        .single();
+
+      const { data: company } = await supabase
+        .from('civora_nexus_companies')
+        .select('*')
+        .eq('company_id', COMPANY_ID)
+        .single();
+
+      const { data: socials } = await supabase
+        .from('civora_nexus_social_links')
+        .select('*')
+        .in('social_id', SOCIAL_IDS);
+
+      setContactInfo(contact);
+      setAddressInfo(address);
+      setCompanyInfo(company);
+      setSocialLinks(socials);
+    };
+
+    fetchContactData();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background">
       <Header />
-      
+
       <UniformHeroSection
-        title="Let's Build Together"
-        subtitle="Ready to transform your organization with innovative technology? We're here to help you succeed. Get in touch with our team of experts."
-        breadcrumb="Contact"
+        title="Get in Touch"
+        subtitle="Whether you're looking for solutions, partnerships, or just want to say hello - we'd love to hear from you and discuss how we can help achieve your goals."
+        breadcrumb="Contact Us"
       />
 
-      {/* Trust Badges - Repositioned */}
-      <section className="section-padding-sm bg-muted/30">
+      <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="trust-badges">
-            <div className="trust-badge">
-              <Shield className="inline w-4 h-4 mr-2" />
-              Government Trusted
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+              <div className="card-modern p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <MessageSquare className="h-6 w-6 text-accent" />
+                  <h2 className="text-3xl font-bold text-primary">
+                    Send us a Message
+                  </h2>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-primary mb-2">
+                        Full Name *
+                      </label>
+                      <Input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
+                        required
+                        placeholder="Your full name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-primary mb-2">
+                        Email Address *
+                      </label>
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
+                        required
+                        placeholder="your.email@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-primary mb-2">
+                        Phone Number
+                      </label>
+                      <Input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
+                        placeholder="+91 9625 462564"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-primary mb-2">
+                        Company/Organization
+                      </label>
+                      <Input
+                        type="text"
+                        value={formData.company}
+                        onChange={(e) =>
+                          handleInputChange("company", e.target.value)
+                        }
+                        placeholder="Your organization (optional)"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">
+                      How can we help you?
+                    </label>
+                    <Select
+                      value={formData.inquiry_type}
+                      onValueChange={(value) =>
+                        handleInputChange("inquiry_type", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select how we can help" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Inquiry</SelectItem>
+                        <SelectItem value="product_info">Product Information</SelectItem>
+                        <SelectItem value="sales">Sales & Solutions</SelectItem>
+                        <SelectItem value="partnership">Partnership Opportunities</SelectItem>
+                        <SelectItem value="technical">Technical Support</SelectItem>
+                        <SelectItem value="consultation">Consultation Request</SelectItem>
+                        <SelectItem value="careers">Careers & Jobs</SelectItem>
+                        <SelectItem value="press">Press & Media</SelectItem>
+                        <SelectItem value="feedback">Feedback & Suggestions</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">
+                      Message *
+                    </label>
+                    <Textarea
+                      value={formData.message}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
+                      required
+                      rows={6}
+                      placeholder="Tell us about your needs, questions, or how we can help you..."
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full btn-primary"
+                  >
+                    {isSubmitting ? "Sending..." : "Send Message"}
+                  </Button>
+                </form>
+              </div>
             </div>
-            <div className="trust-badge">
-              <Headphones className="inline w-4 h-4 mr-2" />
-              Healthcare Focus
-            </div>
-            <div className="trust-badge">
-              <Users className="inline w-4 h-4 mr-2" />
-              Community Impact
+            <div className="space-y-8">
+              <div className="card-modern p-8">
+                <h3 className="text-2xl font-bold text-primary mb-6">
+                  Quick Actions
+                </h3>
+
+                <div className="space-y-4">
+                  <ScheduleCallDialog />
+
+                  <Button asChild variant="outline" className="w-full">
+                    <a href="/consultation">Request Consultation</a>
+                  </Button>
+
+                  <Button asChild variant="outline" className="w-full">
+                    <a href="/contact/sales">Sales Inquiry</a>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="card-modern p-8">
+                <h3 className="text-2xl font-bold text-primary mb-6">
+                  Need Support?
+                </h3>
+
+                <div className="space-y-4">
+                  <Button asChild variant="outline" className="w-full">
+                    <a href="/support/help-center">Help Center</a>
+                  </Button>
+
+                  <Button asChild variant="outline" className="w-full">
+                    <a href="/support/technical-support">Technical Support</a>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Options */}
-      <section className="section-padding bg-background">
+      <section className="section-padding-sm bg-muted/30">
         <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-primary mb-4">How Can We Help?</h2>
-            <p className="text-xl text-muted-foreground">
-              Choose the best way to reach us based on your needs.
+            <h2 className="text-4xl font-bold text-primary mb-4">
+              Contact Information
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Multiple ways to reach us. Choose the method that works best for
+              you.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            {contactOptions.map((option, index) => (
-              <Link key={index} to={option.link} className="block">
-                <Card className={`card-modern ${option.bgColor} border-0 h-full hover:scale-105 transition-all duration-300`}>
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-6 bg-white rounded-2xl flex items-center justify-center shadow-soft">
-                      {option.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-primary mb-3">{option.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{option.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="card-modern p-6 text-center">
+              <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-primary mb-2">
+                Office Address
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {addressInfo?.street_address}, {addressInfo?.area}
+                <br />
+                {addressInfo?.city}, {addressInfo?.state} -{" "}
+                {addressInfo?.postal_code}
+                <br />
+                {addressInfo?.country}
+              </p>
+            </div>
+
+            <div className="card-modern p-6 text-center">
+              <div className="w-12 h-12 bg-neon-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-primary mb-2">Phone</h3>
+              <p className="text-muted-foreground text-sm">
+                <a
+                  href={`tel:+91${contactInfo?.phone}`}
+                  className="hover:text-accent transition-colors"
+                >
+                  +91 {contactInfo?.phone}
+                </a>
+              </p>
+            </div>
+
+            <div className="card-modern p-6 text-center">
+              <div className="w-12 h-12 bg-neon-pink rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-primary mb-2">Email</h3>
+              <p className="text-muted-foreground text-sm">
+                <a
+                  href={`mailto:${contactInfo?.email}`}
+                  className="hover:text-accent transition-colors"
+                >
+                  {contactInfo?.email}
+                </a>
+              </p>
+            </div>
+
+            <div className="card-modern p-6 text-center">
+              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-primary mb-2">
+                Business Hours
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Monday - Friday
+                <br />
+                9:00 AM - 6:00 PM IST
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Form & Info */}
-      <section className="section-padding bg-muted/30">
+      <section className="section-padding-sm bg-background">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* Contact Form */}
-            <div>
-              <Card className="card-modern shadow-glow">
-                <CardHeader>
-                  <CardTitle className="text-2xl text-primary">Send us a Message</CardTitle>
-                  <p className="text-muted-foreground">
-                    Fill out the form below and we'll get back to you within 24 hours.
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="name">Full Name *</Label>
-                        <Input 
-                          id="name" 
-                          name="name" 
-                          value={formData.name} 
-                          onChange={handleChange} 
-                          required 
-                          className="mt-1 input-modern" 
-                          disabled={loading} 
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email">Email *</Label>
-                        <Input 
-                          id="email" 
-                          name="email" 
-                          type="email" 
-                          value={formData.email} 
-                          onChange={handleChange} 
-                          required 
-                          className="mt-1 input-modern" 
-                          disabled={loading} 
-                        />
-                      </div>
-                    </div>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-primary mb-4">Find Us</h2>
+            <p className="text-xl text-muted-foreground">
+              {companyInfo?.description || "Visit our office location below."}
+            </p>
+          </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="company">Company</Label>
-                        <Input 
-                          id="company" 
-                          name="company" 
-                          value={formData.company} 
-                          onChange={handleChange} 
-                          className="mt-1 input-modern" 
-                          disabled={loading} 
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input 
-                          id="phone" 
-                          name="phone" 
-                          type="tel" 
-                          value={formData.phone} 
-                          onChange={handleChange} 
-                          className="mt-1 input-modern" 
-                          disabled={loading} 
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="inquiryType">Inquiry Type</Label>
-                      <select 
-                        id="inquiryType" 
-                        name="inquiryType" 
-                        value={formData.inquiryType} 
-                        onChange={handleChange}
-                        className="mt-1 w-full input-modern"
-                        disabled={loading}
-                      >
-                        <option value="general">General Inquiry</option>
-                        <option value="sales">Sales</option>
-                        <option value="support">Technical Support</option>
-                        <option value="partnership">Partnership</option>
-                        <option value="careers">Careers</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="message">Message *</Label>
-                      <textarea 
-                        id="message" 
-                        name="message" 
-                        value={formData.message} 
-                        onChange={handleChange} 
-                        required 
-                        rows={6} 
-                        className="mt-1 w-full input-modern resize-none" 
-                        disabled={loading}
-                        placeholder="Tell us about your project or inquiry..."
-                      />
-                    </div>
-                    
-                    <Button type="submit" className="w-full btn-primary" disabled={loading}>
-                      {loading ? "Sending..." : "Send Message"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Contact Information */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-bold text-primary mb-6">Get in Touch</h2>
-                <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                  We're here to help you transform your organization with cutting-edge technology solutions. 
-                  Our team of experts is ready to discuss your project and provide tailored recommendations.
+          <div className="card-modern overflow-hidden">
+            <div className="aspect-video bg-muted flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="h-12 w-12 text-accent mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  {addressInfo?.google_map_link ? (
+                    <a
+                      href={addressInfo.google_map_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View on Google Maps
+                    </a>
+                  ) : (
+                    "Map location will be available soon."
+                  )}
                 </p>
               </div>
-
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="h-6 w-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary mb-1">Email</h3>
-                    <a href={`mailto:${email}`} className="text-muted-foreground hover:text-accent transition-colors">
-                      {email}
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      We typically respond within 24 hours
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-6 w-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary mb-1">Phone</h3>
-                    <a href={`tel:${phone}`} className="text-muted-foreground hover:text-accent transition-colors">
-                      {phone}
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Monday - Friday, 9:00 AM - 6:00 PM IST
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-6 w-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary mb-1">Office</h3>
-                    <p className="text-muted-foreground">{address}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Remote-first company with global reach
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Clock className="h-6 w-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary mb-1">Response Time</h3>
-                    <p className="text-muted-foreground">24 hours for general inquiries</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Priority support for existing clients
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Card className="bg-gradient-to-br from-accent/5 to-primary/5 border-0 p-6">
-                <CardContent className="p-0">
-                  <h3 className="text-xl font-semibold text-primary mb-3">Ready to Start?</h3>
-                  <p className="text-muted-foreground mb-4 leading-relaxed">
-                    Let's discuss how we can help transform your organization with innovative technology solutions.
-                  </p>
-                  <div className="w-full sm:w-auto">
-                    <ScheduleCallDialog />
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
       </section>
 
-      <SaveHereSection />
+      <section className="section-padding bg-gradient-to-br from-accent/5 to-neon-blue/5">
+        <div className="container-custom text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold text-primary mb-6">
+              Connect With Us
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Follow us on social media for the latest updates, insights, and
+              community stories.
+            </p>
+            <div className="flex justify-center gap-4">
+              {socialLinks.map((social) => (
+                <Button
+                  key={social.social_id}
+                  variant="outline"
+                  className="w-12 h-12 p-0"
+                  asChild
+                >
+                  <a
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {social.platform === "linkedin" && "🔗"}
+                    {social.platform === "twitter" && "🐦"}
+                    {social.platform === "github" && "💻"}
+                    {social.platform === "instagram" && "📸"}
+                    {social.platform === "youtube" && "📺"}
+                    {social.platform === "facebook" && "📘"}
+                  </a>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

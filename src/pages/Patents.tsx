@@ -1,17 +1,49 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-export default function Patents() {
-  return <div className="min-h-screen flex flex-col bg-white">
+
+import React from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import UniformHeroSection from '@/components/UniformHeroSection';
+
+const Patents = () => {
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
-      <main className="flex-1 max-w-2xl mx-auto py-16 px-4">
-        <h1 className="font-bold text-civora-navy mb-6 text-center text-6xl">Patents</h1>
-        <p className="text-lg text-gray-700 mb-5 text-center">
-          Browse our portfolio of patents and innovative solutions protecting our civic technology.
-        </p>
-        <div className="text-gray-600">
-          <p className="text-center">Patent listings will be published soon.</p>
+      
+      <UniformHeroSection
+        title="Patents & IP"
+        subtitle="Our intellectual property portfolio and patent applications driving innovation forward."
+        breadcrumb="Innovation Lab / Patents"
+      />
+
+      <section className="section-padding bg-background">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Intellectual Property</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Protecting and licensing our innovative technologies and methodologies.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-card p-6 rounded-lg border">
+              <h3 className="text-xl font-semibold mb-3">Patent Portfolio</h3>
+              <p className="text-muted-foreground">Our growing collection of patented technologies and innovations.</p>
+            </div>
+            <div className="bg-card p-6 rounded-lg border">
+              <h3 className="text-xl font-semibold mb-3">Licensing</h3>
+              <p className="text-muted-foreground">Technology licensing opportunities for strategic partnerships.</p>
+            </div>
+            <div className="bg-card p-6 rounded-lg border">
+              <h3 className="text-xl font-semibold mb-3">IP Strategy</h3>
+              <p className="text-muted-foreground">Strategic intellectual property management and protection.</p>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
       <Footer />
-    </div>;
-}
+    </div>
+  );
+};
+
+export default Patents;

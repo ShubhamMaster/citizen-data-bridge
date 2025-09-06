@@ -1,210 +1,285 @@
+import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Eye, EyeOff } from "lucide-react";
+import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
+import TwoFactorLogin from "@/pages/TwoFactorLogin";
+import { supabase } from "@/integrations/supabase/client";
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/contexts/AuthContext';
-import { LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
-const AuthPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '' });
-  const { signIn, signUp, user } = useAuth();
-  const navigate = useNavigate();
+const AuthPage: React.FC = () => {
+  const { signIn, signUp } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      navigate('/admin');
-    }
-  }, [user, navigate]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+
+  const [name, setName] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+
+  // 2FA state
+  const [show2FA, setShow2FA] = useState(false);
+  const [twoFAUser, setTwoFAUser] = useState<{id: string, email: string} | null>(null);
+
+  const togglePasswordVisibility = () => setShowPassword((s) => !s);
+
+  const ensureProfileOnSignup = async (uid: string, email: string, fullName?: string) => {
+    // Create profile row with default role “user” if not present
+    const { error } = await supabase.from("profiles").upsert(
+      {
+        id: uid,
+        email,
+        full_name: fullName || null,
+        role: "user",
+      },
+      { onConflict: "id" }
+    );
+    if (error) console.error("profiles upsert on sign-up error:", error.message);
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    const { error } = await signIn(loginForm.email, loginForm.password);
-    
-    if (error) {
+    try {
+      const result = await signIn(signInEmail.trim(), signInPassword);
+      if (result?.error) {
+        throw new Error(result.error.message || "Failed to sign in");
+      }
+      
+      // Check if 2FA is required
+      if (result?.requiresOTP && result?.user) {
+        console.log('2FA required, showing 2FA form...');
+        setTwoFAUser(result.user);
+        setShow2FA(true);
+        toast({ 
+          title: "2FA Required", 
+          description: "Please check your email for verification code." 
+        });
+        return;
+      }
+      
+      toast({ title: "Signed in" });
+    } catch (error: any) {
       toast({
-        title: "Login Failed",
-        description: error.message,
+        title: "Error",
+        description: error.message || "Failed to sign in",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Login Successful",
-        description: "Welcome to the admin dashboard!",
-      });
-      navigate('/admin');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    try {
+      const result = await signUp(signUpEmail.trim(), signUpPassword, name.trim());
+      if (result?.error) {
+        throw new Error(result.error.message || "Failed to sign up");
+      }
 
-    const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName);
-    
-    if (error) {
+      // For successful signup, just show success message
+      // Profile creation happens automatically via auth hooks
+
       toast({
-        title: "Signup Failed",
-        description: error.message,
+        title: "Account created",
+        description: "We created your account. You can sign in now.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign up",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Signup Successful",
-        description: "Please check your email to verify your account.",
-      });
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
-  // Pre-fill with super admin credentials for testing
-  const fillSuperAdminCredentials = () => {
-    setLoginForm({ email: 'admin@gmail.com', password: 'admin@123' });
-  };
+  if (show2FA && twoFAUser) {
+    return (
+      <TwoFactorLogin
+        userId={twoFAUser.id}
+        email={twoFAUser.email}
+        onSuccess={() => {
+          setShow2FA(false);
+          setTwoFAUser(null);
+          toast({ title: "Successfully logged in!" });
+        }}
+        onBack={() => {
+          setShow2FA(false);
+          setTwoFAUser(null);
+          // Clear temporary password
+          sessionStorage.removeItem('tempPassword');
+        }}
+      />
+    );
+  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <img 
-            src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
-            alt="Civora Nexus Logo" 
-            className="w-16 h-16 mx-auto mb-4" 
-          />
-          <h1 className="text-3xl font-bold text-primary">Admin Portal</h1>
-          <p className="text-muted-foreground">Secure access to the admin dashboard</p>
-        </div>
-
-        <Card className="shadow-xl">
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center">Authentication</CardTitle>
+            <CardTitle>Reset Password</CardTitle>
+            <CardDescription>Enter your email to receive a reset code</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="login-password"
-                        type={showPassword ? 'text' : 'password'}
-                        value={loginForm.password}
-                        onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    {isLoading ? 'Signing In...' : 'Sign In'}
-                  </Button>
-                  
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full text-sm"
-                    onClick={fillSuperAdminCredentials}
-                  >
-                    Use Super Admin Credentials
-                  </Button>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div>
-                    <Label htmlFor="signup-name">Full Name</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      value={signupForm.fullName}
-                      onChange={(e) => setSignupForm(prev => ({ ...prev, fullName: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={signupForm.email}
-                      onChange={(e) => setSignupForm(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-password"
-                        type={showPassword ? 'text' : 'password'}
-                        value={signupForm.password}
-                        onChange={(e) => setSignupForm(prev => ({ ...prev, password: e.target.value }))}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <ForgotPasswordForm />
+            <Button 
+              variant="link" 
+              className="w-full mt-4" 
+              onClick={() => setShowForgotPassword(false)}
+            >
+              Back to Sign In
+            </Button>
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
+          <CardDescription>Sign in to your account or create a new one</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <Tabs defaultValue="signin" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="signin" className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signin-email">Email</Label>
+                  <Input
+                    id="signin-email"
+                    placeholder="you@company.com"
+                    type="email"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signin-password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="signin-password"
+                      placeholder="Your password"
+                      type={showPassword ? "text" : "password"}
+                      value={signInPassword}
+                      onChange={(e) => setSignInPassword(e.target.value)}
+                      required
+                      autoComplete="current-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span className="sr-only">Toggle password</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Sign In"}
+                </Button>
+              </form>
+
+              <Button
+                variant="link"
+                className="w-full"
+                onClick={() => setShowForgotPassword(true)}
+              >
+                Forgot Password?
+              </Button>
+            </TabsContent>
+
+            <TabsContent value="signup" className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Enter your name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    autoComplete="name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signUpEmail">Email</Label>
+                  <Input
+                    id="signUpEmail"
+                    placeholder="you@company.com"
+                    type="email"
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signUpPassword">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="signUpPassword"
+                      placeholder="Choose a strong password"
+                      type={showPassword ? "text" : "password"}
+                      value={signUpPassword}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
+                      required
+                      autoComplete="new-password"
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <span className="sr-only">Toggle password</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Creating..." : "Sign Up"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

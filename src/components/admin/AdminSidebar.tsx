@@ -1,165 +1,202 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { 
+import React, { memo } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+} from '@/components/ui/sidebar';
+import {
   LayoutDashboard,
-  GraduationCap,
-  Calendar, 
-  MessageSquare, 
+  Users,
+  Building2,
+  FileText,
+  Settings,
+  BarChart3,
+  Mail,
+  Phone,
   Briefcase,
-  DollarSign,
-  Headphones,
-  Trash2,
+  UserCheck,
+  Key,
+  Clock,
   Shield,
-  User,
-  ChevronLeft,
-  ChevronRight
+  MessageSquare,
+  DollarSign,
+  HandHeart,
+  Calendar,
+  UserPlus,
 } from 'lucide-react';
 
-interface AdminSidebarProps {
-  isCollapsed: boolean;
-  onToggle: () => void;
-  activeTab: string;
-}
+const AdminSidebar = memo(() => {
+  const location = useLocation();
+  const currentPath = location.pathname;
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
-  isCollapsed, 
-  onToggle, 
-  activeTab 
-}) => {
-  const navigate = useNavigate();
-  const { data: stats } = useDashboardStats();
+  // Optimized form counts with longer cache time
+  const { data: formCounts } = useQuery({
+    queryKey: ['form-counts'],
+    queryFn: async () => {
+      const [
+        contactRes,
+        investmentRes,
+        partnersRes,
+        technicalRes,
+        supportRes,
+        salaryRes,
+        joinLabRes,
+        callScheduleRes
+      ] = await Promise.all([
+        supabase.from('contact_submissions').select('id', { count: 'exact' }),
+        supabase.from('investment_inquiries').select('id', { count: 'exact' }),
+        supabase.from('partners_inquiries').select('id', { count: 'exact' }),
+        supabase.from('technical_consultations').select('id', { count: 'exact' }),
+        supabase.from('support_tickets').select('id', { count: 'exact' }),
+        supabase.from('salary_inquiries').select('id', { count: 'exact' }),
+        supabase.from('join_lab_forms').select('id', { count: 'exact' }),
+        supabase.from('scheduled_calls').select('id', { count: 'exact' })
+      ]);
 
-  const menuItems = [
+      return {
+        contact: contactRes.count || 0,
+        investment: investmentRes.count || 0,
+        partners: partnersRes.count || 0,
+        technical: technicalRes.count || 0,
+        support: supportRes.count || 0,
+        salary: salaryRes.count || 0,
+        joinLab: joinLabRes.count || 0,
+        callSchedule: callScheduleRes.count || 0
+      };
+    },
+    refetchInterval: 60000, // Reduced frequency to 60 seconds
+    staleTime: 30000, // Cache for 30 seconds
+  });
+
+  const sidebarItems = React.useMemo(() => [
     {
-      id: 'overview',
-      label: 'Overview',
-      icon: LayoutDashboard,
-      path: '/admin',
-      count: 0
+      title: "Dashboard",
+      items: [
+        { title: "Overview", url: "/admin/dashboard", icon: LayoutDashboard },
+        { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+        { title: "Super Admin", url: "/admin/super-admin-dashboard", icon: Shield },
+      ],
     },
     {
-      id: 'interns',
-      label: 'Interns',
-      icon: GraduationCap,
-      path: '/admin/interns',
-      count: stats?.interns.pending || 0
+      title: "User Management",
+      items: [
+        { title: "Users", url: "/admin/users", icon: Users },
+        { title: "User Profiles", url: "/admin/user-profiles", icon: UserCheck },
+        { title: "Add User", url: "/admin/add-user", icon: UserPlus },
+        { title: "Sessions", url: "/admin/sessions", icon: Clock },
+      ],
     },
     {
-      id: 'scheduled-calls',
-      label: 'Scheduled Calls',
-      icon: Calendar,
-      path: '/admin/scheduled-calls',
-      count: stats?.scheduledCalls.pending || 0
+      title: "Company Management",
+      items: [
+        { title: "Companies", url: "/admin/companies", icon: Building2 },
+        { title: "Contacts", url: "/admin/contacts", icon: Phone },
+        { title: "Documents", url: "/admin/documents", icon: FileText },
+        { title: "Social Links", url: "/admin/social-links", icon: MessageSquare },
+      ],
     },
     {
-      id: 'contact-messages',
-      label: 'Contact Messages',
-      icon: MessageSquare,
-      path: '/admin/contact-messages',
-      count: 0
+      title: "Forms",
+      items: [
+        { title: "Contact", url: "/admin/contact-forms", icon: MessageSquare, count: formCounts?.contact },
+        { title: "Investment", url: "/admin/investment-forms", icon: DollarSign, count: formCounts?.investment },
+        { title: "Partners", url: "/admin/partners-forms", icon: HandHeart, count: formCounts?.partners },
+        { title: "Technical", url: "/admin/technical-forms", icon: Settings, count: formCounts?.technical },
+        { title: "Support", url: "/admin/support-forms", icon: Shield, count: formCounts?.support },
+        { title: "Salary", url: "/admin/salary-forms", icon: DollarSign, count: formCounts?.salary },
+        { title: "Join Lab", url: "/admin/join-lab-forms", icon: UserPlus, count: formCounts?.joinLab },
+        { title: "Call Schedule", url: "/admin/call-schedule-forms", icon: Calendar, count: formCounts?.callSchedule },
+      ],
     },
     {
-      id: 'jobs',
-      label: 'Job Management',
-      icon: Briefcase,
-      path: '/admin/jobs',
-      count: 0
+      title: "HR & Talent",
+      items: [
+        { title: "Employees", url: "/admin/employees", icon: UserCheck },
+        { title: "Interns", url: "/admin/interns", icon: Users },
+        { title: "Job Applications", url: "/admin/job-applications", icon: Briefcase },
+      ],
     },
     {
-      id: 'salary',
-      label: 'Salary Inquiries',
-      icon: DollarSign,
-      path: '/admin/salary',
-      count: stats?.salaryInquiries.pending || 0
+      title: "Communication",
+      items: [
+        { title: "Email History", url: "/admin/email-history", icon: Mail },
+        { title: "OTP Verifications", url: "/admin/otp-verifications", icon: Key },
+      ],
     },
     {
-      id: 'support',
-      label: 'Support Tickets',
-      icon: Headphones,
-      path: '/admin/support',
-      count: stats?.supportTickets.pending || 0
+      title: "System",
+      items: [
+        { title: "API Keys", url: "/admin/api-keys", icon: Key },
+        { title: "Admin Logs", url: "/admin/admin-logs", icon: FileText },
+        { title: "Settings", url: "/admin/settings", icon: Settings },
+      ],
     },
-    {
-      id: 'manage-admins',
-      label: 'Manage Admins',
-      icon: Shield,
-      path: '/admin/manage-admins',
-      count: 0
-    },
-    {
-      id: 'recycle-bin',
-      label: 'Recycle Bin',
-      icon: Trash2,
-      path: '/admin/recycle-bin',
-      count: 0
-    },
-    {
-      id: 'profile',
-      label: 'Profile',
-      icon: User,
-      path: '/admin/profile',
-      count: 0
-    }
-  ];
+  ], [formCounts]);
+
+  const isActive = React.useCallback((path: string) => currentPath === path, [currentPath]);
 
   return (
-    <div className={`bg-white border-r border-border transition-all duration-300 ${
-      isCollapsed ? 'w-16' : 'w-64'
-    } flex-shrink-0`}>
-      <div className="p-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onToggle}
-          className="w-full flex items-center justify-center"
-        >
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
-      </div>
+    <Sidebar className="w-64 border-r bg-gray-50/50" collapsible="icon">
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-4 py-2">
+          <img 
+            src="/lovable-uploads/dbdd7bff-f52d-46d3-9244-f5e7737d7c95.png" 
+            alt="Civora Nexus Logo" 
+            className="w-8 h-8" 
+          />
+          <span className="font-semibold text-lg">Admin Portal</span>
+        </div>
+      </SidebarHeader>
       
-      <nav className="px-2 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          
-          return (
-            <Button
-              key={item.id}
-              variant={isActive ? "default" : "ghost"}
-              onClick={() => navigate(item.path)}
-              className={`w-full justify-start h-12 ${
-                isCollapsed ? 'px-3' : 'px-4'
-              } ${isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-            >
-              <Icon className="h-5 w-5 flex-shrink-0" />
-              {!isCollapsed && (
-                <>
-                  <span className="ml-3 truncate">{item.label}</span>
-                  {item.count > 0 && (
-                    <Badge 
-                      variant="secondary" 
-                      className="ml-auto bg-orange-100 text-orange-800 text-xs"
-                    >
-                      {item.count}
-                    </Badge>
-                  )}
-                </>
-              )}
-              {isCollapsed && item.count > 0 && (
-                <div className="absolute left-10 top-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {item.count}
-                </div>
-              )}
-            </Button>
-          );
-        })}
-      </nav>
-    </div>
+      <SidebarContent className="overflow-y-auto">
+        {sidebarItems.map((section) => (
+          <SidebarGroup key={section.title}>
+            <SidebarGroupLabel className="text-gray-600">{section.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {section.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink 
+                        to={item.url} 
+                        className={({ isActive }) =>
+                          isActive
+                            ? "flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium bg-gray-200 text-gray-900 rounded-md border border-gray-300"
+                            : "flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                        }
+                      >
+                        <div className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </div>
+                        {item.count !== undefined && item.count > 0 && (
+                          <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                            {item.count}
+                          </span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+    </Sidebar>
   );
-};
+});
+
+AdminSidebar.displayName = 'AdminSidebar';
 
 export default AdminSidebar;

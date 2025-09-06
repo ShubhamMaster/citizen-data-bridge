@@ -1,10 +1,12 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Import loader styles */
+@import './styles/loader.css';
 
 @layer base {
   :root {
@@ -239,6 +241,19 @@
   animation: shimmer 2s infinite;
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
 /* Animation utilities */
 @keyframes fade-in {
   0% {
@@ -254,3 +269,24 @@
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* Custom Animated Loader */
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #000000;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 

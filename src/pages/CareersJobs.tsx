@@ -1,235 +1,333 @@
-import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import SaveHereSection from '@/components/SaveHereSection';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { uploadToTebi } from "@/lib/tebi";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
+import UniformHeroSection from "@/components/UniformHeroSection";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Clock, DollarSign, Send, Briefcase } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useJobApplication } from "@/hooks/useJobApplications";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import type { Database } from "@/integrations/supabase/types";
-type Job = Database["public"]["Tables"]["jobs"]["Row"];
-const CareersJobs = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    resume: null as File | null
-  });
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
+import { MapPin, Clock, DollarSign, Building2 } from "lucide-react";
 
-  // Fetch jobs from Supabase
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true);
-      const {
-        data,
-        error
-      } = await supabase.from('jobs').select('*').eq('is_active', true).order('created_at', {
-        ascending: false
-      });
+const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().optional(),
+  job_id: z.string().min(1, "Please select a job position"),
+  resume: z.any().refine((files) => files?.length === 1, "Please upload your resume"),
+  cover_letter: z.string().min(10, "Cover letter must be at least 10 characters"),
+});
+
+
+const CareersJobs = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const jobApplication = useJobApplication();
+
+  const { data: jobs = [], isLoading: jobsLoading } = useQuery({
+    queryKey: ['jobs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
       if (error) {
-        toast({
-          title: "Error loading jobs",
-          description: "Could not load job postings.",
-          variant: "destructive"
-        });
-        setJobs([]);
-      } else {
-        setJobs(data || []);
+        console.error('Error fetching jobs:', error);
+        throw error;
       }
-      setLoading(false);
-    };
-    fetchJobs();
-  }, []);
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {
-      name,
-      value
-    } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData(prev => ({
-      ...prev,
-      resume: file
-    }));
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+
+      return data;
+    }
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      job_id: "",
+      cover_letter: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const resumeFile = values.resume[0];
+    if (!resumeFile) {
+      alert("Please upload your resume before submitting.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const applicationData = {
-        job_id: selectedJob?.id || null,
-        user_id: 'temp-user-id',
-        // replace if you add auth
-        data_source: 'careers_jobs_page',
-        status: 'pending',
+      const resumeUrl = await uploadToTebi(resumeFile);
+
+      await jobApplication.mutateAsync({
+        job_id: parseInt(values.job_id),
+        user_id: null, 
         application_data: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          message: formData.message,
-          job_id: selectedJob?.id || 0,
-          job_title: selectedJob?.title || 'General Application',
-          resume_name: formData.resume?.name || '',
-          applied_at: new Date().toISOString()
-        }
-      };
-      const {
-        error: applicationError
-      } = await supabase.from('applications').insert([applicationData]);
-      if (applicationError) {
-        console.error('Application submission error:', applicationError);
-        throw applicationError;
-      }
-      toast({
-        title: "Application Submitted!",
-        description: "Thank you for your interest. We'll review your application and get back to you soon."
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          cover_letter: values.cover_letter,
+        },
+        resume_url: resumeUrl,
+        data_source: 'website'
       });
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        resume: null
-      });
+
+      form.reset();
+      setIsDialogOpen(false);
       setSelectedJob(null);
     } catch (error) {
-      console.error('Error submitting application:', error);
-      toast({
-        title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
-        variant: "destructive"
-      });
+      console.error("Application submission failed:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
-  return <div className="min-h-screen bg-white flex flex-col">
+
+
+  const handleApplyClick = (job: any) => {
+    setSelectedJob(job);
+    form.setValue('job_id', job.id.toString());
+    setIsDialogOpen(true);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-[26px]">
-        <div className="text-center mb-16">
-          <h1 className="font-bold text-civora-navy mb-4 text-6xl">Job Openings</h1>
-          <p className="text-xl text-gray-600">We're looking for talented individuals to join our founding team.</p>
-        </div>
-        {loading ? <div className="text-center py-12">
-            <div className="animate-spin h-8 w-8 border-4 border-civora-teal rounded-full border-t-transparent mx-auto mb-4" />
-            <p className="text-gray-700">Loading jobs...</p>
-          </div> : <>
-            {jobs.length === 0 ? <div className="text-center py-16">
-                <Briefcase className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No job postings available</h3>
-                <p className="text-gray-500">Check back soon for new openings!</p>
-              </div> : <div className="grid grid-cols-1 gap-6">
-                {jobs.map(job => <Card key={job.id} className="hover:shadow-lg transition-shadow">
+      <main className="flex-1">
+        <UniformHeroSection
+          title="Job Openings"
+          subtitle="Join our innovative team and help shape the future of technology"
+        />
+
+        <div className="container mx-auto px-4 py-16">
+          {jobsLoading ? (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading job openings...</p>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-16">
+              <h3 className="text-2xl font-semibold mb-4">No Open Positions</h3>
+              <p className="text-muted-foreground mb-6">
+                We don't have any open positions at the moment, but we're always looking for talented individuals.
+              </p>
+              <Button asChild>
+                <a href="/contact">Get in Touch</a>
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-4">Available Positions</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Discover exciting career opportunities at Civora Nexus. We're looking for passionate individuals
+                  to join our mission of innovation and technological excellence.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {jobs.map((job) => (
+                  <Card key={job.id} className="h-full flex flex-col">
                     <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-xl text-civora-navy mb-2">{job.title}</CardTitle>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
                           <div className="flex flex-wrap gap-2 mb-3">
-                            <Badge variant="secondary">{job.department}</Badge>
-                            <Badge variant="outline">{job.type}</Badge>
+                            <Badge variant="secondary" className="flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {job.department}
+                            </Badge>
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {job.location || 'Remote'}
+                            </Badge>
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {job.type || 'Full-time'}
+                            </Badge>
                           </div>
                         </div>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button onClick={() => setSelectedJob(job)} className="bg-civora-teal hover:bg-civora-teal/90 bg-zinc-950 hover:bg-zinc-800">
-                              Apply Now
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Apply for {job.title}</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                              <div>
-                                <Label htmlFor="name">Full Name *</Label>
-                                <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
-                              </div>
-                              <div>
-                                <Label htmlFor="email">Email *</Label>
-                                <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
-                              </div>
-                              <div>
-                                <Label htmlFor="phone">Phone Number</Label>
-                                <Input id="phone" name="phone" value={formData.phone} onChange={handleInputChange} />
-                              </div>
-                              <div>
-                                <Label htmlFor="resume">Resume/CV</Label>
-                                <Input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} />
-                              </div>
-                              <div>
-                                <Label htmlFor="message">Cover Letter / Message</Label>
-                                <Textarea id="message" name="message" value={formData.message} onChange={handleInputChange} placeholder="Tell us why you're interested in this position..." rows={4} />
-                              </div>
-                              <Button type="submit" disabled={isSubmitting} className="w-full bg-civora-teal hover:bg-civora-teal/90">
-                                {isSubmitting ? "Submitting..." : <>
-                                    <Send className="h-4 w-4 mr-2" />
-                                    Submit Application
-                                  </>}
-                              </Button>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
                       </div>
+                      <CardDescription className="text-sm leading-relaxed">
+                        {job.description?.substring(0, 150)}
+                        {job.description?.length > 150 && '...'}
+                      </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {job.location}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {job.type}
-                        </div>
-                        {job.salary_range && <div className="flex items-center gap-1">
-                            <DollarSign className="h-4 w-4" />
-                            {job.salary_range}
-                          </div>}
+                    <CardContent className="flex-1 flex flex-col justify-between">
+                      <div className="space-y-4 mb-6">
+                        {job.requirements && (
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2">Key Requirements:</h4>
+                            <div className="text-sm text-muted-foreground">
+                              {typeof job.requirements === 'string'
+                                ? job.requirements.split('\n').slice(0, 3).map((req, idx) => (
+                                  <div key={idx} className="flex items-start gap-2">
+                                    <span className="text-primary mt-1">•</span>
+                                    <span>{req.replace(/^[-•]\s*/, '')}</span>
+                                  </div>
+                                ))
+                                : <span>{JSON.stringify(job.requirements).substring(0, 100)}...</span>
+                              }
+                            </div>
+                          </div>
+                        )}
+
+                        {job.salary_range && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <DollarSign className="h-4 w-4 text-primary" />
+                            <span className="font-medium">Salary: {job.salary_range}</span>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-gray-700 mb-4">{job.description}</p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="font-semibold text-civora-navy mb-2">Requirements:</h4>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {(job.requirements?.split('\n') ?? []).map((req, idx) => <li key={idx} className="flex items-start gap-2">
-                                <span className="text-civora-teal mt-1">•</span>
-                                {req}
-                              </li>)}
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-civora-navy mb-2">Responsibilities:</h4>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            <li className="flex items-start gap-2 text-gray-400 italic">
-                              Information will be provided if available.
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
+
+                      <Button
+                        onClick={() => handleApplyClick(job)}
+                        className="w-full"
+                      >
+                        Apply Now
+                      </Button>
                     </CardContent>
-                  </Card>)}
-              </div>}
-          </>}
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Application Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Apply for {selectedJob?.title}</DialogTitle>
+              <DialogDescription>
+                {selectedJob?.department} • {selectedJob?.location || 'Remote'} • {selectedJob?.type || 'Full-time'}
+              </DialogDescription>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address *</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="Enter your email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your phone number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="resume"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Upload Resume *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          onChange={(e) => field.onChange(e.target.files)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+
+                <FormField
+                  control={form.control}
+                  name="cover_letter"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cover Letter *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Tell us why you're interested in this position and what makes you a great fit..."
+                          className="min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="sm:w-auto"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 sm:flex-none sm:w-auto"
+                    disabled={isLoading || jobApplication.isPending}
+                  >
+                    {isLoading || jobApplication.isPending ? "Submitting..." : "Submit Application"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </main>
-      <SaveHereSection />
       <Footer />
-    </div>;
+      <ScrollToTop />
+    </div>
+  );
 };
+
 export default CareersJobs;

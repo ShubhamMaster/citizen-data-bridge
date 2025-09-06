@@ -1,38 +1,63 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLogVisit } from '@/hooks/useLogVisit';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import ServicesSection from '@/components/ServicesSection';
 import ProjectsSection from '@/components/ProjectsSection';
 import PartnersSection from '@/components/PartnersSection';
-import SaveHereSection from '@/components/SaveHereSection';
+import UpcomingEventsSection from '@/components/UpcomingEventsSection';
 import Footer from '@/components/Footer';
+import ScrollToTop from '@/components/ScrollToTop';
+import { 
+  HeroSkeleton, 
+  ServicesSkeleton, 
+  ProjectsSkeleton, 
+  PartnersSkeleton, 
+  EventsSkeleton 
+} from '@/components/SkeletonLoaders';
 
 const Index = () => {
+  useLogVisit();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <HeroSkeleton />
+          <ServicesSkeleton />
+          <ProjectsSkeleton />
+          <PartnersSkeleton />
+          <EventsSkeleton />
+        </main>
+        <Footer />
+        <ScrollToTop />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
         <HeroSection />
-        
-        {/* Services Section */}
-        <section id="services" className="scroll-mt-24">
-          <ServicesSection />
-        </section>
-        
-        {/* Projects Section */}
-        <section id="projects" className="scroll-mt-24">
-          <ProjectsSection />
-        </section>
-        
-        {/* Partners Section */}
+        <ServicesSection />
+        <ProjectsSection />
         <PartnersSection />
-        
-        {/* Save Here Section */}
-        <SaveHereSection />
+        <UpcomingEventsSection />
       </main>
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };

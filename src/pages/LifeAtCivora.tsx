@@ -2,7 +2,6 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import SaveHereSection from '@/components/SaveHereSection';
 import UniformHeroSection from '@/components/UniformHeroSection';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -254,7 +253,7 @@ const LifeAtCivora = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="btn-primary" size="lg">
-                <Link to="/careers/jobs">View Open Roles</Link>
+                <Link to="/jobs-opening">View Open Roles</Link>
               </Button>
               <Button asChild variant="outline" className="btn-secondary" size="lg">
                 <Link to="/careers">Learn More About Careers</Link>
@@ -264,7 +263,6 @@ const LifeAtCivora = () => {
         </div>
       </section>
 
-      <SaveHereSection />
       <Footer />
     </div>
   );
