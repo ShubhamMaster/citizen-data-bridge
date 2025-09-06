@@ -1,1 +1,0 @@
-import{j as e}from"./index-COc_9EsS.js";const t=()=>e.jsx("div",{className:"flex items-center justify-center min-h-[60vh]",children:e.jsx("h1",{className:"text-3xl font-bold",children:"CivicOne Page"})});export{t as default};
